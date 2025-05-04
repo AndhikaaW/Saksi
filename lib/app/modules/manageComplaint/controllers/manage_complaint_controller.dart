@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:get_storage/get_storage.dart';
 import 'package:saksi_app/app/data/models/Complaint.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 class ManageComplaintController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -11,14 +14,42 @@ class ManageComplaintController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxInt selectedFilter = (-1).obs;
   final RxString searchQuery = ''.obs;
-  final RxList<Complaint> filteredComplaints = <Complaint>[].obs;
   var errorMessage = ''.obs;
   var debugInfo = ''.obs;
+  StreamSubscription<QuerySnapshot>? _complaintSubscription;
+
+  final TextEditingController statusController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
 
   @override
   void onInit() {
     super.onInit();
     loadComplaints();
+    // Listen untuk pengaduan baru
+    _firestore
+        .collection('complaints')
+        .where('statusPengaduan', isEqualTo: 0)
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.docChanges.isNotEmpty) {
+        for (var change in snapshot.docChanges) {
+          if (change.type == DocumentChangeType.added) {
+            final complaint = Complaint.fromJson(change.doc.data()!);
+            // Tampilkan notifikasi untuk pengaduan baru
+            AwesomeNotifications().createNotification(
+              content: NotificationContent(
+                id: 20,
+                channelKey: 'complaint_channel',
+                title: 'Pengaduan Baru',
+                body: 'Ada pengaduan baru dari ${complaint.namaPelapor}',
+                notificationLayout: NotificationLayout.Default,
+                payload: {'complaintId': complaint.uid},
+              ),
+            );
+          }
+        }
+      }
+    });
   }
 
   @override
@@ -28,31 +59,39 @@ class ManageComplaintController extends GetxController {
 
   @override
   void onClose() {
+    _complaintSubscription?.cancel();
     super.onClose();
   }
 
-  Future<void> loadComplaints() async {
+  void loadComplaints() {
     isLoading.value = true;
     errorMessage.value = '';
     debugInfo.value = '';
     try {
-      final snapshot =
-          await FirebaseFirestore.instance.collection('complaints').get();
+      _complaintSubscription = _firestore
+          .collection('complaints')
+          .snapshots()
+          .listen((QuerySnapshot snapshot) {
+        final complaints = snapshot.docs
+            .map(
+                (doc) => Complaint.fromJson(doc.data() as Map<String, dynamic>))
+            .toList();
 
-      final complaints =
-          snapshot.docs.map((doc) => Complaint.fromJson(doc.data())).toList();
+        userComplaints.value = complaints;
 
-      userComplaints.value = complaints;
-
-      if (complaints.isNotEmpty) {
-        final complaint = complaints.first;
-        debugInfo.value = 'Status: ${complaint.statusPengaduan}';
-      } else {
-        debugInfo.value = 'No complaints found.';
-      }
+        if (complaints.isNotEmpty) {
+          final complaint = complaints.first;
+          debugInfo.value = 'Status: ${complaint.statusPengaduan}';
+        } else {
+          debugInfo.value = 'No complaints found.';
+        }
+        isLoading.value = false;
+      }, onError: (error) {
+        errorMessage.value = 'Failed to load complaints: $error';
+        isLoading.value = false;
+      });
     } catch (e) {
-      errorMessage.value = 'Failed to load complaints: $e';
-    } finally {
+      errorMessage.value = 'Failed to setup complaint listener: $e';
       isLoading.value = false;
     }
   }
@@ -125,12 +164,13 @@ class ManageComplaintController extends GetxController {
   }
 
   // Fungsi untuk menambahkan progress pengaduan
-  Future<void> addProgressToComplaint(String complaintId, Map<String, dynamic> progressData) async {
+  Future<void> addProgressToComplaint(
+      String complaintId, Map<String, dynamic> progressData) async {
     try {
       // Periksa apakah dokumen ada sebelum melakukan update
       final snapshot = await FirebaseFirestore.instance
           .collection('complaints')
-          .where('uid', isEqualTo: complaintId) 
+          .where('complaintId', isEqualTo: complaintId)
           .get();
 
       if (snapshot.docs.isEmpty) {
@@ -142,10 +182,10 @@ class ManageComplaintController extends GetxController {
 
       // Ambil data complaint yang ada
       final complaintData = docSnapshot.data() as Map<String, dynamic>;
-      
+
       // Ambil array progress yang sudah ada atau buat baru jika belum ada
       List<dynamic> existingProgress = complaintData['progress'] ?? [];
-      
+
       // Tambahkan progress baru ke array
       existingProgress.add(progressData);
 
@@ -155,24 +195,33 @@ class ManageComplaintController extends GetxController {
           .doc(docSnapshot.id)
           .update({'progress': existingProgress});
 
-      Get.back();
-      loadComplaints();
+      // Tambahkan listener untuk memantau perubahan dokumen secara real-time
+      docSnapshot.reference.snapshots().listen((DocumentSnapshot snapshot) {
+        if (snapshot.exists) {
+          final updatedData = snapshot.data() as Map<String, dynamic>;
+          final updatedComplaint = Complaint.fromJson(updatedData);
+
+          // Update complaint di list jika ada
+          final index =
+              userComplaints.indexWhere((c) => c.complaintId == complaintId);
+          if (index != -1) {
+            userComplaints[index] = updatedComplaint;
+          }
+        }
+      });
+
       Get.snackbar('Sukses', 'Progress berhasil ditambahkan');
     } catch (error) {
       Get.snackbar('Error', 'Gagal menambahkan progress: $error');
     }
   }
 
-
-
-
-
   // Fungsi untuk menghapus pengaduan
   Future<void> deleteComplaint(String complaintId) async {
     try {
       // Periksa apakah dokumen ada sebelum melakukan delete
       final snapshot = await FirebaseFirestore.instance
-          .collection('complaints') 
+          .collection('complaints')
           .where('uid', isEqualTo: complaintId)
           .get();
 
@@ -280,15 +329,11 @@ class ManageComplaintController extends GetxController {
     }
   }
 
-
-
-
-
   //manual
   Future<void> fetchActiveComplaints() async {
     try {
       isLoading.value = true;
-      
+
       // Mengambil pengaduan dengan status 1 (Diproses)
       final QuerySnapshot querySnapshot = await _firestore
           .collection('complaints')
@@ -296,7 +341,7 @@ class ManageComplaintController extends GetxController {
           .get();
 
       final List<Complaint> complaints = [];
-      
+
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         // Tambahkan uid ke data sebelum membuat objek Complaint
@@ -316,26 +361,26 @@ class ManageComplaintController extends GetxController {
     }
   }
 
-  Future<void> updateComplaintStatus(String complaintId, int status) async {
-    try {
-      await _firestore
-          .collection('complaints')
-          .doc(complaintId)
-          .update({'statusPengaduan': status});
-      
-      await fetchActiveComplaints(); // Refresh data setelah update
-      
-      Get.snackbar(
-        'Sukses',
-        'Status pengaduan berhasil diperbarui',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } catch (error) {
-      Get.snackbar(
-        'Error',
-        'Gagal memperbarui status pengaduan: $error',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    }
-  }
+  // Future<void> updateComplaintStatus(String complaintId, int status) async {
+  //   try {
+  //     await _firestore
+  //         .collection('complaints')
+  //         .doc(complaintId)
+  //         .update({'statusPengaduan': status});
+
+  //     await fetchActiveComplaints(); // Refresh data setelah update
+
+  //     Get.snackbar(
+  //       'Sukses',
+  //       'Status pengaduan berhasil diperbarui',
+  //       snackPosition: SnackPosition.BOTTOM,
+  //     );
+  //   } catch (error) {
+  //     Get.snackbar(
+  //       'Error',
+  //       'Gagal memperbarui status pengaduan: $error',
+  //       snackPosition: SnackPosition.BOTTOM,
+  //     );
+  //   }
+  // }
 }

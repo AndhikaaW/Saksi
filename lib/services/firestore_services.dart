@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
@@ -11,8 +12,8 @@ class DatabaseService {
     required String name,
     required String email, 
     required String password,
-    required String jenisKelamin,
-    required String noTelepon,
+    required String gender,
+    required String phone,
     required int status,
   }) async {
     try {
@@ -33,8 +34,8 @@ class DatabaseService {
         "name": name,
         "email": email,
         "password": password,
-        "jenisKelamin": jenisKelamin,
-        "noTelepon": noTelepon,
+        "gender": gender,
+        "phone": phone,
         "status": status,
         "createdAt": FieldValue.serverTimestamp(),
       });
@@ -96,14 +97,16 @@ class DatabaseService {
 
   //complaint
   Future<void> createComplaint({
+    required String complaintId,
     // Existing fields
     required String uid,
     required String emailPelapor,
     required String namaPelapor,
     required String noTeleponPelapor,
+    required String statusPelapor,
     required String domisiliPelapor,
     required String jenisKelaminPelapor,
-    required String jenisKekerasanSeksual,
+    required String bentukKekerasanSeksual,
     required String ceritaSingkatPeristiwa,
     required String keteranganDisabilitas,
     required String noTeleponPihakLain,
@@ -114,21 +117,28 @@ class DatabaseService {
     String? alasanPengaduanLainnya,
     required String identifikasiKebutuhan,
     String? identifikasiKebutuhanLainnya,
+    
+  required String ktpImageUrl,
+  required String buktiImageUrl,
   }) async {
     try {
       Map<String, dynamic> complaintData = {
+        "complaintId": complaintId,
         "uid": uid,
         "emailPelapor": emailPelapor,
         "namaPelapor": namaPelapor,
         "noTeleponPelapor": noTeleponPelapor,
+        "statusPelapor": statusPelapor,
         "domisiliPelapor": domisiliPelapor,
         "jenisKelaminPelapor": jenisKelaminPelapor,
-        "jenisKekerasanSeksual": jenisKekerasanSeksual,
+        "bentukKekerasanSeksual": bentukKekerasanSeksual,
         "ceritaSingkatPeristiwa": ceritaSingkatPeristiwa,
         "keteranganDisabilitas": keteranganDisabilitas,
         "noTeleponPihakLain": noTeleponPihakLain,
         "statusTerlapor": statusTerlapor,
         "jenisKelaminTerlapor": jenisKelaminTerlapor,
+        "lampiranKtp": ktpImageUrl,
+        "lampiranBukti": buktiImageUrl,
         "tanggalPelaporan": FieldValue.serverTimestamp(),
         "statusPengaduan": 0
       };
@@ -162,6 +172,5 @@ class DatabaseService {
       return [];
     }
   }
-
 
 }

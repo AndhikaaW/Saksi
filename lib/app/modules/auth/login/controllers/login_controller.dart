@@ -42,7 +42,6 @@ class LoginController extends GetxController {
     super.onClose();
   }
 
-
   /// Login dengan Email & Password
   Future<void> login() async {
     final email = emailController.text;
@@ -60,10 +59,10 @@ class LoginController extends GetxController {
 
     if (result != null && result['isSuccess'] == true) {
       final userStatus = result['status'];
-      final uid = _auth.currentUser?.uid;
-      
+      final uid = result['uid'];
+
       await box.write('isLoggedIn', true);
-      await box.write('email', email); 
+      await box.write('email', email);
       await box.write('userStatus', userStatus);
       await box.write('uid', uid);
 
@@ -172,9 +171,9 @@ class LoginController extends GetxController {
     }
   }
 
-  /// Logout
-  Future<void> signOut() async {
-    await _auth.signOut();
-    await _googleSignIn.signOut();
-  }
+  // /// Logout
+  // Future<void> signOut() async {
+  //   await _auth.signOut();
+  //   await _googleSignIn.signOut();
+  // }
 }

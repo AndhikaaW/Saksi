@@ -4,6 +4,8 @@ import '../modules/auth/login/bindings/login_binding.dart';
 import '../modules/auth/login/views/login_view.dart';
 import '../modules/auth/register/bindings/register_binding.dart';
 import '../modules/auth/register/views/register_view.dart';
+import '../modules/backup/bindings/backup_binding.dart';
+import '../modules/backup/views/backup_view.dart';
 import '../modules/chat/bindings/chat_binding.dart';
 import '../modules/chat/views/chat_view.dart';
 import '../modules/complaint/bindings/complaint_binding.dart';
@@ -25,6 +27,7 @@ import '../modules/manageRole/manageUser/views/manage_user_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/progresComplaint/bindings/progres_complaint_binding.dart';
+import '../modules/progresComplaint/views/detailRiwayatTab.dart';
 import '../modules/progresComplaint/views/progres_complaint_view.dart';
 
 part 'app_routes.dart';
@@ -107,5 +110,14 @@ class AppPages {
           statusFilter: Get.arguments.statusFilter, title: Get.arguments.title),
     ),
 
+    GetPage(
+      name: _Paths.DETAIL_RIWAYAT,
+      page: () => const DetailRiwayatTab(),
+    ),
+    GetPage(
+      name: _Paths.BACKUP,
+      page: () => const BackupView(),
+      binding: BackupBinding(),
+    ),
   ];
 }

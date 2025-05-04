@@ -69,7 +69,7 @@ class RiwayatTab extends GetView<ProgresComplaintController> {
                 backgroundColor: Colors.green.shade100,
                 child: const Icon(Icons.check_circle, color: Colors.green),
               ),
-              title: Text('Pengaduan \n #${complaint.uid}'),
+              title: Text('Pengaduan ${complaint.complaintId}'),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -84,7 +84,7 @@ class RiwayatTab extends GetView<ProgresComplaintController> {
               ),
               isThreeLine: true,
               onTap: () {
-                Get.toNamed('/detail-complaint', arguments: complaint);
+                Get.toNamed('/detail-riwayat', arguments: complaint.complaintId);
               },
             ),
           );

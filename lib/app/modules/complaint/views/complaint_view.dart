@@ -153,7 +153,7 @@ class ComplaintView extends GetView<ComplaintController> {
         ),
         const SizedBox(height: 16),
         const Text(
-          'Nomor telepon Pelapor',
+          'Nomor telepon Pelapor*',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
@@ -167,7 +167,7 @@ class ComplaintView extends GetView<ComplaintController> {
         ),
         const SizedBox(height: 16),
         const Text(
-          'Jenis kelamin Pelapor',
+          'Jenis kelamin Pelapor*',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
@@ -195,9 +195,38 @@ class ComplaintView extends GetView<ComplaintController> {
             ),
           ],
         ),
+        const Text(
+          'Status Pelapor*',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: controller.statusPelapor.text.isNotEmpty
+              ? controller.statusPelapor.text
+              : null,
+          hint: const Text('Pilih status pengguna'),
+          items: <String>[
+            'Mahasiswa',
+            'Pendidik/Dosen',
+            'Tenaga Kependidikan',
+            'Warga Kampus',
+            'Masyarakat Umum'
+          ].map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            controller.setStatusPelapor(newValue!);
+          },
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+          ),
+        ),
         const SizedBox(height: 16),
         const Text(
-          'Domisili Pelapor',
+          'Domisili Pelapor*',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
@@ -213,7 +242,7 @@ class ComplaintView extends GetView<ComplaintController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Disabilitas",
+              "Disabilitas*",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Row(
@@ -255,7 +284,7 @@ class ComplaintView extends GetView<ComplaintController> {
         ),
         SizedBox(height: 8),
         const Text(
-          'Nomor telepon Pihak Lain yang dapat dihubungi',
+          'Nomor telepon Pihak Lain yang dapat dihubungi*',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
@@ -279,12 +308,12 @@ class ComplaintView extends GetView<ComplaintController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Jenis Kekerasan Seksual (Silakan Dinarasikan)*',
+          'Bentuk Kekerasan Seksual (Silakan Dinarasikan)*',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         TextFormField(
-          controller: controller.jenisKekerasan,
+          controller: controller.bentukKekerasan,
           maxLines: 3,
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
@@ -430,11 +459,11 @@ class ComplaintView extends GetView<ComplaintController> {
             border: OutlineInputBorder(),
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
-          value: controller.StatusTerlapor.value.isNotEmpty ? controller.StatusTerlapor.value : null,
+          value: controller.statusTerlapor.text.isNotEmpty ? controller.statusTerlapor.text : null,
           hint: const Text("Pilih Status Terlapor"),
           items: [
             'Mahasiswa',
-            'Pendidik / Dosen',
+            'Pendidik / Dosen', 
             'Tenaga Kependidikan',
             'Warga Kampus',
             'Masyarakat Umum',
@@ -444,9 +473,9 @@ class ComplaintView extends GetView<ComplaintController> {
               child: Text(status),
             );
           }).toList(),
-            onChanged: (value) {
-              controller.statusTerlapor.text = value!;
-            },
+          onChanged: (value) {
+            controller.statusTerlapor.text = value!;
+          },
         ),
         const SizedBox(height: 8),
         const Text(
@@ -477,7 +506,69 @@ class ComplaintView extends GetView<ComplaintController> {
             ),
           ],
         ),
-
+        const SizedBox(height: 16),
+        const Text(
+          'Upload KTP',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Obx(() => controller.ktpImage.value != null
+          ? Image.file(
+              controller.ktpImage.value!,
+              height: 200,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            )
+          : Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Center(
+                child: Text('Belum ada foto KTP'),
+              ),
+            ),
+        ),
+        const SizedBox(height: 8),
+        // ElevatedButton.icon(
+        //   onPressed: () => controller.pickKtpImage(),
+        //   icon: const Icon(Icons.upload),
+        //   label: const Text('Upload KTP'),
+        // ),
+        const SizedBox(height: 16),
+        const Text(
+          'Upload Bukti Pendukung',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Obx(() => controller.buktiImage.value != null
+          ? Image.file(
+              controller.buktiImage.value!,
+              height: 200,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            )
+          : Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Center(
+                child: Text('Belum ada bukti pendukung'),
+              ),
+            ),
+        ),
+        const SizedBox(height: 8),
+        // ElevatedButton.icon(
+        //   onPressed: () => controller.pickBuktiImage(),
+        //   icon: const Icon(Icons.upload),
+        //   label: const Text('Upload Bukti'),
+        // ),
+        const SizedBox(height: 16),
         _buildNavigationButtons(controller),
       ],
     );
@@ -506,9 +597,10 @@ class ComplaintView extends GetView<ComplaintController> {
                 ),
                 const Divider(),
                 _buildInfoRow('Nama', controller.namaPelapor.text),
-                _buildInfoRow('Kontak', controller.noTeleponPelapor.text),
+                _buildInfoRow('No Telepon', controller.noTeleponPelapor.text),
                 _buildInfoRow('Jenis Kelamin', controller.genderPelapor.text),
                 _buildInfoRow('Domisili', controller.domisiliPelapor.text),
+                _buildInfoRow('Status Pelapor', controller.statusPelapor.text),
                 _buildInfoRow('Disabilitas', controller.keteranganDisabilitas.text),
                 _buildInfoRow('Nomor Telepon Pihak Lain', controller.noTeleponPihakLain.text),
 
@@ -518,7 +610,7 @@ class ComplaintView extends GetView<ComplaintController> {
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const Divider(),
-                _buildInfoRow('Jenis Kekerasan', controller.jenisKekerasan.text),
+                _buildInfoRow('Bentuk Kekerasan', controller.bentukKekerasan.text),
                 _buildInfoRow('Deskripsi Kejadian', controller.ceritaSingkatPeristiwa.text),
                 _buildInfo('Alasan Pengaduan', controller.alasanPengaduan.text,
                     customValue: controller.alasanPengaduanLainnya.text),

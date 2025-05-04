@@ -1,32 +1,42 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+// import 'package:image_picker/image_picker.dart';
 import 'package:saksi_app/app/modules/dashboard/dashboardUser/controllers/dashboard_user_controller.dart';
 import 'package:saksi_app/app/modules/dashboard/dashboardUser/views/dashboard_user_view.dart';
 import 'package:saksi_app/app/data/models/UserProfile.dart';
 import 'package:saksi_app/services/firestore_services.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 class ComplaintController extends GetxController {
   final DatabaseService databaseService = DatabaseService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final userProfile = Rx<UserProfile?>(null);
   final box = GetStorage();
   var uid = ''.obs;
-  final userProfile = Rx<UserProfile?>(null);
 
+  late String complaintId;
   // Controller untuk input fields
   late String emailPelapor;
   final TextEditingController namaPelapor = TextEditingController();
   final TextEditingController noTeleponPelapor = TextEditingController();
+  final statusPelapor = TextEditingController();
   final TextEditingController domisiliPelapor = TextEditingController();
-  final TextEditingController jenisKekerasan = TextEditingController();
+  final TextEditingController bentukKekerasan = TextEditingController();
   final TextEditingController ceritaSingkatPeristiwa = TextEditingController();
   final TextEditingController keteranganDisabilitas = TextEditingController();
   final TextEditingController noTeleponPihakLain = TextEditingController();
   final genderPelapor = TextEditingController();
-
-  // Observable untuk jenis kelamin
   var selectedGender = RxnString();
+  void setGender(String value) {
+    selectedGender.value = value;
+    genderPelapor.text = value;
+  }
+
   // Observable untuk disabilitas
   var selectedDisabilitas = RxnString();
 
@@ -39,14 +49,89 @@ class ComplaintController extends GetxController {
   //Terlapor
   final TextEditingController statusTerlapor = TextEditingController();
   final genderTerlapor = TextEditingController();
-  // Observable untuk disabilitas
-  var StatusTerlapor = ''.obs;
-  // Observable untuk jenis kelamin
   var selectedGenderTerlapor = RxnString();
-
   void setGenderTerlapor(String value) {
     selectedGenderTerlapor.value = value;
     genderTerlapor.text = value;
+  }
+
+  // Observable untuk foto KTP
+  var ktpImage = Rxn<File>();
+  var buktiImage = Rxn<File>();
+  // final ImagePicker _picker = ImagePicker();
+  // final TextEditingController maxWidthController = TextEditingController();
+  // final TextEditingController maxHeightController = TextEditingController();
+  // final TextEditingController qualityController = TextEditingController();
+
+  // Future<void> pickKtpImage() async {
+  //   try {
+  //     final XFile? pickedFile = await _picker.pickImage(
+  //       source: ImageSource.gallery,
+  //       maxWidth: maxWidthController.text.isNotEmpty
+  //           ? double.parse(maxWidthController.text)
+  //           : 1024,
+  //       maxHeight: maxHeightController.text.isNotEmpty
+  //           ? double.parse(maxHeightController.text)
+  //           : 1024,
+  //       imageQuality: qualityController.text.isNotEmpty
+  //           ? int.parse(qualityController.text)
+  //           : 50,
+  //     );
+
+  //     if (pickedFile != null) {
+  //       final File imageFile = File(pickedFile.path);
+  //       if (await imageFile.exists()) {
+  //         ktpImage.value = imageFile;
+  //         Get.snackbar('Berhasil', 'Foto KTP berhasil dipilih');
+  //       } else {
+  //         Get.snackbar('Gagal', 'File foto tidak ditemukan');
+  //       }
+  //     }
+  //   } catch (e) {
+  //     Get.snackbar('Error', 'Terjadi kesalahan saat memilih foto KTP');
+  //     print('Error picking KTP image: $e');
+  //   }
+  // }
+
+  // Future<void> pickBuktiImage() async {
+  //   try {
+  //     final XFile? pickedFile = await _picker.pickImage(
+  //       source: ImageSource.gallery,
+  //       maxWidth: maxWidthController.text.isNotEmpty
+  //           ? double.parse(maxWidthController.text)
+  //           : 1024,
+  //       maxHeight: maxHeightController.text.isNotEmpty
+  //           ? double.parse(maxHeightController.text)
+  //           : 1024,
+  //       imageQuality: qualityController.text.isNotEmpty
+  //           ? int.parse(qualityController.text)
+  //           : 50,
+  //     );
+
+  //     if (pickedFile != null) {
+  //       final File imageFile = File(pickedFile.path);
+  //       if (await imageFile.exists()) {
+  //         buktiImage.value = imageFile;
+  //         Get.snackbar('Berhasil', 'Bukti pendukung berhasil dipilih');
+  //       } else {
+  //         Get.snackbar('Gagal', 'File bukti tidak ditemukan');
+  //       }
+  //     }
+  //   } catch (e) {
+  //     Get.snackbar('Error', 'Terjadi kesalahan saat memilih bukti pendukung');
+  //     print('Error picking evidence image: $e');
+  //   }
+  // }
+
+  // Observable untuk disabilitas
+  // var StatusTerlapor = ''.obs;
+  // Observable untuk jenis kelamin
+
+  // Jika function seperti ini, variabelnya bisa didefinisikan sebagai berikut:
+  var selectedStatusPelapor = RxnString();
+  void setStatusPelapor(String value) {
+    selectedStatusPelapor.value = value;
+    statusPelapor.text = value;
   }
 
   // loading
@@ -81,32 +166,64 @@ class ComplaintController extends GetxController {
           _showError('Nama pelapor harus diisi');
           return false;
         }
-        // Validasi alamat email (opsional)
-        if (noTeleponPelapor.text.isNotEmpty &&
-            noTeleponPelapor.text.contains('@') &&
-            !GetUtils.isEmail(noTeleponPelapor.text)) {
-          _showError('Format email tidak valid');
+        if (noTeleponPelapor.text.isEmpty) {
+          _showError('No telepon harus diisi');
+          return false;
+        }
+        if (genderPelapor.text.isEmpty) {
+          _showError('Jenis kelamin belum dipilih');
+          return false;
+        }
+        if (domisiliPelapor.text.isEmpty) {
+          _showError('Domisili harus diisi');
+          return false;
+        }
+        if (keteranganDisabilitas.text.isEmpty) {
+          _showError('Keterangan Disabilitas belum dipilih');
+          return false;
+        }
+        if (noTeleponPihakLain.text.isEmpty) {
+          _showError('No Telepon Pihak Lain harus diisi');
           return false;
         }
         return true;
 
       case 1: // Detail Kejadian
-        if (jenisKekerasan.text.isEmpty) {
-          _showError('Jenis kekerasan harus diisi');
+        if (bentukKekerasan.text.isEmpty) {
+          _showError('Bentuk kekerasan harus diisi');
           return false;
         }
         if (ceritaSingkatPeristiwa.text.isEmpty) {
           _showError('Cerita singkat kejadian harus diisi');
           return false;
         }
+        if (alasanPengaduan.text.isEmpty) {
+          _showError('Alasan pengaduan harus diisi');
+          return false;
+        }
+        if (identifikasiKebutuhan.text.isEmpty) {
+          _showError('Identifikasi kebutuhan harus diisi');
+          return false;
+        }
         return true;
 
       case 2: // Bukti
-        // Tidak ada validasi wajib pada langkah ini
+        if (statusTerlapor.text.isEmpty) {
+          _showError('Status terlapor belum dipilih');
+          return false;
+        }
+        if (genderTerlapor.text.isEmpty) {
+          _showError('Gender terlapor belum dipilih');
+          return false;
+        }
         return true;
 
       case 3: // Konfirmasi
-        // Sudah dihandle dengan disabling tombol submit
+        if (!agreementChecked.value) {
+          _showError(
+              'Anda harus menyetujui pernyataan sebelum mengirim laporan');
+          return false;
+        }
         return true;
 
       default:
@@ -116,40 +233,60 @@ class ComplaintController extends GetxController {
 
   //kirim form
   Future<void> submitForm() async {
-    // Validasi semua data sebelum final submit
-    if (!validateAllData()) {
-      return;
-    }
+    generateComplaintId();
+    await Future.delayed(Duration(seconds: 1));
+
     try {
-      isLoading.value = true; // Tampilkan indikator loading
+      isLoading.value = true;
 
-      // Simulasi API Call
-      // await Future.delayed(const Duration(seconds: 2));
+      String ktpImageBase64 = '';
+      String buktiImageBase64 = '';
 
-      // Kirim data ke database
+      if (ktpImage.value != null) {
+        List<int> imageBytes = await ktpImage.value!.readAsBytes();
+        ktpImageBase64 = base64Encode(imageBytes);
+      }
+
+      if (buktiImage.value != null) {
+        List<int> imageBytes = await buktiImage.value!.readAsBytes();
+        buktiImageBase64 = base64Encode(imageBytes);
+      }
+
       await databaseService.createComplaint(
-          // pelapor
+          complaintId: complaintId,
           uid: uid.toString(),
           emailPelapor: emailPelapor,
           namaPelapor: namaPelapor.text,
           noTeleponPelapor: noTeleponPelapor.text,
+          statusPelapor: statusPelapor.text,
           domisiliPelapor: domisiliPelapor.text,
           jenisKelaminPelapor: genderPelapor.text,
-          jenisKekerasanSeksual: jenisKekerasan.text,
+          bentukKekerasanSeksual: bentukKekerasan.text,
           noTeleponPihakLain: noTeleponPihakLain.text,
-          // kejadian
           ceritaSingkatPeristiwa: ceritaSingkatPeristiwa.text,
           keteranganDisabilitas: keteranganDisabilitas.text,
           alasanPengaduan: alasanPengaduan.text,
           alasanPengaduanLainnya: alasanPengaduanLainnya.text,
           identifikasiKebutuhan: identifikasiKebutuhan.text,
           identifikasiKebutuhanLainnya: identifikasiKebutuhanLainnya.text,
-          // terlapor
           statusTerlapor: statusTerlapor.text,
-          jenisKelaminTerlapor: genderTerlapor.text);
-      _showSuccess('Laporan Anda telah berhasil dikirim');
+          jenisKelaminTerlapor: genderTerlapor.text,
+          ktpImageUrl: ktpImageBase64,
+          buktiImageUrl: buktiImageBase64);
+
+      // Tampilkan notifikasi
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: 10,
+          channelKey: 'complaint_channel',
+          title: 'Pengaduan Berhasil',
+          body: 'Pengaduan Anda telah berhasil dikirim dan sedang diproses',
+          notificationLayout: NotificationLayout.Default,
+        ),
+      );
+
       resetForm();
-      
+
       await Future.delayed(Duration(seconds: 1));
 
       Get.offAllNamed('/dashboard-user');
@@ -158,40 +295,8 @@ class ComplaintController extends GetxController {
     } catch (e) {
       Get.snackbar("Error", "Gagal mengirim data");
     } finally {
-      isLoading.value = false; // Sembunyikan indikator loading
+      isLoading.value = false;
     }
-
-    // Reset form atau arahkan ke halaman konfirmasi
-    // resetForm();
-  }
-
-  //validasi data
-  bool validateAllData() {
-    // Validasi dasar wajib
-    if (namaPelapor.text.isEmpty) {
-      _showError('Nama pelapor harus diisi');
-      currentStep.value = 0; // Kembali ke step pertama
-      return false;
-    }
-
-    if (jenisKekerasan.text.isEmpty) {
-      _showError('Jenis kekerasan harus diisi');
-      currentStep.value = 1; // Kembali ke step kedua
-      return false;
-    }
-
-    if (ceritaSingkatPeristiwa.text.isEmpty) {
-      _showError('Cerita singkat kejadian harus diisi');
-      currentStep.value = 1; // Kembali ke step kedua
-      return false;
-    }
-
-    if (!agreementChecked.value) {
-      _showError('Anda harus menyetujui pernyataan sebelum mengirim laporan');
-      return false;
-    }
-
-    return true;
   }
 
   //reset form
@@ -200,7 +305,7 @@ class ComplaintController extends GetxController {
     namaPelapor.clear();
     noTeleponPelapor.clear();
     domisiliPelapor.clear();
-    jenisKekerasan.clear();
+    bentukKekerasan.clear();
     ceritaSingkatPeristiwa.clear();
     selectedDisabilitas.value = '';
     selectedGender.value = '';
@@ -239,10 +344,13 @@ class ComplaintController extends GetxController {
     );
   }
 
+  //ambil data dari profil
+  //set uid
   void loadUid() {
     uid.value = box.read('uid') ?? 'not found';
   }
 
+  //set data profil
   Future<void> fetchUserProfile() async {
     try {
       isLoading.value = true;
@@ -273,11 +381,6 @@ class ComplaintController extends GetxController {
     }
   }
 
-  void setGender(String value) {
-    selectedGender.value = value;
-    genderPelapor.text = value;
-  }
-
   void populateFormWithProfileData() {
     if (userProfile.value != null) {
       final profile = userProfile.value!;
@@ -285,6 +388,7 @@ class ComplaintController extends GetxController {
       emailPelapor = profile.email;
       namaPelapor.text = profile.name;
       noTeleponPelapor.text = profile.phone;
+      statusPelapor.text = profile.statusPengguna;
       domisiliPelapor.text = profile.address;
 
       if (profile.gender.isNotEmpty) {
@@ -299,6 +403,25 @@ class ComplaintController extends GetxController {
 
   bool isGenderSelected(String gender) {
     return selectedGender.value == gender;
+  }
+
+  void generateComplaintId() async {
+    final now = DateTime.now();
+    final datePart =
+        "${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}";
+
+    // Mendapatkan jumlah dokumen yang ada untuk hari ini
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(Duration(days: 1));
+
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('complaints')
+        .where('tanggalPelaporan', isGreaterThanOrEqualTo: today)
+        .where('tanggalPelaporan', isLessThan: tomorrow)
+        .get();
+
+    final sequenceNumber = querySnapshot.docs.length + 1;
+    complaintId = "${datePart}_$sequenceNumber";
   }
 
   // @override

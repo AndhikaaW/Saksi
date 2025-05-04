@@ -121,7 +121,7 @@ class HomeTabViewSuperadmin extends GetView<DashboardSuperadminController> {
                 title: 'Backup & Restore',
                 icon: Icons.backup,
                 color: Colors.cyan.shade700,
-                onTap: () => Get.toNamed('/backup-restore'),
+                onTap: () => Get.toNamed('/backup'),
               ),
             ],
           ),

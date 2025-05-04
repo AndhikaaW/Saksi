@@ -5,12 +5,9 @@ import '../controllers/manage_complaint_controller.dart';
 class ComplaintListView extends GetView<ManageComplaintController> {
   final int statusFilter;
   final String title;
-  
-  const ComplaintListView({
-    super.key, 
-    required this.statusFilter,
-    required this.title
-  });
+
+  const ComplaintListView(
+      {super.key, required this.statusFilter, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -44,12 +41,16 @@ class ComplaintListView extends GetView<ManageComplaintController> {
                 }
 
                 final filteredComplaints = controller.userComplaints
-                    .where((complaint) => complaint.statusPengaduan == statusFilter)
+                    .where((complaint) =>
+                        complaint.statusPengaduan == statusFilter)
                     .toList();
 
                 if (filteredComplaints.isEmpty) {
                   String message = '';
-                  switch(statusFilter) {
+                  switch (statusFilter) {
+                    case 0:
+                      message = 'Tidak ada pengaduan yang belum disetujui';
+                      break;
                     case 1:
                       message = 'Tidak ada pengaduan yang sedang diproses';
                       break;
@@ -69,25 +70,30 @@ class ComplaintListView extends GetView<ManageComplaintController> {
                   itemCount: filteredComplaints.length,
                   itemBuilder: (context, index) {
                     final complaint = filteredComplaints[index];
-                    
+
                     IconData statusIcon;
                     Color statusColor;
                     String statusText;
-                    
-                    switch(statusFilter) {
+
+                    switch (statusFilter) {
+                      case 0:
+                        statusIcon = Icons.warning;
+                        statusColor = Colors.orange.shade800;
+                        statusText = 'Menunggu Persetujuan';
+                        break;
                       case 1:
                         statusIcon = Icons.pending_actions;
-                        statusColor = Colors.amber;
+                        statusColor = Colors.blue.shade800;
                         statusText = 'Diproses';
                         break;
                       case 2:
                         statusIcon = Icons.check_circle;
-                        statusColor = Colors.green;
+                        statusColor = Colors.green.shade800;
                         statusText = 'Selesai';
                         break;
                       case 3:
                         statusIcon = Icons.cancel;
-                        statusColor = Colors.red;
+                        statusColor = Colors.red.shade800;
                         statusText = 'Ditolak';
                         break;
                       default:
@@ -103,17 +109,20 @@ class ComplaintListView extends GetView<ManageComplaintController> {
                           backgroundColor: statusColor.withOpacity(0.1),
                           child: Icon(statusIcon, color: statusColor),
                         ),
-                        title: Text('Pengaduan \n #${complaint.uid}'),
+                        title: Text('Pengaduan ${complaint.complaintId}'),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Pelapor: ${complaint.namaPelapor ?? 'Tidak Diketahui'}'),
+                            Text(
+                                'Pelapor: ${complaint.namaPelapor ?? 'Tidak Diketahui'}'),
                             Text('Status: $statusText'),
-                            Text('Email: ${complaint.emailPelapor ?? 'Tidak Diketahui'}'),
+                            Text(
+                                'Email: ${complaint.emailPelapor ?? 'Tidak Diketahui'}'),
                           ],
                         ),
                         onTap: () {
-                          Get.toNamed('/detail-complaint', arguments: complaint);
+                          Get.toNamed('/detail-complaint',
+                              arguments: complaint.uid);
                         },
                         trailing: PopupMenuButton(
                           itemBuilder: (context) => [
@@ -124,7 +133,8 @@ class ComplaintListView extends GetView<ManageComplaintController> {
                           ],
                           onSelected: (value) {
                             if (value == 'detail') {
-                              Get.toNamed('/detail-complaint', arguments: complaint);
+                              Get.toNamed('/detail-complaint',
+                                  arguments: complaint.uid);
                             }
                           },
                         ),

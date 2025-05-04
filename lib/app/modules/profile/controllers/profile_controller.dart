@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:saksi_app/app/data/models/UserProfile.dart';
 
 class ProfileController extends GetxController {
@@ -10,6 +12,8 @@ class ProfileController extends GetxController {
   var userProfile = Rx<UserProfile?>(null);
   var isLoading = true.obs;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final Map<String, String> fieldMapping = {
     "Nama": "name",
@@ -18,6 +22,7 @@ class ProfileController extends GetxController {
     "Tempat Tanggal Lahir": "ttl",
     "Alamat": "address",
     "Nomor Ponsel": "phone",
+    "Status Pengguna": "statusPengguna"
   };
 
   @override
@@ -34,10 +39,12 @@ class ProfileController extends GetxController {
   Future<void> fetchUserProfile() async {
     try {
       String userId = uid.value;
-      DocumentSnapshot userDoc = await _firestore.collection('users').doc(userId).get();
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(userId).get();
 
       if (userDoc.exists) {
-        userProfile.value = UserProfile.fromJson(userDoc.data() as Map<String, dynamic>);
+        userProfile.value =
+            UserProfile.fromJson(userDoc.data() as Map<String, dynamic>);
       }
     } catch (e) {
       print("Error fetching profile: $e");
@@ -70,6 +77,7 @@ class ProfileController extends GetxController {
               ttl: field == "ttl" ? newValue : user.ttl,
               address: field == "address" ? newValue : user.address,
               phone: field == "phone" ? newValue : user.phone,
+              statusPengguna: field == "statusPengguna" ? newValue : user.statusPengguna,
             );
           }
         });
@@ -88,6 +96,9 @@ class ProfileController extends GetxController {
     // Implementasi logout
     // Contoh:
     // await FirebaseAuth.instance.signOut();
+
+    await _auth.signOut();
+    await _googleSignIn.signOut();
 
     // Clear local storage
     final box = GetStorage();

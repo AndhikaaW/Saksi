@@ -20,11 +20,12 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="SAKSI (Sistem Aduan Kekerasan Seksual Internal)">
 
-  <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="saksi_app">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <!-- Android meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0175C2">
+  <meta name="application-name" content="saksi_app">
+  <link rel="icon" sizes="192x192" href="icons/Icon-192.png">
+  <link rel="icon" sizes="512x512" href="icons/Icon-512.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
@@ -33,6 +34,13 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('flutter-first-frame', function () {
+        navigator.serviceWorker.register('flutter_service_worker.js');
+      });
+    }
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

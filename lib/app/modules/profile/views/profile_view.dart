@@ -15,17 +15,6 @@ class ProfileView extends StatelessWidget {
     final ProfileController controller = Get.put(ProfileController());
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text(
-      //     'Profile Settings',
-      //     style: TextStyle(fontWeight: FontWeight.bold),
-      //   ),
-      //   backgroundColor: Colors.blueAccent,
-      //   leading: IconButton(
-      //     icon: const Icon(Icons.arrow_back),
-      //     onPressed: () => Get.back(),
-      //   ),
-      // ),
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
@@ -43,13 +32,16 @@ class ProfileView extends StatelessWidget {
             ListTile(
               leading: CircleAvatar(
                 radius: 30,
-                backgroundImage: NetworkImage(user.photoUrl),
+                backgroundImage: user.photoUrl != null && user.photoUrl.isNotEmpty
+                    ? NetworkImage(user.photoUrl) as ImageProvider
+                    : const AssetImage('assets/defaultProfile.png')
               ),
-              title: const Text("Ubah Profile"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                // Future Feature: Change Profile Picture
-              },
+              
+              title: Text(user.email),
+              // trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              // onTap: () {
+              //   // Future Feature: Change Profile Picture
+              // },
             ),
             const Divider(),
 
@@ -60,6 +52,7 @@ class ProfileView extends StatelessWidget {
             _buildProfileItem("Tempat Tanggal Lahir", user.ttl, context, controller),
             _buildProfileItem("Alamat", user.address, context, controller),
             _buildProfileItem("Nomor Ponsel", user.phone, context, controller),
+            _buildProfileItem("Status Pengguna", user.statusPengguna, context, controller),
 
             SizedBox(height: 16),
             Container(
@@ -109,11 +102,60 @@ class ProfileView extends StatelessWidget {
           showAlamatDialog(context, value, controller);
         } else if (title == "Nomor Ponsel") {
           showNoTeleponDialog(context, title, value, controller);
+        } else if (title == "Status Pengguna") {
+          showStatusPenggunaDialog(context, title, value, controller);
         } else {
           showEditDialog(context, title, value, controller);
         }
       },
+    );
+  }
 
+  void showStatusPenggunaDialog(BuildContext context, String title, String currentValue, ProfileController controller) {
+    String selectedStatus = currentValue;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(currentValue.isEmpty ? "Pilih $title" : "Edit $title"),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return DropdownButton<String>(
+                value: selectedStatus.isNotEmpty ? selectedStatus : null,
+                hint: Text("Pilih $title"),
+                items: <String>['Mahasiswa', 'Pendidik/Dosen', 'Tenaga Kependidikan', 'Warga Kampus', 'Masyarakat Umum']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedStatus = newValue!;
+                  });
+                },
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Batal"),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (selectedStatus.isNotEmpty) {
+                  await controller.updateUserProfile(title, selectedStatus);
+                  Navigator.pop(context);
+                }
+              },
+              child: Text("Simpan"),
+            ),
+          ],
+        );
+      },
     );
   }
 

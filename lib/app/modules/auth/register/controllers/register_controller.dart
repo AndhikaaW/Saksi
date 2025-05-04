@@ -39,7 +39,7 @@ class RegisterController extends GetxController {
   String generateUID() {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     final random = Random();
-    final randomString = List.generate(20, (index) => chars[random.nextInt(chars.length)]).join();
+    final randomString = List.generate(28, (index) => chars[random.nextInt(chars.length)]).join();
     return randomString;
   }
 
@@ -62,8 +62,8 @@ class RegisterController extends GetxController {
           name: usernameController.text,
           email: emailController.text,
           password: confirmPasswordController.text,
-          jenisKelamin: jenisKelaminController.text,
-          noTelepon: noTeleponController.text,
+          gender: jenisKelaminController.text,
+          phone: noTeleponController.text,
           status: 2
       );
 

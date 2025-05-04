@@ -23,6 +23,8 @@ class DashboardUserController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   StreamSubscription<QuerySnapshot>? _complaintSubscription;
 
+  final RxList<Map<String, dynamic>> admins = <Map<String, dynamic>>[].obs;
+
   String get currentTitle {
     switch (currentIndex.value) {
       case 0:
@@ -48,6 +50,7 @@ class DashboardUserController extends GetxController {
     loadUserdata();
     fetchUserProfile();
     _startComplaintListener();
+    fetchAdminUsers();
   }
 
   @override
@@ -114,6 +117,41 @@ class DashboardUserController extends GetxController {
     } catch (e) {
       print("Error checking active complaints: $e");
       return false;
+    }
+  }
+
+  Future<void> fetchAdminUsers() async {
+    try {
+      isLoading.value = true;
+      final QuerySnapshot querySnapshot = await _firestore.collection('users').where('status', whereIn: [0, 1]).get();
+      
+      admins.value = querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        String status = '';
+        switch(data['status']) {
+          case 2:
+            status = 'User';
+            break;
+          default:
+            status = '';
+        }
+        return {
+          'id': doc.id,
+          'name': data['name'] ?? '',
+          'status': status,
+          'email': data['email'] ?? '',
+          'photoUrl': data['photoUrl'] ?? '',
+        };
+      }).toList();
+
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Gagal mengambil data pengguna: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
 }

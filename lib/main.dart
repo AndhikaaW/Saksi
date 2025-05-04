@@ -3,12 +3,42 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:saksi_app/firebase_options.dart';
 
 import 'app/routes/app_pages.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi Awesome Notifications
+  await AwesomeNotifications().initialize(
+    null, // null untuk menggunakan icon default
+    [
+      NotificationChannel(
+        channelKey: 'complaint_channel',
+        channelName: 'Pengaduan Notifications',
+        channelDescription: 'Notifikasi untuk pengaduan',
+        defaultColor: Colors.blue,
+        ledColor: Colors.blue,
+        importance: NotificationImportance.High,
+        channelShowBadge: true,
+      ),
+    ],
+  );
+
+  // Listener untuk notifikasi
+  AwesomeNotifications().setListeners(
+    onActionReceivedMethod: (ReceivedAction receivedAction) async {
+      if (receivedAction.payload != null &&
+          receivedAction.payload!['complaintId'] != null) {
+        // Navigasi ke halaman detail pengaduan
+        Get.toNamed('/detail-complaint',
+            arguments: receivedAction.payload!['complaintId']);
+      }
+    },
+  );
+
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -16,7 +46,6 @@ void main() async {
     print('Firebase berhasil diinisialisasi');
   } catch (e) {
     print('Error saat inisialisasi Firebase: $e');
-
   }
   await GetStorage.init();
 

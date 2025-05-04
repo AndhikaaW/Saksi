@@ -19,6 +19,8 @@ abstract class Routes {
   static const DETAIL_COMPLAINT = _Paths.DETAIL_COMPLAINT;
 
   static const COMPLAINT_LIST = _Paths.COMPLAINT_LIST;
+  static const COMPLAINT_RIWAYAT = _Paths.DETAIL_RIWAYAT;
+  static const BACKUP = _Paths.BACKUP;
 }
 
 abstract class _Paths {
@@ -39,4 +41,6 @@ abstract class _Paths {
   static const DETAIL_COMPLAINT = '/detail-complaint';
 
   static const COMPLAINT_LIST = '/complaint-list';
+  static const DETAIL_RIWAYAT = '/detail-riwayat';
+  static const BACKUP = '/backup';
 }

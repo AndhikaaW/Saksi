@@ -31,6 +31,7 @@ class AuthService {
           return {
             'isSuccess': true,
             'status': userData['status'], // 1: admin, 2: user, dll.
+            'uid': userData['uid']
           };
         } else {
           log("User data missing 'status' field");

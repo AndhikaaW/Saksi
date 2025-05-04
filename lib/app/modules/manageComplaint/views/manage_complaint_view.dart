@@ -142,7 +142,7 @@ class ManageComplaintView extends GetView<ManageComplaintController> {
                             child: const Icon(Icons.report_problem,
                                 color: Colors.blue),
                           ),
-                          title: Text('Pengaduan \n #${complaint.uid}'),
+                          title: Text('Pengaduan ${complaint.complaintId}'),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -172,7 +172,7 @@ class ManageComplaintView extends GetView<ManageComplaintController> {
                             onSelected: (value) {
                               if (value == 'detail') {
                                 Get.toNamed('/detail-complaint',
-                                    arguments: complaint);
+                                    arguments: complaint.uid);
                               } else if (value == 'process') {
                                 // Tampilkan dialog konfirmasi untuk memproses pengaduan
                                 Get.dialog(
@@ -223,7 +223,7 @@ class ManageComplaintView extends GetView<ManageComplaintController> {
                           onTap: () {
                             // Navigasi ke halaman detail
                             Get.toNamed('/detail-complaint',
-                                arguments: complaint);
+                                arguments: complaint.uid);
                           },
                         ),
                       );

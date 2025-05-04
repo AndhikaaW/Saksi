@@ -108,8 +108,8 @@ class RegisterView extends GetView<RegisterController> {
                           ),
                         ),
                         items: const [
-                          DropdownMenuItem(value: 'L', child: Text('Laki-laki')),
-                          DropdownMenuItem(value: 'P', child: Text('Perempuan')),
+                          DropdownMenuItem(value: 'Laki-laki', child: Text('Laki-laki')),
+                          DropdownMenuItem(value: 'Perempuan', child: Text('Perempuan')),
                         ],
                         onChanged: (value) {
                           controller.setGender(value!);
@@ -117,6 +117,7 @@ class RegisterView extends GetView<RegisterController> {
                       ),
                       const SizedBox(height: 16),
                       TextField(
+                        controller: controller.noTeleponController,
                         decoration: InputDecoration(
                           hintText: 'No Telepon',
                           prefixIcon: const Icon(Icons.phone, color: Colors.blueGrey),

@@ -10,7 +10,8 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
     return Scaffold(
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator(
+          return const Center(
+              child: CircularProgressIndicator(
             color: Colors.blueGrey,
           ));
         }
@@ -19,7 +20,9 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
         final userData = controller.email.value;
 
         if (user == null && userData.isEmpty) {
-          return const Center(child: Text('User not found.', style: TextStyle(color: Colors.blueGrey)));
+          return const Center(
+              child: Text('User not found.',
+                  style: TextStyle(color: Colors.blueGrey)));
         }
 
         final String userName = user?.name ?? userData;
@@ -33,32 +36,32 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
               Row(
                 children: [
                   CircleAvatar(
-                    radius: 30,
-                    backgroundImage: userPhoto != null
-                        ? NetworkImage(userPhoto)
-                        : const AssetImage('assets/logoPoltek.png') as ImageProvider,
-                  ),
+                      radius: 30,
+                      backgroundImage: userPhoto != null && userPhoto.isNotEmpty
+                          ? NetworkImage(userPhoto) as ImageProvider
+                          : const AssetImage('assets/defaultProfile.png')),
                   const SizedBox(width: 8),
-
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Hallo, $userName',
-                        style: const TextStyle(fontSize: 16, color: Colors.blueGrey),
+                        style: const TextStyle(
+                            fontSize: 16, color: Colors.blueGrey),
                       ),
-                      const Text(
-                        'Lorem Ipsum Lorem Ipsum',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      Text(
+                        userData,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          // fontWeight: FontWeight.bold,
                           color: Colors.blueGrey,
                         ),
                       ),
                     ],
                   ),
                   const Spacer(),
-                  const Icon(Icons.notifications, size: 30, color: Colors.blueGrey),
+                  const Icon(Icons.notifications,
+                      size: 30, color: Colors.blueGrey),
                 ],
               ),
               const SizedBox(height: 24),
@@ -78,7 +81,9 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                         _showProfileIncompleteDialog(context);
                       } else {
                         // Cek apakah ada pengaduan aktif
-                        bool hasActiveComplaint = await Get.find<DashboardUserController>().checkActiveComplaints();
+                        bool hasActiveComplaint =
+                            await Get.find<DashboardUserController>()
+                                .checkActiveComplaints();
                         if (hasActiveComplaint) {
                           _showActiveComplaintDialog(context);
                         } else {
@@ -109,8 +114,94 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
               ),
               const SizedBox(height: 24),
               const Text(
+                'Struktur Satgas PPKS',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueGrey),
+              ),
+              const SizedBox(height: 12),
+              Obx(() {
+                if (controller.isLoading.value) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Colors.blueGrey),
+                  );
+                }
+                
+                if (controller.admins.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'Tidak ada data struktur Satgas PPKS',
+                      style: TextStyle(color: Colors.blueGrey),
+                    ),
+                  );
+                }
+                
+                return Container(
+                  height: 130,
+                  decoration: BoxDecoration(
+                    // color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: controller.admins.length,
+                    itemBuilder: (context, index) {
+                      final admin = controller.admins[index];
+                      return Card(
+                        margin: const EdgeInsets.all(6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        color: Colors.grey[100],
+                        child: Container(
+                          width: 120,
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircleAvatar(
+                                radius: 30,
+                                backgroundImage: admin['photoUrl'] != null && 
+                                    admin['photoUrl'].isNotEmpty
+                                    ? NetworkImage(admin['photoUrl']) as ImageProvider
+                                    : const AssetImage('assets/defaultProfile.png'),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                admin['name'] ?? '',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.blueGrey,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                admin['status'] ?? 'Admin',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.blueGrey,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }),
+              const SizedBox(height: 16),
+              const Text(
                 'Berita Terkini',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueGrey),
               ),
               const SizedBox(height: 12),
               SingleChildScrollView(
@@ -188,7 +279,10 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
               SizedBox(height: 8),
               Text(
                 'Lorem Ipsum Lorem Ipsum',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueGrey),
               ),
               SizedBox(height: 4),
               Text(
@@ -206,7 +300,7 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
     final user = controller.userProfile.value;
     final userData = controller.email.value;
 
-    if ((user != null && user.name.isNotEmpty && user.gender.isNotEmpty ) ) {
+    if ((user != null && user.name.isNotEmpty && user.gender.isNotEmpty)) {
       return false;
     }
     return true;
@@ -216,19 +310,24 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Lengkapi Data Diri", style: TextStyle(color: Colors.blueGrey)),
-        content: const Text("Silakan lengkapi data diri Anda sebelum mengakses fitur pengaduan.", style: TextStyle(color: Colors.blueGrey)),
+        title: const Text("Lengkapi Data Diri",
+            style: TextStyle(color: Colors.blueGrey)),
+        content: const Text(
+            "Silakan lengkapi data diri Anda sebelum mengakses fitur pengaduan.",
+            style: TextStyle(color: Colors.blueGrey)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Batal", style: TextStyle(color: Colors.blueGrey)),
+            child:
+                const Text("Batal", style: TextStyle(color: Colors.blueGrey)),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               Get.find<DashboardUserController>().changeTab(2);
             },
-            child: const Text("Isi Sekarang", style: TextStyle(color: Colors.blueGrey)),
+            child: const Text("Isi Sekarang",
+                style: TextStyle(color: Colors.blueGrey)),
           ),
         ],
       ),
@@ -239,8 +338,11 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Pengaduan Aktif", style: TextStyle(color: Colors.blueGrey)),
-        content: const Text("Anda masih memiliki pengaduan yang sedang diproses. Silakan tunggu hingga pengaduan selesai sebelum membuat pengaduan baru.", style: TextStyle(color: Colors.blueGrey)),
+        title: const Text("Pengaduan Aktif",
+            style: TextStyle(color: Colors.blueGrey)),
+        content: const Text(
+            "Anda masih memiliki pengaduan yang sedang diproses. Silakan tunggu hingga pengaduan selesai sebelum membuat pengaduan baru.",
+            style: TextStyle(color: Colors.blueGrey)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -251,7 +353,8 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
               Navigator.pop(context);
               Get.find<DashboardUserController>().changeTab(1);
             },
-            child: const Text("Lihat Progres", style: TextStyle(color: Colors.blueGrey)),
+            child: const Text("Lihat Progres",
+                style: TextStyle(color: Colors.blueGrey)),
           ),
         ],
       ),
