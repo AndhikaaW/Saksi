@@ -32,7 +32,7 @@ class RiwayatTab extends GetView<ProgresComplaintController> {
       }
       // Filter hanya pengaduan dengan status 2 (selesai)
       final completedComplaints = controller.userComplaints
-          .where((complaint) => complaint.statusPengaduan == 2)
+          .where((complaint) => complaint.statusPengaduan == 2 || complaint.statusPengaduan == 3)
           .toList();
 
       if (completedComplaints.isEmpty) {
@@ -66,19 +66,43 @@ class RiwayatTab extends GetView<ProgresComplaintController> {
             margin: const EdgeInsets.only(bottom: 12),
             child: ListTile(
               leading: CircleAvatar(
-                backgroundColor: Colors.green.shade100,
-                child: const Icon(Icons.check_circle, color: Colors.green),
+                backgroundColor: complaint.statusPengaduan == 2 
+                    ? Colors.green.shade100 
+                    : Colors.red.shade100,
+                child: complaint.statusPengaduan == 2
+                    ? const Icon(Icons.check_circle, color: Colors.green)
+                    : const Icon(Icons.cancel, color: Colors.red),
               ),
               title: Text('Pengaduan ${complaint.complaintId}'),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(complaint.ceritaSingkatPeristiwa ??
+                  Text(complaint.bentukKekerasanSeksual ??
                       'Tidak ada deskripsi'),
                   const SizedBox(height: 4),
-                  Text(
-                    formattedDate,
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  Row(
+                    children: [
+                      Text(
+                        formattedDate,
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: complaint.statusPengaduan == 2 ? Colors.green.shade100 : Colors.red.shade100,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          complaint.statusPengaduan == 2 ? 'Selesai' : 'Ditolak',
+                          style: TextStyle(
+                            fontSize: 10, 
+                            color: complaint.statusPengaduan == 2 ? Colors.green.shade800 : Colors.red.shade800,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

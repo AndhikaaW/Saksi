@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_storage/get_storage.dart';
 import 'dart:developer';
-import 'package:flutter/material.dart';
 
 import 'package:saksi_app/app/data/models/Complaint.dart';
 import 'package:saksi_app/services/firestore_services.dart';
@@ -149,34 +149,34 @@ class ProgresComplaintController extends GetxController {
     }
   }
 
-  Future<void> fetchActiveComplaints() async {
-    try {
-      isLoading.value = true;
+  // Future<void> fetchActiveComplaints() async {
+  //   try {
+  //     isLoading.value = true;
 
-      final QuerySnapshot querySnapshot = await _firestore
-          .collection('complaints')
-          .where('uid', isEqualTo: uid.value)
-          .where('statusPengaduan', whereIn: [0, 1]).get();
+  //     final QuerySnapshot querySnapshot = await _firestore
+  //         .collection('complaints')
+  //         .where('uid', isEqualTo: uid.value)
+  //         .where('statusPengaduan', whereIn: [0, 1]).get();
 
-      final List<Complaint> complaints = [];
+  //     final List<Complaint> complaints = [];
 
-      for (var doc in querySnapshot.docs) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        data['uid'] = doc.id;
-        complaints.add(Complaint.fromJson(data));
-      }
+  //     for (var doc in querySnapshot.docs) {
+  //       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+  //       data['uid'] = doc.id;
+  //       complaints.add(Complaint.fromJson(data));
+  //     }
 
-      userComplaints.assignAll(complaints);
-    } catch (error) {
-      Get.snackbar(
-        'Error',
-        'Gagal mengambil data pengaduan: $error',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } finally {
-      isLoading.value = false;
-    }
-  }
+  //     userComplaints.assignAll(complaints);
+  //   } catch (error) {
+  //     Get.snackbar(
+  //       'Error',
+  //       'Gagal mengambil data pengaduan: $error',
+  //       snackPosition: SnackPosition.BOTTOM,
+  //     );
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
   void refreshComplaints() {
     errorMessage.value = '';

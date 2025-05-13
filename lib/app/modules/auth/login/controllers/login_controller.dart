@@ -1,12 +1,9 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:saksi_app/app/data/models/UserProfile.dart';
 import 'package:saksi_app/app/routes/app_pages.dart';
 import 'package:saksi_app/services/auth_services.dart';
 
@@ -16,15 +13,16 @@ class LoginController extends GetxController {
   final isPasswordVisible = false.obs;
   final isLoading = false.obs;
   final isLoadinggoogle = false.obs;
-  final AuthService authService = AuthService();
-  final box = GetStorage();
 
+  final AuthService authService = AuthService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final box = GetStorage();
 
   Rx<User?> firebaseUser = Rx<User?>(null);
 
+  // Toggle Password Visibility
   void togglePasswordVisibility() {
     isPasswordVisible.value = !isPasswordVisible.value;
   }
@@ -123,6 +121,7 @@ class LoginController extends GetxController {
     }
   }
 
+  // Simpan user ke firestore 
   Future<void> saveUserToFirestore(User user) async {
     DocumentSnapshot userDoc =
         await _firestore.collection('users').doc(user.uid).get();
@@ -143,6 +142,7 @@ class LoginController extends GetxController {
     await checkUserAndNavigate(user.uid);
   }
 
+  // Pengecekan user dan navigasi ke dashboard
   Future<void> checkUserAndNavigate(String uid) async {
     DocumentSnapshot userDoc =
         await _firestore.collection('users').doc(uid).get();
@@ -171,9 +171,4 @@ class LoginController extends GetxController {
     }
   }
 
-  // /// Logout
-  // Future<void> signOut() async {
-  //   await _auth.signOut();
-  //   await _googleSignIn.signOut();
-  // }
 }

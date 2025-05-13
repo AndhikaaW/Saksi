@@ -1,4 +1,7 @@
 import 'package:get/get.dart';
+import 'package:saksi_app/app/modules/chat/controllers/chat_controller.dart';
+import 'package:saksi_app/app/modules/chat/views/chat_list_view.dart';
+import 'package:saksi_app/app/modules/chat/views/chat_list_view_admin.dart';
 
 import '../modules/auth/login/bindings/login_binding.dart';
 import '../modules/auth/login/views/login_view.dart';
@@ -71,6 +74,16 @@ class AppPages {
     GetPage(
       name: _Paths.CHAT,
       page: () => const ChatView(),
+      binding: ChatBinding(),
+    ),
+    GetPage(
+      name: _Paths.CHAT_LIST,
+      page: () => const ChatListView(),
+      binding: ChatBinding(),
+    ),
+     GetPage(
+      name: _Paths.CHAT_LIST_ADMIN,
+      page: () => const ChatListViewAdmin(),
       binding: ChatBinding(),
     ),
     GetPage(

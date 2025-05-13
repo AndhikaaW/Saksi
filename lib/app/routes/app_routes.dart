@@ -10,6 +10,8 @@ abstract class Routes {
   static const COMPLAINT = _Paths.COMPLAINT;
   static const PROFILE = _Paths.PROFILE;
   static const CHAT = _Paths.CHAT;
+  static const CHAT_LIST = _Paths.CHAT_LIST;
+  static const CHAT_LIST_ADMIN = _Paths.CHAT_LIST_ADMIN;
   static const PROGRES_COMPLAINT = _Paths.PROGRES_COMPLAINT;
   static const DASHBOARD_SUPERADMIN = _Paths.DASHBOARD_SUPERADMIN;
   static const MANAGE_USER = _Paths.MANAGE_USER;
@@ -32,6 +34,9 @@ abstract class _Paths {
   static const COMPLAINT = '/complaint';
   static const PROFILE = '/profile';
   static const CHAT = '/chat';
+  static const CHAT_LIST = '/chat-list';
+  static const CHAT_LIST_ADMIN = '/chat-list-admin';
+
   static const PROGRES_COMPLAINT = '/progres-complaint';
   static const DASHBOARD_SUPERADMIN = '/dashboard-superadmin';
   static const MANAGE_USER = '/manage-user';

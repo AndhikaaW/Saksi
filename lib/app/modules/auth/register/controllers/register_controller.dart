@@ -13,29 +13,27 @@ class RegisterController extends GetxController {
   final jenisKelaminController = TextEditingController();
   final noTeleponController = TextEditingController();
 
-  final isPasswordVisible = false.obs;
-  final isConfirmPasswordVisible = false.obs;
-  final isLoadinggoogle = false.obs;
-
-  // Add loading state
-  final isLoading = false.obs;
-
-  // Observable untuk jenis kelamin
   var selectedGender = RxnString();
-
   void setGender(String value) {
     selectedGender.value = value;
     jenisKelaminController.text = value;
   }
 
+  final isPasswordVisible = false.obs;
+  final isConfirmPasswordVisible = false.obs;
+  final isLoading = false.obs;
+
+  // Toggle Password Visibility
   void togglePasswordVisibility() {
     isPasswordVisible.value = !isPasswordVisible.value;
   }
 
+  // Toggle Password Visibility
   void toggleConfirmPasswordVisibility() {
     isConfirmPasswordVisible.value = !isConfirmPasswordVisible.value;
   }
 
+  // Generate UID 
   String generateUID() {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     final random = Random();
@@ -43,6 +41,7 @@ class RegisterController extends GetxController {
     return randomString;
   }
 
+  // Register User
   Future<bool> registerUser() async {
     if (passwordController.text != confirmPasswordController.text) {
       Get.snackbar(
@@ -95,6 +94,7 @@ class RegisterController extends GetxController {
     }
   }
 
+  // Clear Fields
   void clearFields() {
     usernameController.clear();
     emailController.clear();

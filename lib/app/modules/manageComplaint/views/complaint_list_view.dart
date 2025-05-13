@@ -121,8 +121,8 @@ class ComplaintListView extends GetView<ManageComplaintController> {
                           ],
                         ),
                         onTap: () {
-                          Get.toNamed('/detail-complaint',
-                              arguments: complaint.uid);
+                              Get.toNamed('/detail-complaint',
+                                  arguments: complaint.complaintId);
                         },
                         trailing: PopupMenuButton(
                           itemBuilder: (context) => [
@@ -134,7 +134,7 @@ class ComplaintListView extends GetView<ManageComplaintController> {
                           onSelected: (value) {
                             if (value == 'detail') {
                               Get.toNamed('/detail-complaint',
-                                  arguments: complaint.uid);
+                                  arguments: complaint.complaintId);
                             }
                           },
                         ),

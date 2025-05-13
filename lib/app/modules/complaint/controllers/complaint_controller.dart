@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 // import 'package:image_picker/image_picker.dart';
 import 'package:saksi_app/app/modules/dashboard/dashboardUser/controllers/dashboard_user_controller.dart';
-import 'package:saksi_app/app/modules/dashboard/dashboardUser/views/dashboard_user_view.dart';
+// import 'package:saksi_app/app/modules/dashboard/dashboardUser/views/dashboard_user_view.dart';
 import 'package:saksi_app/app/data/models/UserProfile.dart';
 import 'package:saksi_app/services/firestore_services.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -16,10 +16,12 @@ class ComplaintController extends GetxController {
   final DatabaseService databaseService = DatabaseService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final userProfile = Rx<UserProfile?>(null);
+  
+  // Get Storage
   final box = GetStorage();
   var uid = ''.obs;
-
   late String complaintId;
+
   // Controller untuk input fields
   late String emailPelapor;
   final TextEditingController namaPelapor = TextEditingController();
@@ -36,15 +38,22 @@ class ComplaintController extends GetxController {
     selectedGender.value = value;
     genderPelapor.text = value;
   }
-
-  // Observable untuk disabilitas
+  
   var selectedDisabilitas = RxnString();
+  void setDisabilitas(String value) {
+    selectedDisabilitas.value = value;
+    if (value == 'Iya') {
+      keteranganDisabilitas.clear();
+    }
+    if (value == 'Tidak') {
+      keteranganDisabilitas.text = value;
+    }
+  }
 
   final TextEditingController alasanPengaduan = TextEditingController();
   final TextEditingController alasanPengaduanLainnya = TextEditingController();
   final TextEditingController identifikasiKebutuhan = TextEditingController();
-  final TextEditingController identifikasiKebutuhanLainnya =
-      TextEditingController();
+  final TextEditingController identifikasiKebutuhanLainnya = TextEditingController();
 
   //Terlapor
   final TextEditingController statusTerlapor = TextEditingController();
@@ -141,15 +150,7 @@ class ComplaintController extends GetxController {
   // Observable untuk cek persetujuan pada langkah terakhir
   final agreementChecked = false.obs;
 
-  void setDisabilitas(String value) {
-    selectedDisabilitas.value = value;
-    if (value == 'Iya') {
-      keteranganDisabilitas.clear();
-    }
-    if (value == 'Tidak') {
-      keteranganDisabilitas.text = value;
-    }
-  }
+  
 
   @override
   void onInit() {
@@ -381,6 +382,7 @@ class ComplaintController extends GetxController {
     }
   }
 
+  // Populate form with profile data
   void populateFormWithProfileData() {
     if (userProfile.value != null) {
       final profile = userProfile.value!;
@@ -405,6 +407,7 @@ class ComplaintController extends GetxController {
     return selectedGender.value == gender;
   }
 
+  // Generate Complaint ID
   void generateComplaintId() async {
     final now = DateTime.now();
     final datePart =

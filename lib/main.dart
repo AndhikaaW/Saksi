@@ -8,10 +8,22 @@ import 'package:saksi_app/firebase_options.dart';
 
 import 'app/routes/app_pages.dart';
 
+// Fungsi untuk menangani notifikasi di background
+@pragma('vm:entry-point')
+Future<void> handleBackgroundNotification(ReceivedAction receivedAction) async {
+  // Kode untuk menangani notifikasi di background
+  if (receivedAction.payload != null &&
+      receivedAction.payload!['complaintId'] != null) {
+    // Simpan data untuk diproses saat aplikasi dibuka
+    final box = await GetStorage.init();
+    GetStorage().write('pendingNotification', receivedAction.payload!['complaintId']);
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inisialisasi Awesome Notifications
+  // Inisialisasi Awesome Notifications dengan perizinan
   await AwesomeNotifications().initialize(
     null, // null untuk menggunakan icon default
     [
@@ -23,20 +35,24 @@ void main() async {
         ledColor: Colors.blue,
         importance: NotificationImportance.High,
         channelShowBadge: true,
+        enableVibration: true,
+        enableLights: true,
+        playSound: true,
+        locked: true, // Notifikasi tidak dapat dihapus oleh pengguna
       ),
     ],
+    debug: true,
   );
 
-  // Listener untuk notifikasi
+  // Minta izin notifikasi
+  bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
+  if (!isAllowed) {
+    await AwesomeNotifications().requestPermissionToSendNotifications();
+  }
+
+  // Daftarkan handler untuk notifikasi background
   AwesomeNotifications().setListeners(
-    onActionReceivedMethod: (ReceivedAction receivedAction) async {
-      if (receivedAction.payload != null &&
-          receivedAction.payload!['complaintId'] != null) {
-        // Navigasi ke halaman detail pengaduan
-        Get.toNamed('/detail-complaint',
-            arguments: receivedAction.payload!['complaintId']);
-      }
-    },
+    onActionReceivedMethod: handleBackgroundNotification,
   );
 
   try {
@@ -65,6 +81,13 @@ void main() async {
     }
   }
 
+  // Periksa apakah ada notifikasi yang tertunda
+  final pendingNotification = box.read('pendingNotification');
+  if (pendingNotification != null) {
+    // Hapus data notifikasi tertunda
+    box.remove('pendingNotification');
+  }
+
   runApp(
     GetMaterialApp(
       title: "Saksi",
@@ -74,6 +97,14 @@ void main() async {
         primarySwatch: Colors.blueGrey,
         fontFamily: 'Poppins',
       ),
+      // onInit: () {
+      //   // Jika ada notifikasi tertunda, navigasikan ke halaman detail
+      //   if (pendingNotification != null) {
+      //     Future.delayed(Duration(seconds: 1), () {
+      //       Get.toNamed('/detail-complaint', arguments: pendingNotification);
+      //     });
+      //   }
+      // },
     ),
   );
 }

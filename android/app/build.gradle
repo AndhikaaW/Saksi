@@ -66,6 +66,12 @@ android {
             signingConfig = signingConfigs.debug
         }
     }
+    
+    // Menambahkan konfigurasi untuk mengatasi masalah dengan plugin yang menggunakan SDK 35
+    configurations.all {
+        resolutionStrategy.force 'androidx.core:core-ktx:1.10.1'
+        resolutionStrategy.force 'androidx.activity:activity:1.7.0'
+    }
 }
 
 flutter {
@@ -75,4 +81,7 @@ flutter {
 
 dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
+    // Tambahkan dependensi yang diperlukan untuk kompatibilitas
+    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.activity:activity:1.7.0'
 }

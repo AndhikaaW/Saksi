@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:saksi_app/app/data/models/Complaint.dart';
+// import 'package:saksi_app/app/data/models/Complaint.dart';
 import '../controllers/manage_complaint_controller.dart';
-
 class DetailComplaintView extends GetView<ManageComplaintController> {
   const DetailComplaintView({super.key});
-
   @override
   Widget build(BuildContext context) {
     final ManageComplaintController controller =
         Get.put(ManageComplaintController());
-    final String complaintUid = Get.arguments;
+    final dynamic arguments = Get.arguments;
+    final String? complaintId = arguments is Map<String, dynamic> 
+        ? arguments['complaintId'] 
+        : arguments;
+
+    // controller.fetchComplaintById(complaintId ?? '');
 
     return Scaffold(
       appBar: AppBar(
@@ -19,9 +22,26 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
         centerTitle: true,
         actions: [
           Obx(() {
-            final complaint = controller.userComplaints.firstWhere((c) => c.uid == complaintUid);
+            if (controller.userComplaints.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            
+            final complaint = controller.userComplaints.firstWhere(
+                (c) => c.complaintId == complaintId,
+                orElse: () => controller.userComplaints.first);
+                
             return PopupMenuButton(
               itemBuilder: (context) => [
+                if (complaint.statusPengaduan == 0)
+                  const PopupMenuItem(
+                    value: 'proses',
+                    child: Text('Proses Pengaduan'),
+                  ),
+                if (complaint.statusPengaduan == 0)
+                  const PopupMenuItem(
+                    value: 'tolak',
+                    child: Text('Tolak Pengaduan'),
+                  ),
                 if (complaint.statusPengaduan == 1)
                   const PopupMenuItem(
                     value: 'selesai',
@@ -46,7 +66,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                         ),
                         TextButton(
                           onPressed: () {
-                            controller.deleteComplaint(complaint.uid);
+                            controller.deleteComplaint(complaint.complaintId);
                             Get.back();
                             Get.back();
                           },
@@ -68,10 +88,52 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                         ),
                         TextButton(
                           onPressed: () {
-                            controller.completeComplaint(complaint.uid);
+                            controller.completeComplaint(complaint.complaintId);
                             Get.back();
                           },
                           child: const Text('Selesaikan'),
+                        ),
+                      ],
+                    ),
+                  );
+                } else if (value == 'proses') {
+                  Get.dialog(
+                    AlertDialog(
+                      title: const Text('Proses Pengaduan'),
+                      content: const Text(
+                          'Apakah Anda yakin ingin memproses pengaduan ini?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Get.back(),
+                          child: const Text('Batal'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            controller.processComplaint(complaint.complaintId);
+                            Get.back();
+                          },
+                          child: const Text('Proses'),
+                        ),
+                      ],
+                    ),
+                  );
+                } else if (value == 'tolak') {
+                  Get.dialog(
+                    AlertDialog(
+                      title: const Text('Tolak Pengaduan'),
+                      content: const Text(
+                          'Apakah Anda yakin ingin menolak pengaduan ini?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Get.back(),
+                          child: const Text('Batal'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            controller.rejectComplaint(complaint.complaintId);
+                            Get.back();
+                          },
+                          child: const Text('Tolak'),
                         ),
                       ],
                     ),
@@ -83,8 +145,14 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
         ],
       ),
       body: Obx(() {
-        final complaint = controller.userComplaints.firstWhere((c) => c.uid == complaintUid);
-        final progress = complaint.progress ?? [];
+        if (controller.userComplaints.isEmpty) {
+          return const Center(child: Text('Tidak ada data pengaduan'));
+        }
+        
+        final complaint = controller.userComplaints.firstWhere(
+            (c) => c.complaintId == complaintId,
+            orElse: () => controller.userComplaints.first);
+        final progress = complaint.progress;
         String status = '';
 
         switch (complaint.statusPengaduan) {
@@ -282,7 +350,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  controller.processComplaint(complaint.uid);
+                                  controller.processComplaint(complaint.complaintId);
                                   Get.back();
                                 },
                                 child: const Text('Proses'),
@@ -452,7 +520,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    controller.completeComplaint(complaint.uid);
+                                    controller.completeComplaint(complaint.complaintId);
                                     Get.back();
                                   },
                                   child: const Text('Selesaikan'),
@@ -492,7 +560,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  controller.rejectComplaint(complaint.uid);
+                                  controller.rejectComplaint(complaint.complaintId);
                                   Get.back();
                                 },
                                 child: const Text('Tolak'),

@@ -98,7 +98,7 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                     label: 'Chat',
                     color: Colors.blueGrey,
                     onTap: () {
-                      Get.toNamed('/chat');
+                      Get.toNamed('/chat-list');
                     },
                   ),
                   _buildMenuItem(
@@ -121,6 +121,7 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                     color: Colors.blueGrey),
               ),
               const SizedBox(height: 12),
+              // struktur satgas
               Obx(() {
                 if (controller.isLoading.value) {
                   return const Center(
@@ -148,46 +149,109 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                     itemCount: controller.admins.length,
                     itemBuilder: (context, index) {
                       final admin = controller.admins[index];
-                      return Card(
-                        margin: const EdgeInsets.all(6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        color: Colors.grey[100],
-                        child: Container(
-                          width: 120,
-                          padding: const EdgeInsets.all(8),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CircleAvatar(
-                                radius: 30,
-                                backgroundImage: admin['photoUrl'] != null && 
-                                    admin['photoUrl'].isNotEmpty
-                                    ? NetworkImage(admin['photoUrl']) as ImageProvider
-                                    : const AssetImage('assets/defaultProfile.png'),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                admin['name'] ?? '',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                  color: Colors.blueGrey,
+                      return InkWell(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Detail Anggota Satgas PPKS'),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 40,
+                                      backgroundImage: admin['photoUrl'] != null && 
+                                          admin['photoUrl'].isNotEmpty
+                                          ? NetworkImage(admin['photoUrl']) as ImageProvider
+                                          : const AssetImage('assets/defaultProfile.png'),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      admin['name'] ?? 'Tidak ada nama',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      admin['status'] ?? 'Admin',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.blueGrey,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      admin['email'] ?? 'Tidak ada email',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                textAlign: TextAlign.center,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                admin['status'] ?? 'Admin',
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.blueGrey,
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Tutup'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      Get.toNamed('/chat-list');
+                                    },
+                                    child: const Text('Hubungi'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Card(
+                          margin: const EdgeInsets.all(6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          color: Colors.grey[100],
+                          child: Container(
+                            width: 120,
+                            padding: const EdgeInsets.all(8),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CircleAvatar(
+                                  radius: 30,
+                                  backgroundImage: admin['photoUrl'] != null && 
+                                      admin['photoUrl'].isNotEmpty
+                                      ? NetworkImage(admin['photoUrl']) as ImageProvider
+                                      : const AssetImage('assets/defaultProfile.png'),
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
+                                const SizedBox(height: 6),
+                                Text(
+                                  admin['name'] ?? '',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    color: Colors.blueGrey,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  admin['status'] ?? 'Admin',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.blueGrey,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -298,7 +362,7 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
 
   bool _isProfileIncomplete() {
     final user = controller.userProfile.value;
-    final userData = controller.email.value;
+    // final userData = controller.email.value;
 
     if ((user != null && user.name.isNotEmpty && user.gender.isNotEmpty)) {
       return false;

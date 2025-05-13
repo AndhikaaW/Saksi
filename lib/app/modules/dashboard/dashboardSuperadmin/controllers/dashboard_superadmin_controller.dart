@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:saksi_app/app/modules/chat/views/chat_list_view.dart';
 import 'package:saksi_app/app/modules/chat/views/chat_view.dart';
 import 'package:saksi_app/app/modules/dashboard/dashboardSuperadmin/views/home_superadmin.dart';
 import 'package:saksi_app/app/modules/profile/views/profile_view.dart';
@@ -22,10 +23,10 @@ class DashboardSuperadminController extends GetxController {
     tabPages = [
       // const DashboardUserView(),   // Tab Utama
       const HomeTabViewSuperadmin(), // Tab Chat
-      const ChatView(), // Tab Chat
+      const ChatListView(), // Tab Chat
       const ProfileView(), // Tab Chat
     ];
-    getLength();
+    // getLength();
     loadUsername();
   }
 
@@ -63,31 +64,31 @@ class DashboardSuperadminController extends GetxController {
     }
   }
 
-  Future<void> getLength() async {
-    try {
-      isLoading.value = true;
+  // Future<void> getLength() async {
+  //   try {
+  //     isLoading.value = true;
 
-      // Get admin users count (status = 1)
-      final QuerySnapshot adminSnapshot = await _firestore
-          .collection('users')
-          .where('status', whereIn: [0, 1])
-          .get();
-      admins.value = adminSnapshot.size;
+  //     // Get admin users count (status = 1)
+  //     final QuerySnapshot adminSnapshot = await _firestore
+  //         .collection('users')
+  //         .where('status', whereIn: [0, 1])
+  //         .get();
+  //     admins.value = adminSnapshot.size;
 
-      // Get regular users count (status = 2)
-      final QuerySnapshot userSnapshot = await _firestore
-          .collection('users')
-          .where('status', isEqualTo: 2)
-          .get();
-      users.value = userSnapshot.size;
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Gagal mengambil data user: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } finally {
-      isLoading.value = false;
-    }
-  }
+  //     // Get regular users count (status = 2)
+  //     final QuerySnapshot userSnapshot = await _firestore
+  //         .collection('users')
+  //         .where('status', isEqualTo: 2)
+  //         .get();
+  //     users.value = userSnapshot.size;
+  //   } catch (e) {
+  //     Get.snackbar(
+  //       'Error',
+  //       'Gagal mengambil data user: $e',
+  //       snackPosition: SnackPosition.BOTTOM,
+  //     );
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 }

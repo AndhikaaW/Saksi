@@ -223,7 +223,7 @@ class ManageComplaintView extends GetView<ManageComplaintController> {
                           onTap: () {
                             // Navigasi ke halaman detail
                             Get.toNamed('/detail-complaint',
-                                arguments: complaint.uid);
+                                arguments: complaint.complaintId);
                           },
                         ),
                       );

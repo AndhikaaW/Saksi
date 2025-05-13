@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import '../controllers/chat_controller.dart';
 
 class ChatView extends GetView<ChatController> {
@@ -9,267 +11,200 @@ class ChatView extends GetView<ChatController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
-          children: [
-            CircleAvatar(
-              backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=2'),
-              radius: 16,
-            ),
-            SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Admin PPKS', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Text('Online', style: TextStyle(fontSize: 12, color: Colors.green)),
-              ],
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {},
-          ),
-        ],
+        title: Text("Chat dengan ${controller.currentAdminName}"),
+        centerTitle: true,
       ),
-      body: Column(
-        children: [
-          // Chat messages area
-          Expanded(
-            child: Container(
-              color: Colors.grey[100],
-              child: SingleChildScrollView(
-                reverse: true,
-                padding: const EdgeInsets.all(16),
-                child: Column(
+      body: Container(
+        // decoration: const BoxDecoration(
+        //   image: DecorationImage(
+        //     image: AssetImage('assets/logoPoltek.png'),
+        //     fit: BoxFit.cover,
+        //     opacity: 0.1,
+        //   ),
+        // ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              // Chat messages list
+              Expanded(
+                child: Obx(() {
+                  // if (controller.isLoading.value) {
+                  //   return const Center(child: CircularProgressIndicator());
+                  // }
+                  
+                  if (controller.messages.isEmpty) {
+                    return const Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text('Belum ada pesan', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                        ],
+                      ),
+                    );
+                  }
+                  
+                  return ListView.builder(
+                    reverse: true,
+                    itemCount: controller.messages.length,
+                    itemBuilder: (context, index) {
+                      var chatData = controller.messages[index];
+                      bool isMe = chatData['sender'] == controller.storage.read('email');
+                      
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Row(
+                          mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                          children: [
+                            if (!isMe) 
+                              CircleAvatar(
+                                backgroundColor: Colors.blue,
+                                child: Text(
+                                  chatData['senderName']?.substring(0, 1).toUpperCase() ?? 'A',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: isMe ? Colors.blue[100] : Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 5,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (!isMe)
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 4.0),
+                                        child: Text(
+                                          chatData['senderName'] ?? 'Unknown',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue[800],
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    Text(
+                                      chatData['message'],
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      chatData['time'] != null
+                                          ? DateFormat('dd/MM/yyyy HH:mm').format(
+                                              (chatData['time'] as Timestamp).toDate(),
+                                            )
+                                          : '',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            if (isMe) 
+                              CircleAvatar(
+                                backgroundColor: Colors.green,
+                                child: Text(
+                                  'Anda'.substring(0, 1),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                }),
+              ),
+              const Divider(height: 1, color: Colors.grey),
+              // Message input and send button
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      offset: const Offset(0, -2),
+                      blurRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Row(
                   children: [
-                    // Date header
-                    const Center(
-                      child: Chip(
-                        label: Text('Today'),
-                        backgroundColor: Colors.white,
+                    Expanded(
+                      child: TextField(
+                        controller: controller.messageController,
+                        decoration: InputDecoration(
+                          hintText: 'Ketik pesan...',
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24.0),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          prefixIcon: const Icon(Icons.emoji_emotions_outlined, color: Colors.amber),
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-
-                    // Received message
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        const CircleAvatar(
-                          backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=2'),
-                          radius: 16,
+                    const SizedBox(width: 8),
+                    Material(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(24),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(24),
+                        onTap: () async {
+                          String message = controller.messageController.text.trim();
+                          if (message.isNotEmpty) {
+                            await controller.sendMessage(message);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(12.0),
+                          child: const Icon(Icons.send, color: Colors.white),
                         ),
-                        const SizedBox(width: 8),
-                        Container(
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.6,
-                          ),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Selamat datang di layanan chat PPKS. Ada yang bisa kami bantu?',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                '10:30 AM',
-                                style: TextStyle(fontSize: 10, color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Sent message
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.6,
-                          ),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[100],
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              const Text(
-                                'Saya ingin bertanya tentang prosedur pelaporan PPKS di kampus. Bagaimana caranya?',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Text(
-                                    '10:32 AM',
-                                    style: TextStyle(fontSize: 10, color: Colors.grey),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    Icons.done_all,
-                                    size: 14,
-                                    color: Colors.blue[700],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Received message with multi-line text
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        const CircleAvatar(
-                          backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=2'),
-                          radius: 16,
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.6,
-                          ),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Untuk melaporkan kasus PPKS, Anda dapat menggunakan form pengaduan yang tersedia di aplikasi ini atau datang langsung ke kantor Satgas PPKS di gedung rektorat lantai 2.\n\nSemua laporan akan ditangani secara rahasia dan profesional.',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                '10:35 AM',
-                                style: TextStyle(fontSize: 10, color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Another sent message
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.6,
-                          ),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[100],
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              const Text(
-                                'Baik, terima kasih atas informasinya.',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Text(
-                                    '10:36 AM',
-                                    style: TextStyle(fontSize: 10, color: Colors.grey),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    Icons.done_all,
-                                    size: 14,
-                                    color: Colors.blue[700],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
-
-          // Message input area
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  spreadRadius: 1,
-                  blurRadius: 4,
-                  offset: const Offset(0, -1),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.attach_file),
-                  onPressed: () {},
-                  color: Colors.grey[600],
-                ),
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Type a message',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                    ),
-                    maxLines: null,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundColor: Colors.blue[600],
-                  child: IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: () {},
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
+    );
+  }
+}
+
+class Chat extends StatelessWidget {
+  final String roomId;
+  final String adminName;
+
+  const Chat({Key? key, required this.roomId, required this.adminName}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // Gunakan roomId dan adminName langsung
+    return Scaffold(
+      appBar: AppBar(title: Text('Chat dengan $adminName')),
+      // ...
     );
   }
 }

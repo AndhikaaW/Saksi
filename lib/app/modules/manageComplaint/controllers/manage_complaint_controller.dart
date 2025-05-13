@@ -1,12 +1,12 @@
 import 'dart:async';
-import 'dart:math';
+// import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:get_storage/get_storage.dart';
 import 'package:saksi_app/app/data/models/Complaint.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
+// import 'package:awesome_notifications/awesome_notifications.dart';
 
 class ManageComplaintController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -25,40 +25,17 @@ class ManageComplaintController extends GetxController {
   void onInit() {
     super.onInit();
     loadComplaints();
-    // Listen untuk pengaduan baru
-    _firestore
-        .collection('complaints')
-        .where('statusPengaduan', isEqualTo: 0)
-        .snapshots()
-        .listen((snapshot) {
-      if (snapshot.docChanges.isNotEmpty) {
-        for (var change in snapshot.docChanges) {
-          if (change.type == DocumentChangeType.added) {
-            final complaint = Complaint.fromJson(change.doc.data()!);
-            // Tampilkan notifikasi untuk pengaduan baru
-            AwesomeNotifications().createNotification(
-              content: NotificationContent(
-                id: 20,
-                channelKey: 'complaint_channel',
-                title: 'Pengaduan Baru',
-                body: 'Ada pengaduan baru dari ${complaint.namaPelapor}',
-                notificationLayout: NotificationLayout.Default,
-                payload: {'complaintId': complaint.uid},
-              ),
-            );
-          }
-        }
-      }
-    });
   }
 
   @override
   void onReady() {
     super.onReady();
+    userComplaints.clear();
   }
 
   @override
   void onClose() {
+    userComplaints.clear();
     _complaintSubscription?.cancel();
     super.onClose();
   }
@@ -95,14 +72,14 @@ class ManageComplaintController extends GetxController {
       isLoading.value = false;
     }
   }
-
+  
   // Fungsi untuk memproses pengaduan
   Future<void> processComplaint(String complaintId) async {
     try {
       // Periksa apakah dokumen ada sebelum melakukan update
       final snapshot = await FirebaseFirestore.instance
           .collection('complaints')
-          .where('uid', isEqualTo: complaintId)
+          .where('complaintId', isEqualTo: complaintId)
           .get();
 
       if (snapshot.docs.isEmpty) {
@@ -113,8 +90,8 @@ class ManageComplaintController extends GetxController {
       final docSnapshot = snapshot.docs.first;
 
       // Ambil data complaint
-      final complaintData = docSnapshot.data() as Map<String, dynamic>;
-      final complaint = Complaint.fromJson(complaintData);
+      // final complaintData = docSnapshot.data() as Map<String, dynamic>;
+      // final complaint = Complaint.fromJson(complaintData);
 
       // Update status pengaduan menggunakan ID dokumen yang benar
       await FirebaseFirestore.instance
@@ -135,7 +112,7 @@ class ManageComplaintController extends GetxController {
       // Periksa apakah dokumen ada sebelum melakukan update
       final snapshot = await FirebaseFirestore.instance
           .collection('complaints')
-          .where('uid', isEqualTo: complaintId)
+          .where('complaintId', isEqualTo: complaintId)
           .get();
 
       if (snapshot.docs.isEmpty) {
@@ -146,8 +123,8 @@ class ManageComplaintController extends GetxController {
       final docSnapshot = snapshot.docs.first;
 
       // Ambil data complaint
-      final complaintData = docSnapshot.data() as Map<String, dynamic>;
-      final complaint = Complaint.fromJson(complaintData);
+      // final complaintData = docSnapshot.data() as Map<String, dynamic>;
+      // final complaint = Complaint.fromJson(complaintData);
 
       // Update status pengaduan menjadi ditolak (3)
       await FirebaseFirestore.instance
@@ -222,7 +199,7 @@ class ManageComplaintController extends GetxController {
       // Periksa apakah dokumen ada sebelum melakukan delete
       final snapshot = await FirebaseFirestore.instance
           .collection('complaints')
-          .where('uid', isEqualTo: complaintId)
+          .where('complaintId', isEqualTo: complaintId)
           .get();
 
       if (snapshot.docs.isEmpty) {
@@ -252,7 +229,7 @@ class ManageComplaintController extends GetxController {
       // Periksa apakah dokumen ada sebelum melakukan update
       final snapshot = await FirebaseFirestore.instance
           .collection('complaints')
-          .where('uid', isEqualTo: complaintId)
+          .where('complaintId', isEqualTo: complaintId)
           .get();
 
       if (snapshot.docs.isEmpty) {
@@ -263,8 +240,8 @@ class ManageComplaintController extends GetxController {
       final docSnapshot = snapshot.docs.first;
 
       // Ambil data complaint
-      final complaintData = docSnapshot.data() as Map<String, dynamic>;
-      final complaint = Complaint.fromJson(complaintData);
+      // final complaintData = docSnapshot.data() as Map<String, dynamic>;
+      // final complaint = Complaint.fromJson(complaintData);
 
       // Update status pengaduan menjadi selesai (2)
       await FirebaseFirestore.instance
@@ -330,36 +307,36 @@ class ManageComplaintController extends GetxController {
   }
 
   //manual
-  Future<void> fetchActiveComplaints() async {
-    try {
-      isLoading.value = true;
+  // Future<void> fetchActiveComplaints() async {
+  //   try {
+  //     isLoading.value = true;
 
-      // Mengambil pengaduan dengan status 1 (Diproses)
-      final QuerySnapshot querySnapshot = await _firestore
-          .collection('complaints')
-          .where('statusPengaduan', isEqualTo: 1)
-          .get();
+  //     // Mengambil pengaduan dengan status 1 (Diproses)
+  //     final QuerySnapshot querySnapshot = await _firestore
+  //         .collection('complaints')
+  //         .where('statusPengaduan', isEqualTo: 1)
+  //         .get();
 
-      final List<Complaint> complaints = [];
+  //     final List<Complaint> complaints = [];
 
-      for (var doc in querySnapshot.docs) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        // Tambahkan uid ke data sebelum membuat objek Complaint
-        data['uid'] = doc.id;
-        complaints.add(Complaint.fromJson(data));
-      }
+  //     for (var doc in querySnapshot.docs) {
+  //       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+  //       // Tambahkan uid ke data sebelum membuat objek Complaint
+  //       data['uid'] = doc.id;
+  //       complaints.add(Complaint.fromJson(data));
+  //     }
 
-      userComplaints.assignAll(complaints);
-    } catch (error) {
-      Get.snackbar(
-        'Error',
-        'Gagal mengambil data pengaduan: $error',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } finally {
-      isLoading.value = false;
-    }
-  }
+  //     userComplaints.assignAll(complaints);
+  //   } catch (error) {
+  //     Get.snackbar(
+  //       'Error',
+  //       'Gagal mengambil data pengaduan: $error',
+  //       snackPosition: SnackPosition.BOTTOM,
+  //     );
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
   // Future<void> updateComplaintStatus(String complaintId, int status) async {
   //   try {
@@ -383,4 +360,5 @@ class ManageComplaintController extends GetxController {
   //     );
   //   }
   // }
+ 
 }

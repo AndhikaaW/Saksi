@@ -138,29 +138,33 @@ class HomeTabViewSuperadmin extends GetView<DashboardSuperadminController> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        _buildStatCard(
-          title: 'Total Pengguna',
-          value: '${controller.users}',
-          icon: Icons.people,
-          color: Colors.blue,
-        ),
-        _buildStatCard(
-          title: 'Total Admin',
-          value: '${controller.admins}',
-          icon: Icons.admin_panel_settings,
-          color: Colors.purple,
-        ),
-        _buildStatCard(
-          title: 'Pengaduan Hari Ini',
-          value: '10',
-          icon: Icons.report_problem,
+         _buildStatCard(
+          title: 'Pengaduan Menunggu',
+          value: '',
+          // value: '${controller.pendingComplaints}', 
+          icon: Icons.pending_actions,
           color: Colors.orange,
         ),
         _buildStatCard(
-          title: 'Pengaduan Menunggu',
-          value: '10',
-          icon: Icons.pending_actions,
+          title: 'Pengaduan Diproses',
+          value: '',
+          // value: '${controller.processedComplaints}',
+          icon: Icons.sync,
+          color: Colors.blue,
+        ),
+        _buildStatCard(
+          title: 'Pengaduan Ditolak',
+          value: '',
+          // value: '${controller.completedComplaints}',
+          icon: Icons.cancel,
           color: Colors.red,
+        ),
+        _buildStatCard(
+          title: 'Pengaduan Selesai',
+          value: '',
+          // value: '${controller.completedComplaints}',
+          icon: Icons.check_circle,
+          color: Colors.green,
         ),
       ],
     );

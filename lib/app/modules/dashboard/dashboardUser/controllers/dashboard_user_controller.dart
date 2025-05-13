@@ -1,10 +1,11 @@
 import 'dart:async';
 
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:saksi_app/app/modules/chat/views/chat_view.dart';
+// import 'package:saksi_app/app/modules/chat/views/chat_view.dart';
 import 'package:saksi_app/app/modules/dashboard/dashboardUser/views/home_user.dart';
 import 'package:saksi_app/app/data/models/UserProfile.dart';
 import 'package:saksi_app/app/modules/profile/views/profile_view.dart';
@@ -22,6 +23,7 @@ class DashboardUserController extends GetxController {
   var isLoading = true.obs;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   StreamSubscription<QuerySnapshot>? _complaintSubscription;
+  late StreamSubscription<QuerySnapshot> _statuscomplaintSubscription;
 
   final RxList<Map<String, dynamic>> admins = <Map<String, dynamic>>[].obs;
 
@@ -51,6 +53,7 @@ class DashboardUserController extends GetxController {
     fetchUserProfile();
     _startComplaintListener();
     fetchAdminUsers();
+    listenToComplaintStatusChanges();
   }
 
   @override
@@ -59,6 +62,15 @@ class DashboardUserController extends GetxController {
     super.onClose();
   }
 
+// ubah tab
+  void changeTab(int index) {
+    currentIndex.value = index;
+    if (currentIndex.value == 0) {
+      fetchUserProfile();
+    }
+  }
+
+// load user untuk user yang login saat itu
   void _startComplaintListener() {
     String userId = uid.value;
     _complaintSubscription = _firestore
@@ -68,13 +80,6 @@ class DashboardUserController extends GetxController {
         .listen((snapshot) {
       fetchUserProfile();
     });
-  }
-
-  void changeTab(int index) {
-    currentIndex.value = index;
-    if (currentIndex.value == 0){
-      fetchUserProfile();
-    }
   }
 
   void loadUid() {
@@ -88,10 +93,12 @@ class DashboardUserController extends GetxController {
   Future<void> fetchUserProfile() async {
     try {
       String userId = uid.value;
-      DocumentSnapshot userDoc = await _firestore.collection('users').doc(userId).get();
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(userId).get();
 
       if (userDoc.exists) {
-        userProfile.value = UserProfile.fromJson(userDoc.data() as Map<String, dynamic>);
+        userProfile.value =
+            UserProfile.fromJson(userDoc.data() as Map<String, dynamic>);
       }
     } catch (e) {
       print("Error fetching profile: $e");
@@ -100,15 +107,15 @@ class DashboardUserController extends GetxController {
     }
   }
 
+// cek adakah pengaduan yang aktif jika ingin melakukan pengaduan lagi
   Future<bool> checkActiveComplaints() async {
     try {
       String userId = uid.value;
       QuerySnapshot complaints = await _firestore
           .collection('complaints')
           .where('uid', isEqualTo: userId)
-          .where('statusPengaduan', whereIn: [0, 1])
-          .get();
-      
+          .where('statusPengaduan', whereIn: [0, 1]).get();
+
       if (complaints.docs.isEmpty) {
         return false;
       }
@@ -120,15 +127,18 @@ class DashboardUserController extends GetxController {
     }
   }
 
+// menampilkan struktur anggota ppks
   Future<void> fetchAdminUsers() async {
     try {
       isLoading.value = true;
-      final QuerySnapshot querySnapshot = await _firestore.collection('users').where('status', whereIn: [0, 1]).get();
-      
+      final QuerySnapshot querySnapshot = await _firestore
+          .collection('users')
+          .where('status', whereIn: [0, 1]).get();
+
       admins.value = querySnapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         String status = '';
-        switch(data['status']) {
+        switch (data['status']) {
           case 2:
             status = 'User';
             break;
@@ -143,7 +153,6 @@ class DashboardUserController extends GetxController {
           'photoUrl': data['photoUrl'] ?? '',
         };
       }).toList();
-
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -152,6 +161,83 @@ class DashboardUserController extends GetxController {
       );
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  // Memantau perubahan status pengaduan
+  void listenToComplaintStatusChanges() {
+    try {
+      if (uid.isEmpty) {
+        return;
+      }
+
+      // Buat query untuk memantau pengaduan milik pengguna ini
+      final complaintQuery =
+          _firestore.collection('complaints').where('uid', isEqualTo: uid.value);
+
+      // Mulai mendengarkan perubahan
+      _statuscomplaintSubscription = complaintQuery.snapshots().listen((snapshot) {
+        if (snapshot.docChanges.isNotEmpty) {
+          for (var change in snapshot.docChanges) {
+            // Cek jika dokumen dimodifikasi (status berubah)
+            if (change.type == DocumentChangeType.modified) {
+              final data = change.doc.data() as Map<String, dynamic>;
+              final int statusPengaduan = data['statusPengaduan'] ?? 0;
+              final String complaintId = data['complaintId'] ?? '';
+
+              String statusMessage = '';
+              String title = '';
+
+              // Tentukan pesan berdasarkan status
+              switch (statusPengaduan) {
+                case 1:
+                  title = 'Pengaduan Diproses';
+                  statusMessage =
+                      'Pengaduan $complaintId sedang diproses oleh admin';
+                  break;
+                case 2:
+                  title = 'Pengaduan Selesai';
+                  statusMessage =
+                      'Pengaduan $complaintId telah selesai diproses';
+                  break;
+                case 3:
+                  title = 'Pengaduan Ditolak';
+                  statusMessage = 'Pengaduan $complaintId telah ditolak';
+                  break;
+              }
+
+              // Tampilkan notifikasi jika ada perubahan status
+              if (statusMessage.isNotEmpty) {
+                AwesomeNotifications().createNotification(
+                  content: NotificationContent(
+                    id: 11,
+                    channelKey: 'complaint_channel',
+                    title: title,
+                    body: statusMessage,
+                    notificationLayout: NotificationLayout.Default,
+                    payload: {'complaintId': complaintId},
+                    wakeUpScreen: true,
+                    category: NotificationCategory.Message,
+                    displayOnBackground: true,
+                    displayOnForeground: true,
+                    criticalAlert: true,
+                  ),
+                  // actionButtons: [
+                  //   NotificationActionButton(
+                  //     key: 'VIEW',
+                  //     label: 'Lihat Detail',
+                  //   ),
+                  // ],
+                );
+              }
+            }
+          }
+        }
+      }, onError: (error) {
+        print("Error listening to complaint changes: $error");
+      });
+    } catch (e) {
+      print("Error setting up complaint listener: $e");
     }
   }
 }
