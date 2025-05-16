@@ -16,7 +16,30 @@ Future<void> handleBackgroundNotification(ReceivedAction receivedAction) async {
       receivedAction.payload!['complaintId'] != null) {
     // Simpan data untuk diproses saat aplikasi dibuka
     final box = await GetStorage.init();
-    GetStorage().write('pendingNotification', receivedAction.payload!['complaintId']);
+    GetStorage()
+        .write('pendingNotification', receivedAction.payload!['complaintId']);
+  }
+}
+
+// Mendefinisikan metode global statis untuk menerima aksi notifikasi di background
+@pragma('vm:entry-point')
+Future<void> onActionReceivedMethod(ReceivedAction receivedAction) async {
+  if (receivedAction.payload != null) {
+    if (receivedAction.payload!['complaintId'] != null) {
+      // Handle notifikasi pengaduan
+      await GetStorage.init();
+      GetStorage().write(
+          'pendingNotification', receivedAction.payload!['complaintId']);
+    } else if (receivedAction.payload!['roomId'] != null) {
+      // Handle notifikasi chat di background
+      // Simpan data untuk diproses saat aplikasi dibuka
+      await GetStorage.init();
+      GetStorage().write('pendingChatNotification', {
+        'roomId': receivedAction.payload!['roomId'],
+        'adminName': receivedAction.payload!['adminName'],
+        'action': receivedAction.buttonKeyPressed
+      });
+    }
   }
 }
 
@@ -38,7 +61,20 @@ void main() async {
         enableVibration: true,
         enableLights: true,
         playSound: true,
-        locked: true, // Notifikasi tidak dapat dihapus oleh pengguna
+        locked: true,
+      ),
+      NotificationChannel(
+        channelKey: 'chat_channel',
+        channelName: 'Chat Notifications',
+        channelDescription: 'Notifikasi untuk pesan chat',
+        defaultColor: Colors.green,
+        ledColor: Colors.green,
+        importance: NotificationImportance.High,
+        channelShowBadge: true,
+        enableVibration: true,
+        enableLights: true,
+        playSound: true,
+        locked: false,
       ),
     ],
     debug: true,
@@ -50,9 +86,9 @@ void main() async {
     await AwesomeNotifications().requestPermissionToSendNotifications();
   }
 
-  // Daftarkan handler untuk notifikasi background
+  // Daftarkan handler untuk notifikasi
   AwesomeNotifications().setListeners(
-    onActionReceivedMethod: handleBackgroundNotification,
+    onActionReceivedMethod: onActionReceivedMethod,
   );
 
   try {

@@ -23,6 +23,10 @@ abstract class Routes {
   static const COMPLAINT_LIST = _Paths.COMPLAINT_LIST;
   static const COMPLAINT_RIWAYAT = _Paths.DETAIL_RIWAYAT;
   static const BACKUP = _Paths.BACKUP;
+
+  static const NEWS = _Paths.NEWS;
+  static const NEWS_DETAIL = _Paths.NEWS_DETAIL;
+  static const ADD_NEWS = _Paths.ADD_NEWS;
 }
 
 abstract class _Paths {
@@ -48,4 +52,8 @@ abstract class _Paths {
   static const COMPLAINT_LIST = '/complaint-list';
   static const DETAIL_RIWAYAT = '/detail-riwayat';
   static const BACKUP = '/backup';
+
+  static const NEWS = '/news';
+  static const NEWS_DETAIL = '/news-detail';
+  static const ADD_NEWS = '/add-news';
 }

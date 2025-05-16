@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:saksi_app/app/data/models/Complaint.dart';
 import 'package:saksi_app/app/modules/dashboard/dashboardAdmin/controllers/dashboard_admin_controller.dart';
 import 'package:saksi_app/app/modules/manageComplaint/views/complaint_list_view.dart';
 
@@ -48,41 +47,37 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
                 color: Colors.orange.shade700,
                 onTap: () => Get.toNamed('/manage-complaint'),
               ),
-             MenuItemData(
+              MenuItemData(
                 title: 'Menunggu Persetujuan',
                 icon: Icons.report_problem_outlined,
                 color: Colors.amber.shade700,
-                onTap: () => Get.toNamed('/complaint-list', arguments: ComplaintListView(
-                  statusFilter: 0,
-                  title: 'Menunggu Persetujuan'
-                )),
+                onTap: () => Get.toNamed('/complaint-list',
+                    arguments: ComplaintListView(
+                        statusFilter: 0, title: 'Menunggu Persetujuan')),
               ),
-             MenuItemData(
+              MenuItemData(
                 title: 'Pengaduan Aktif',
                 icon: Icons.pending_actions,
                 color: Colors.blue.shade700,
-                onTap: () => Get.toNamed('/complaint-list', arguments: ComplaintListView(
-                  statusFilter: 1,
-                  title: 'Pengaduan Aktif'
-                )),
+                onTap: () => Get.toNamed('/complaint-list',
+                    arguments: ComplaintListView(
+                        statusFilter: 1, title: 'Pengaduan Aktif')),
               ),
               MenuItemData(
-                title: 'Pengaduan Selesai', 
+                title: 'Pengaduan Selesai',
                 icon: Icons.check_circle,
                 color: Colors.green.shade700,
-                onTap: () => Get.toNamed('/complaint-list', arguments: ComplaintListView(
-                  statusFilter: 2,
-                  title: 'Pengaduan Selesai'
-                )),
+                onTap: () => Get.toNamed('/complaint-list',
+                    arguments: ComplaintListView(
+                        statusFilter: 2, title: 'Pengaduan Selesai')),
               ),
               MenuItemData(
                 title: 'Pengaduan Ditolak',
                 icon: Icons.close,
                 color: Colors.red.shade700,
-                onTap: () => Get.toNamed('/complaint-list', arguments: ComplaintListView(
-                  statusFilter: 3,
-                  title: 'Pengaduan Ditolak'
-                )),
+                onTap: () => Get.toNamed('/complaint-list',
+                    arguments: ComplaintListView(
+                        statusFilter: 3, title: 'Pengaduan Ditolak')),
               ),
             ],
           ),
@@ -93,10 +88,10 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
             title: 'Sistem',
             menus: [
               MenuItemData(
-                title: 'Log Aktivitas',
+                title: 'berita',
                 icon: Icons.history,
                 color: Colors.indigo.shade700,
-                onTap: () => Get.toNamed('/log-aktivitas'),
+                onTap: () => Get.toNamed('/news'),
               ),
             ],
           ),
@@ -115,7 +110,7 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
       children: [
         _buildStatCard(
           title: 'Pengaduan Menunggu',
-          value: '${controller.pendingComplaints}', 
+          value: '${controller.pendingComplaints}',
           icon: Icons.pending_actions,
           color: Colors.orange,
         ),

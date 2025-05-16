@@ -11,8 +11,64 @@ class ChatView extends GetView<ChatController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chat dengan ${controller.currentAdminName}"),
-        centerTitle: true,
+        title: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: Colors.blue,
+              child: controller.currentPhotoUrl != null &&
+                      controller.currentPhotoUrl!.isNotEmpty
+                  ? ClipOval(
+                      child: Image.network(
+                        controller.currentPhotoUrl!,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Text(
+                          controller.currentAdminName
+                                  ?.substring(0, 1)
+                                  .toUpperCase() ??
+                              'A',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    )
+                  : Text(
+                      controller.currentAdminName
+                              ?.substring(0, 1)
+                              .toUpperCase() ??
+                          'A',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  controller.currentAdminName.toString(),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                // const Text(
+                //   "Online",
+                //   style: TextStyle(fontSize: 12),
+                // ),
+              ],
+            ),
+          ],
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Get.back(),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () {},
+          ),
+        ],
+        // backgroundColor: Colors.blueGrey,
       ),
       body: Container(
         // decoration: const BoxDecoration(
@@ -32,44 +88,60 @@ class ChatView extends GetView<ChatController> {
                   // if (controller.isLoading.value) {
                   //   return const Center(child: CircularProgressIndicator());
                   // }
-                  
+
                   if (controller.messages.isEmpty) {
                     return const Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
+                          Icon(Icons.chat_bubble_outline,
+                              size: 64, color: Colors.grey),
                           SizedBox(height: 16),
-                          Text('Belum ada pesan', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                          Text('Belum ada pesan',
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.grey)),
                         ],
                       ),
                     );
                   }
-                  
+
                   return ListView.builder(
                     reverse: true,
                     itemCount: controller.messages.length,
                     itemBuilder: (context, index) {
                       var chatData = controller.messages[index];
-                      bool isMe = chatData['sender'] == controller.storage.read('email');
-                      
+                      bool isMe = chatData['sender'] ==
+                          controller.storage.read('email');
+
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4.0),
                         child: Row(
-                          mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                          mainAxisAlignment: isMe
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
                           children: [
-                            if (!isMe) 
-                              CircleAvatar(
-                                backgroundColor: Colors.blue,
-                                child: Text(
-                                  chatData['senderName']?.substring(0, 1).toUpperCase() ?? 'A',
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            const SizedBox(width: 8),
+                            // if (!isMe)
+                            //   ClipOval(
+                            //     child: Image.network(
+                            //       controller.currentPhotoUrl!,
+                            //       width: 40,
+                            //       height: 40,
+                            //       fit: BoxFit.cover,
+                            //       errorBuilder: (context, error, stackTrace) =>
+                            //           Text(
+                            //         controller.currentAdminName
+                            //                 ?.substring(0, 1)
+                            //                 .toUpperCase() ??
+                            //             'A',
+                            //         style: const TextStyle(color: Colors.white),
+                            //       ),
+                            //     ),
+                            //   ),
+                            // const SizedBox(width: 8),
                             Flexible(
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 10),
                                 decoration: BoxDecoration(
                                   color: isMe ? Colors.blue[100] : Colors.white,
                                   borderRadius: BorderRadius.circular(16),
@@ -86,7 +158,8 @@ class ChatView extends GetView<ChatController> {
                                   children: [
                                     if (!isMe)
                                       Padding(
-                                        padding: const EdgeInsets.only(bottom: 4.0),
+                                        padding:
+                                            const EdgeInsets.only(bottom: 4.0),
                                         child: Text(
                                           chatData['senderName'] ?? 'Unknown',
                                           style: TextStyle(
@@ -103,8 +176,10 @@ class ChatView extends GetView<ChatController> {
                                     const SizedBox(height: 4),
                                     Text(
                                       chatData['time'] != null
-                                          ? DateFormat('dd/MM/yyyy HH:mm').format(
-                                              (chatData['time'] as Timestamp).toDate(),
+                                          ? DateFormat('dd/MM/yyyy HH:mm')
+                                              .format(
+                                              (chatData['time'] as Timestamp)
+                                                  .toDate(),
                                             )
                                           : '',
                                       style: TextStyle(
@@ -116,15 +191,16 @@ class ChatView extends GetView<ChatController> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            if (isMe) 
-                              CircleAvatar(
-                                backgroundColor: Colors.green,
-                                child: Text(
-                                  'Anda'.substring(0, 1),
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ),
+                            // const SizedBox(width: 8),
+                            // if (isMe)
+                            //   CircleAvatar(
+                            //     radius: 20,
+                            //     backgroundColor: Colors.blue,
+                            //     child: Text(
+                            //       chatData['senderName']?.substring(0, 1).toUpperCase() ?? 'A',
+                            //       style: const TextStyle(color: Colors.white),
+                            //     ),
+                            //   )
                           ],
                         ),
                       );
@@ -132,12 +208,12 @@ class ChatView extends GetView<ChatController> {
                   );
                 }),
               ),
-              const Divider(height: 1, color: Colors.grey),
               // Message input and send button
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  // color: Colors.blueGrey,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.05),
@@ -159,8 +235,10 @@ class ChatView extends GetView<ChatController> {
                             borderRadius: BorderRadius.circular(24.0),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          prefixIcon: const Icon(Icons.emoji_emotions_outlined, color: Colors.amber),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          prefixIcon: const Icon(Icons.emoji_emotions_outlined,
+                              color: Colors.amber),
                         ),
                       ),
                     ),
@@ -171,7 +249,8 @@ class ChatView extends GetView<ChatController> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(24),
                         onTap: () async {
-                          String message = controller.messageController.text.trim();
+                          String message =
+                              controller.messageController.text.trim();
                           if (message.isNotEmpty) {
                             await controller.sendMessage(message);
                           }
@@ -189,22 +268,6 @@ class ChatView extends GetView<ChatController> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class Chat extends StatelessWidget {
-  final String roomId;
-  final String adminName;
-
-  const Chat({Key? key, required this.roomId, required this.adminName}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Gunakan roomId dan adminName langsung
-    return Scaffold(
-      appBar: AppBar(title: Text('Chat dengan $adminName')),
-      // ...
     );
   }
 }

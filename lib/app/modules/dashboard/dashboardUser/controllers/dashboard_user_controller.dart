@@ -8,6 +8,8 @@ import 'package:get_storage/get_storage.dart';
 // import 'package:saksi_app/app/modules/chat/views/chat_view.dart';
 import 'package:saksi_app/app/modules/dashboard/dashboardUser/views/home_user.dart';
 import 'package:saksi_app/app/data/models/UserProfile.dart';
+import 'package:saksi_app/app/modules/news/controllers/news_controller.dart';
+import 'package:saksi_app/app/modules/news/models/news_model.dart';
 import 'package:saksi_app/app/modules/profile/views/profile_view.dart';
 import 'package:saksi_app/app/modules/progresComplaint/views/progres_complaint_view.dart';
 
@@ -26,6 +28,8 @@ class DashboardUserController extends GetxController {
   late StreamSubscription<QuerySnapshot> _statuscomplaintSubscription;
 
   final RxList<Map<String, dynamic>> admins = <Map<String, dynamic>>[].obs;
+  final RxList<NewsModel> latestNews = <NewsModel>[].obs;
+  late NewsController _newsController;
 
   String get currentTitle {
     switch (currentIndex.value) {
@@ -54,11 +58,55 @@ class DashboardUserController extends GetxController {
     _startComplaintListener();
     fetchAdminUsers();
     listenToComplaintStatusChanges();
+
+    // Inisialisasi NewsController
+    _initNewsController();
+  }
+
+  void _initNewsController() {
+    // Periksa apakah NewsController sudah terdaftar
+    if (!Get.isRegistered<NewsController>()) {
+      Get.put(NewsController());
+    }
+    _newsController = Get.find<NewsController>();
+
+    // Ambil berita terbaru
+    fetchLatestNews();
+  }
+
+  // Mengambil berita terbaru
+  Future<void> fetchLatestNews() async {
+    try {
+      await _newsController.fetchNews();
+      if (_newsController.news.isNotEmpty) {
+        // Ambil maksimal 5 berita terbaru
+        latestNews.value = _newsController.news.take(5).toList();
+      }
+    } catch (e) {
+      print('Error fetching latest news: $e');
+    }
+  }
+
+  // Memperbarui berita dari API
+  Future<void> updateNewsFromApi() async {
+    try {
+      Get.snackbar(
+        'Informasi',
+        'Fitur ini belum tersedia',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      // await _newsController.fetchNewsFromApi();
+      // // Setelah update, ambil berita terbaru
+      // await fetchLatestNews();
+    } catch (e) {
+      print('Error updating news from API: $e');
+    }
   }
 
   @override
   void onClose() {
     _complaintSubscription?.cancel();
+    _statuscomplaintSubscription.cancel();
     super.onClose();
   }
 
@@ -67,6 +115,7 @@ class DashboardUserController extends GetxController {
     currentIndex.value = index;
     if (currentIndex.value == 0) {
       fetchUserProfile();
+      fetchLatestNews();
     }
   }
 
@@ -172,11 +221,13 @@ class DashboardUserController extends GetxController {
       }
 
       // Buat query untuk memantau pengaduan milik pengguna ini
-      final complaintQuery =
-          _firestore.collection('complaints').where('uid', isEqualTo: uid.value);
+      final complaintQuery = _firestore
+          .collection('complaints')
+          .where('uid', isEqualTo: uid.value);
 
       // Mulai mendengarkan perubahan
-      _statuscomplaintSubscription = complaintQuery.snapshots().listen((snapshot) {
+      _statuscomplaintSubscription =
+          complaintQuery.snapshots().listen((snapshot) {
         if (snapshot.docChanges.isNotEmpty) {
           for (var change in snapshot.docChanges) {
             // Cek jika dokumen dimodifikasi (status berubah)

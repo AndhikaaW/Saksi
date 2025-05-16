@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:saksi_app/app/modules/dashboard/dashboardUser/controllers/dashboard_user_controller.dart';
+import 'package:intl/intl.dart';
+import 'package:saksi_app/app/modules/news/views/news_detail_view.dart';
+import 'package:saksi_app/app/modules/news/controllers/news_controller.dart';
 
 class HomeTabViewUser extends GetView<DashboardUserController> {
   const HomeTabViewUser({Key? key}) : super(key: key);
@@ -28,261 +31,309 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
         final String userName = user?.name ?? userData;
         final String? userPhoto = user?.photoUrl;
 
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+        return RefreshIndicator(
+          onRefresh: () async {
+            // Refresh data saat pengguna menarik ke bawah
+            await controller.fetchUserProfile();
+            await controller.fetchLatestNews();
+            await controller.fetchAdminUsers();
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                      radius: 30,
-                      backgroundImage: userPhoto != null && userPhoto.isNotEmpty
-                          ? NetworkImage(userPhoto) as ImageProvider
-                          : const AssetImage('assets/defaultProfile.png')),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
                     children: [
-                      Text(
-                        'Hallo, $userName',
-                        style: const TextStyle(
-                            fontSize: 16, color: Colors.blueGrey),
+                      CircleAvatar(
+                          radius: 30,
+                          backgroundImage: userPhoto != null &&
+                                  userPhoto.isNotEmpty
+                              ? NetworkImage(userPhoto) as ImageProvider
+                              : const AssetImage('assets/defaultProfile.png')),
+                      const SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Hallo, $userName',
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.blueGrey),
+                          ),
+                          Text(
+                            userData,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              // fontWeight: FontWeight.bold,
+                              color: Colors.blueGrey,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        userData,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          // fontWeight: FontWeight.bold,
-                          color: Colors.blueGrey,
-                        ),
+                      const Spacer(),
+                      const Icon(Icons.notifications,
+                          size: 30, color: Colors.blueGrey),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  GridView.count(
+                    shrinkWrap: true,
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    children: [
+                      _buildMenuItem(
+                        context: context,
+                        icon: Icons.receipt_long,
+                        label: 'Pengaduan',
+                        color: Colors.blueGrey,
+                        onTap: () async {
+                          if (_isProfileIncomplete() == true) {
+                            _showProfileIncompleteDialog(context);
+                          } else {
+                            // Cek apakah ada pengaduan aktif
+                            bool hasActiveComplaint =
+                                await Get.find<DashboardUserController>()
+                                    .checkActiveComplaints();
+                            if (hasActiveComplaint) {
+                              _showActiveComplaintDialog(context);
+                            } else {
+                              Get.toNamed('/complaint');
+                            }
+                          }
+                        },
+                      ),
+                      _buildMenuItem(
+                        context: context,
+                        icon: Icons.chat,
+                        label: 'Chat',
+                        color: Colors.blueGrey,
+                        onTap: () {
+                          Get.toNamed('/chat-list');
+                        },
+                      ),
+                      _buildMenuItem(
+                        context: context,
+                        icon: Icons.settings,
+                        label: 'Pengaturan',
+                        color: Colors.blueGrey,
+                        onTap: () {
+                          Get.toNamed('/settings');
+                        },
                       ),
                     ],
                   ),
-                  const Spacer(),
-                  const Icon(Icons.notifications,
-                      size: 30, color: Colors.blueGrey),
-                ],
-              ),
-              const SizedBox(height: 24),
-              GridView.count(
-                shrinkWrap: true,
-                crossAxisCount: 3,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                children: [
-                  _buildMenuItem(
-                    context: context,
-                    icon: Icons.receipt_long,
-                    label: 'Pengaduan',
-                    color: Colors.blueGrey,
-                    onTap: () async {
-                      if (_isProfileIncomplete() == true) {
-                        _showProfileIncompleteDialog(context);
-                      } else {
-                        // Cek apakah ada pengaduan aktif
-                        bool hasActiveComplaint =
-                            await Get.find<DashboardUserController>()
-                                .checkActiveComplaints();
-                        if (hasActiveComplaint) {
-                          _showActiveComplaintDialog(context);
-                        } else {
-                          Get.toNamed('/complaint');
-                        }
-                      }
-                    },
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Struktur Satgas PPKS',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueGrey),
                   ),
-                  _buildMenuItem(
-                    context: context,
-                    icon: Icons.chat,
-                    label: 'Chat',
-                    color: Colors.blueGrey,
-                    onTap: () {
-                      Get.toNamed('/chat-list');
-                    },
-                  ),
-                  _buildMenuItem(
-                    context: context,
-                    icon: Icons.settings,
-                    label: 'Pengaturan',
-                    color: Colors.blueGrey,
-                    onTap: () {
-                      Get.toNamed('/settings');
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Struktur Satgas PPKS',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey),
-              ),
-              const SizedBox(height: 12),
-              // struktur satgas
-              Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Colors.blueGrey),
-                  );
-                }
-                
-                if (controller.admins.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'Tidak ada data struktur Satgas PPKS',
-                      style: TextStyle(color: Colors.blueGrey),
-                    ),
-                  );
-                }
-                
-                return Container(
-                  height: 130,
-                  decoration: BoxDecoration(
-                    // color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: controller.admins.length,
-                    itemBuilder: (context, index) {
-                      final admin = controller.admins[index];
-                      return InkWell(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('Detail Anggota Satgas PPKS'),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
+                  const SizedBox(height: 12),
+                  // struktur satgas
+                  Obx(() {
+                    if (controller.isLoading.value) {
+                      return const Center(
+                        child:
+                            CircularProgressIndicator(color: Colors.blueGrey),
+                      );
+                    }
+
+                    if (controller.admins.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'Tidak ada data struktur Satgas PPKS',
+                          style: TextStyle(color: Colors.blueGrey),
+                        ),
+                      );
+                    }
+
+                    return Container(
+                      height: 130,
+                      decoration: BoxDecoration(
+                        // color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: controller.admins.length,
+                        itemBuilder: (context, index) {
+                          final admin = controller.admins[index];
+                          return InkWell(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Detail Anggota Satgas PPKS'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 40,
+                                          backgroundImage: admin['photoUrl'] !=
+                                                      null &&
+                                                  admin['photoUrl'].isNotEmpty
+                                              ? NetworkImage(admin['photoUrl'])
+                                                  as ImageProvider
+                                              : const AssetImage(
+                                                  'assets/defaultProfile.png'),
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Text(
+                                          admin['name'] ?? 'Tidak ada nama',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          admin['status'] ?? 'Admin',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.blueGrey,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          admin['email'] ?? 'Tidak ada email',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Tutup'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          Get.toNamed('/chat-list');
+                                        },
+                                        child: const Text('Hubungi'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            child: Card(
+                              margin: const EdgeInsets.all(6),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              color: Colors.grey[100],
+                              child: Container(
+                                width: 120,
+                                padding: const EdgeInsets.all(8),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     CircleAvatar(
-                                      radius: 40,
-                                      backgroundImage: admin['photoUrl'] != null && 
-                                          admin['photoUrl'].isNotEmpty
-                                          ? NetworkImage(admin['photoUrl']) as ImageProvider
-                                          : const AssetImage('assets/defaultProfile.png'),
+                                      radius: 30,
+                                      backgroundImage:
+                                          admin['photoUrl'] != null &&
+                                                  admin['photoUrl'].isNotEmpty
+                                              ? NetworkImage(admin['photoUrl'])
+                                                  as ImageProvider
+                                              : const AssetImage(
+                                                  'assets/defaultProfile.png'),
                                     ),
-                                    const SizedBox(height: 16),
+                                    const SizedBox(height: 6),
                                     Text(
-                                      admin['name'] ?? 'Tidak ada nama',
+                                      admin['name'] ?? '',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 18,
+                                        fontSize: 12,
+                                        color: Colors.blueGrey,
                                       ),
                                       textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    const SizedBox(height: 8),
                                     Text(
                                       admin['status'] ?? 'Admin',
                                       style: const TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 10,
                                         color: Colors.blueGrey,
                                       ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      admin['email'] ?? 'Tidak ada email',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
                                   ],
                                 ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Tutup'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      Get.toNamed('/chat-list');
-                                    },
-                                    child: const Text('Hubungi'),
-                                  ),
-                                ],
-                              );
-                            },
+                              ),
+                            ),
                           );
                         },
-                        child: Card(
-                          margin: const EdgeInsets.all(6),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          color: Colors.grey[100],
-                          child: Container(
-                            width: 120,
-                            padding: const EdgeInsets.all(8),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CircleAvatar(
-                                  radius: 30,
-                                  backgroundImage: admin['photoUrl'] != null && 
-                                      admin['photoUrl'].isNotEmpty
-                                      ? NetworkImage(admin['photoUrl']) as ImageProvider
-                                      : const AssetImage('assets/defaultProfile.png'),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  admin['name'] ?? '',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                    color: Colors.blueGrey,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text(
-                                  admin['status'] ?? 'Admin',
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.blueGrey,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
+                      ),
+                    );
+                  }),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Berita Terkini',
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueGrey),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Obx(() {
+                    if (controller.latestNews.isEmpty) {
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                        elevation: 2,
+                        color: Colors.grey[100],
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            children: [
+                              const Icon(Icons.newspaper,
+                                  size: 50, color: Colors.blueGrey),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Belum ada berita terbaru',
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.blueGrey),
+                              ),
+                            ],
                           ),
                         ),
                       );
-                    },
-                  ),
-                );
-              }),
-              const SizedBox(height: 16),
-              const Text(
-                'Berita Terkini',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey),
+                    }
+
+                    return SizedBox(
+                      height: 220,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: controller.latestNews.length,
+                        itemBuilder: (context, index) {
+                          final news = controller.latestNews[index];
+                          return _buildNewsCard(context, news);
+                        },
+                      ),
+                    );
+                  }),
+                ],
               ),
-              const SizedBox(height: 12),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildNewsCard(),
-                    const SizedBox(width: 12),
-                    _buildNewsCard(),
-                    const SizedBox(width: 12),
-                    _buildNewsCard(),
-                    const SizedBox(width: 12),
-                    _buildNewsCard(),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
         );
       }),
@@ -327,31 +378,101 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
     );
   }
 
-  Widget _buildNewsCard() {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
-      color: Colors.grey[100],
-      child: SizedBox(
-        width: 180,
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
+  Widget _buildNewsCard(BuildContext context, newsItem) {
+    return InkWell(
+      onTap: () {
+        Get.to(() => NewsDetailView(news: newsItem));
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 2,
+        color: Colors.grey[100],
+        child: SizedBox(
+          width: 180,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              SizedBox(height: 100, child: Placeholder()),
-              SizedBox(height: 8),
-              Text(
-                'Lorem Ipsum Lorem Ipsum',
-                style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey),
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16)),
+                child: newsItem.imageUrl.isNotEmpty
+                    ? Image.network(
+                        newsItem.imageUrl,
+                        height: 100,
+                        width: 180,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 100,
+                            width: 180,
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.image_not_supported,
+                                color: Colors.grey),
+                          );
+                        },
+                      )
+                    : Container(
+                        height: 100,
+                        width: 180,
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.newspaper,
+                            size: 40, color: Colors.grey),
+                      ),
               ),
-              SizedBox(height: 4),
-              Text(
-                'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-                style: TextStyle(fontSize: 12, color: Colors.blueGrey),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      newsItem.title,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueGrey),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.calendar_today,
+                            size: 12, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Text(
+                          DateFormat('dd MMM yyyy')
+                              .format(newsItem.publishedAt),
+                          style:
+                              const TextStyle(fontSize: 10, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                    if (newsItem.newsUrl.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      InkWell(
+                        onTap: () {
+                          final newsController = Get.find<NewsController>();
+                          newsController.openNewsUrl(newsItem.newsUrl);
+                        },
+                        child: Row(
+                          children: const [
+                            Icon(Icons.link, size: 12, color: Colors.blue),
+                            SizedBox(width: 4),
+                            Text(
+                              'Buka Link',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ],
           ),

@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:intl/intl.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:intl/date_symbol_data_local.dart'; // Import untuk inisialisasi locale
 
 class ChatController extends GetxController {
   final isLoading = true.obs;
@@ -14,22 +15,28 @@ class ChatController extends GetxController {
 
   String? currentRoomId;
   String? currentAdminName;
+  String? currentPhotoUrl;
+
   StreamSubscription<QuerySnapshot>? _chatSubscription;
   StreamSubscription<QuerySnapshot>? _chatRoomsSubscription;
 
   @override
   void onInit() {
     super.onInit();
+    // Inisialisasi format tanggal untuk Indonesia
+    initializeDateFormatting('id_ID', null);
+    
     // Mulai mendengarkan chat rooms saat controller diinisialisasi
     final userEmail = storage.read('email');
     if (userEmail != null) {
       startChatRoomsStream();
+      startNotificationCheck(); // Mulai pemeriksaan notifikasi
     }
   }
 
   @override
   void onReady() {
-    super.onReady();
+    super.onReady();  
     // Periksa apakah ada argumen roomId saat navigasi
     if (Get.arguments != null && Get.arguments['roomId'] != null) {
       currentRoomId = Get.arguments['roomId'];
@@ -69,8 +76,6 @@ class ChatController extends GetxController {
       isLoading.value = false;
       // Memastikan UI diperbarui
       messages.refresh();
-      
-     
     }, onError: (error) {
       print("Error dalam stream chat: $error");
       isLoading.value = false;
@@ -103,7 +108,8 @@ class ChatController extends GetxController {
     }
   }
 
-  Future<void> createChatRoom(String adminName, String adminUid) async {
+  Future<void> createChatRoom(
+      String adminName, String adminUid, String? photoUrl) async {
     try {
       String? email = storage.read('email');
       int? status = storage.read('userStatus');
@@ -135,6 +141,7 @@ class ChatController extends GetxController {
       // Simpan data terlebih dahulu ke variabel lokal
       currentRoomId = roomId;
       currentAdminName = adminName;
+      currentPhotoUrl = photoUrl;
 
       // Kemudian navigasi dengan arguments
       Get.toNamed('/chat', arguments: {
@@ -171,23 +178,6 @@ class ChatController extends GetxController {
     }
   }
 
-  // Future<List<QueryDocumentSnapshot>> loadChatHistory() async {
-  //   try {
-  //     if (currentRoomId == null) return [];
-
-  //     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-  //         .collection("chatRooms")
-  //         .doc(currentRoomId)
-  //         .collection("messages")
-  //         .orderBy("time", descending: true)
-  //         .get();
-  //     return querySnapshot.docs;
-  //   } catch (e) {
-  //     print("Error fetching messages: $e");
-  //     return [];
-  //   }
-  // }
-
   Future<void> sendMessage(String message) async {
     try {
       if (message.isEmpty || currentRoomId == null) return;
@@ -195,6 +185,7 @@ class ChatController extends GetxController {
       String email = storage.read('email');
       String username = await getUsernameFromEmail(email);
 
+      // Simpan pesan ke Firestore
       await FirebaseFirestore.instance
           .collection("chatRooms")
           .doc(currentRoomId)
@@ -205,6 +196,7 @@ class ChatController extends GetxController {
         "senderName": username,
         "time": FieldValue.serverTimestamp(),
       });
+      messageController.clear();
 
       // Update lastUpdated pada chatRoom
       await FirebaseFirestore.instance
@@ -212,8 +204,8 @@ class ChatController extends GetxController {
           .doc(currentRoomId)
           .update({"lastUpdated": FieldValue.serverTimestamp()});
 
-      messageController.clear();
-      // Tidak perlu memanggil _startChatStream() karena stream akan otomatis memperbarui data
+      // Kirim notifikasi ke pengguna lain
+      await _sendNotificationToOtherUser(message, username);
     } catch (e) {
       print("Error sending message: $e");
       Get.snackbar(
@@ -222,6 +214,136 @@ class ChatController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
     }
+  }
+
+  Future<void> _sendNotificationToOtherUser(
+      String message, String senderName) async {
+    try {
+      // Dapatkan informasi chat room
+      DocumentSnapshot chatRoomDoc = await FirebaseFirestore.instance
+          .collection("chatRooms")
+          .doc(currentRoomId)
+          .get();
+
+      if (!chatRoomDoc.exists) return;
+
+      Map<String, dynamic> chatRoomData =
+          chatRoomDoc.data() as Map<String, dynamic>;
+      List<dynamic> users = chatRoomData['users'];
+
+      // Dapatkan email pengguna lain
+      String currentUserEmail = storage.read('email');
+      String otherUserEmail =
+          users.firstWhere((email) => email != currentUserEmail);
+
+      // Dapatkan informasi pengguna lain
+      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection("users")
+          .where("email", isEqualTo: otherUserEmail)
+          .limit(1)
+          .get();
+
+      if (userSnapshot.docs.isEmpty) return;
+
+      // Simpan status notifikasi di Firestore
+      await FirebaseFirestore.instance
+          .collection("chatRooms")
+          .doc(currentRoomId)
+          .collection("notifications")
+          .add({
+        "message": message,
+        "sender": currentUserEmail,
+        "senderName": senderName,
+        "recipient": otherUserEmail,
+        "time": FieldValue.serverTimestamp(),
+        "isRead": false,
+      });
+    } catch (e) {
+      print('Error in _sendNotificationToOtherUser: $e');
+    }
+  }
+
+  // Fungsi untuk memeriksa notifikasi baru
+  void startNotificationCheck() {
+    // Periksa notifikasi baru setiap 30 detik
+    Timer.periodic(const Duration(seconds: 5), (timer) async {
+      try {
+        String? email = storage.read('email');
+        if (email == null) return;
+
+        // Cek semua chat room yang memiliki notifikasi belum dibaca
+        QuerySnapshot chatRooms = await FirebaseFirestore.instance
+            .collection("chatRooms")
+            .where("users", arrayContains: email)
+            .get();
+
+        for (var chatRoom in chatRooms.docs) {
+          // Cek notifikasi yang belum dibaca untuk chat room ini
+          QuerySnapshot unreadNotifications = await FirebaseFirestore.instance
+              .collection("chatRooms")
+              .doc(chatRoom.id)
+              .collection("notifications")
+              .where("recipient", isEqualTo: email)
+              .where("isRead", isEqualTo: false)
+              .orderBy("time", descending: true)
+              .limit(1)
+              .get();
+
+          if (unreadNotifications.docs.isNotEmpty) {
+            var notification =
+                unreadNotifications.docs.first.data() as Map<String, dynamic>;
+
+            // Dapatkan nama admin dari chat room
+            List<dynamic> userNames =
+                chatRoom.get("userNames") as List<dynamic>;
+            List<dynamic> users = chatRoom.get("users") as List<dynamic>;
+            int currentUserIndex = users.indexOf(email);
+            String adminName = userNames[currentUserIndex == 0 ? 1 : 0];
+
+            // Tampilkan notifikasi
+            await AwesomeNotifications().createNotification(
+              content: NotificationContent(
+                id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+                channelKey: 'chat_channel',
+                title: 'Pesan baru dari ${notification['senderName']}',
+                body: notification['message'],
+                notificationLayout: NotificationLayout.Default,
+                category: NotificationCategory.Message,
+                wakeUpScreen: true,
+                fullScreenIntent: false,
+                criticalAlert: false,
+                payload: {
+                  'roomId': chatRoom.id,
+                  'adminName': adminName,
+                },
+              ),
+              actionButtons: [
+                NotificationActionButton(
+                  key: 'REPLY',
+                  label: 'Balas',
+                  actionType: ActionType.SilentAction,
+                ),
+                NotificationActionButton(
+                  key: 'OPEN',
+                  label: 'Buka Chat',
+                  actionType: ActionType.SilentAction,
+                ),
+              ],
+            );
+
+            // Tandai notifikasi sebagai telah dibaca
+            await FirebaseFirestore.instance
+                .collection("chatRooms")
+                .doc(chatRoom.id)
+                .collection("notifications")
+                .doc(unreadNotifications.docs.first.id)
+                .update({"isRead": true});
+          }
+        }
+      } catch (e) {
+        print('Error checking notifications: $e');
+      }
+    });
   }
 
   // Fungsi untuk memulai stream chat rooms untuk admin
@@ -246,19 +368,19 @@ class ChatController extends GetxController {
         });
         print("Chat room ditemukan: ${doc.id}");
       }
-      
+
       // Urutkan berdasarkan lastUpdated jika tersedia
       chatRooms.sort((a, b) {
         Timestamp? timeA = a['lastUpdated'] as Timestamp?;
         Timestamp? timeB = b['lastUpdated'] as Timestamp?;
-        
+
         if (timeA == null && timeB == null) return 0;
         if (timeA == null) return 1;
         if (timeB == null) return -1;
-        
+
         return timeB.compareTo(timeA); // Descending order
       });
-      
+
       chatRooms.refresh();
       print("Total chat rooms: ${chatRooms.length}");
     }, onError: (error) {
@@ -287,17 +409,18 @@ class ChatController extends GetxController {
         'roomId': chatRoom['id'],
       };
     }
-    
+
     int userIndex = adminIndex == 0 ? 1 : 0;
     if (userIndex >= users.length || userIndex >= userNames.length) {
-      print("Index pengguna tidak valid: $userIndex, users length: ${users.length}, userNames length: ${userNames.length}");
+      print(
+          "Index pengguna tidak valid: $userIndex, users length: ${users.length}, userNames length: ${userNames.length}");
       return {
         'userName': 'Unknown User',
         'userEmail': 'unknown@email.com',
         'roomId': chatRoom['id'],
       };
     }
-    
+
     String userName = userNames[userIndex];
     String userEmail = users[userIndex];
 
@@ -340,16 +463,17 @@ class ChatController extends GetxController {
       };
     }
   }
-  
+
   // Fungsi untuk mendapatkan pesan terakhir untuk admin tertentu dari sisi user
-  Future<Map<String, dynamic>> getLastMessageForAdmin(String adminEmail, String? userEmail) async {
+  Future<Map<String, dynamic>> getLastMessageForAdmin(
+      String adminEmail, String? userEmail) async {
     try {
       // Cari chat room antara user dan admin
       QuerySnapshot roomSnapshot = await FirebaseFirestore.instance
           .collection("chatRooms")
           .where("users", arrayContains: userEmail)
           .get();
-      
+
       // Filter untuk mendapatkan room yang berisi admin yang dipilih
       String? roomId;
       for (var doc in roomSnapshot.docs) {
@@ -359,14 +483,14 @@ class ChatController extends GetxController {
           break;
         }
       }
-      
+
       if (roomId == null) {
         return {
           'message': "Belum ada pesan",
           'time': null,
         };
       }
-      
+
       // Dapatkan pesan terakhir dari room tersebut
       QuerySnapshot messageSnapshot = await FirebaseFirestore.instance
           .collection("chatRooms")
@@ -403,7 +527,7 @@ class ChatController extends GetxController {
     currentRoomId = roomId;
     currentAdminName = userName;
     _startChatStream();
-    
+
     Get.toNamed('/chat', arguments: {
       'roomId': roomId,
       'adminName': userName,

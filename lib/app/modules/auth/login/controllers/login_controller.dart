@@ -79,7 +79,7 @@ class LoginController extends GetxController {
   /// Login dengan Google
   Future<bool> loginWithGoogle() async {
     try {
-      await Future.delayed(Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 2));
       // Hanya untuk Android & iOS
       if (GetPlatform.isAndroid || GetPlatform.isIOS) {
         await _googleSignIn

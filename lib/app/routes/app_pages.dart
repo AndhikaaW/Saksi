@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
-import 'package:saksi_app/app/modules/chat/controllers/chat_controller.dart';
-import 'package:saksi_app/app/modules/chat/views/chat_list_view.dart';
-import 'package:saksi_app/app/modules/chat/views/chat_list_view_admin.dart';
+import 'package:saksi_app/app/modules/news/views/add_news_view.dart';
+import 'package:saksi_app/app/modules/news/views/news_detail_view.dart';
 
 import '../modules/auth/login/bindings/login_binding.dart';
 import '../modules/auth/login/views/login_view.dart';
@@ -10,6 +9,8 @@ import '../modules/auth/register/views/register_view.dart';
 import '../modules/backup/bindings/backup_binding.dart';
 import '../modules/backup/views/backup_view.dart';
 import '../modules/chat/bindings/chat_binding.dart';
+import '../modules/chat/views/chat_list_view.dart';
+import '../modules/chat/views/chat_list_view_admin.dart';
 import '../modules/chat/views/chat_view.dart';
 import '../modules/complaint/bindings/complaint_binding.dart';
 import '../modules/complaint/views/complaint_view.dart';
@@ -27,6 +28,8 @@ import '../modules/manageRole/manageAdmin/bindings/manage_admin_binding.dart';
 import '../modules/manageRole/manageAdmin/views/manage_admin_view.dart';
 import '../modules/manageRole/manageUser/bindings/manage_user_binding.dart';
 import '../modules/manageRole/manageUser/views/manage_user_view.dart';
+import '../modules/news/bindings/news_binding.dart';
+import '../modules/news/views/news_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/progresComplaint/bindings/progres_complaint_binding.dart';
@@ -81,7 +84,7 @@ class AppPages {
       page: () => const ChatListView(),
       binding: ChatBinding(),
     ),
-     GetPage(
+    GetPage(
       name: _Paths.CHAT_LIST_ADMIN,
       page: () => const ChatListViewAdmin(),
       binding: ChatBinding(),
@@ -131,6 +134,21 @@ class AppPages {
       name: _Paths.BACKUP,
       page: () => const BackupView(),
       binding: BackupBinding(),
+    ),
+    GetPage(
+      name: _Paths.NEWS,
+      page: () => const NewsView(),
+      binding: NewsBinding(),
+    ),
+    GetPage(
+      name: _Paths.NEWS_DETAIL,
+      page: () => NewsDetailView(news: Get.arguments),
+      binding: NewsBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_NEWS,
+      page: () => const AddNewsView(),
+      binding: NewsBinding(),
     ),
   ];
 }
