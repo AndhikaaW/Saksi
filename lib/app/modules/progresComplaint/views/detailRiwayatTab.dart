@@ -10,7 +10,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
 
   @override
   Widget build(BuildContext context) {
-    final ProgresComplaintController controller = Get.put(ProgresComplaintController());
+    final ProgresComplaintController controller =
+        Get.put(ProgresComplaintController());
     final String complaintId = Get.arguments;
 
     return Scaffold(
@@ -20,7 +21,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
         elevation: 0,
       ),
       body: Obx(() {
-        final complaint = controller.userComplaints.firstWhere((c) => c.complaintId == complaintId);
+        final complaint = controller.userComplaints
+            .firstWhere((c) => c.complaintId == complaintId);
         final progress = complaint.progress ?? [];
         String ktpImageData = complaint.lampiranKtp;
         String buktiImageData = complaint.lampiranBukti;
@@ -44,7 +46,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
         }
 
         final DateTime tanggalPelaporan = complaint.tanggalPelaporan.toDate();
-        final String formattedTanggal = DateFormat('dd MMMM yyyy HH:mm').format(tanggalPelaporan);
+        final String formattedTanggal =
+            DateFormat('dd MMMM yyyy HH:mm').format(tanggalPelaporan);
 
         return SingleChildScrollView(
           child: Column(
@@ -53,46 +56,43 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30)
-                  )
-                ),
+                    borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(30),
+                        bottomRight: Radius.circular(30))),
                 child: Column(
                   children: [
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.white,
-                      child: Icon(Icons.description, size: 40, color: Colors.blue.shade700),
+                      child: Icon(Icons.description,
+                          size: 40, color: Colors.blue.shade700),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'Pengaduan ${complaint.complaintId}',
                       style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold
-                      ),
+                          fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 4
-                          )
-                        ]
-                      ),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                spreadRadius: 1,
+                                blurRadius: 4)
+                          ]),
                       child: Text(
                         status,
                         style: TextStyle(
-                          color: complaint.statusPengaduan == 2 ? Colors.green : Colors.blue,
-                          fontWeight: FontWeight.bold
-                        ),
+                            color: complaint.statusPengaduan == 2
+                                ? Colors.green
+                                : Colors.blue,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -103,7 +103,6 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                   ],
                 ),
               ),
-              
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -112,27 +111,37 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                     _buildSectionTitle('Informasi Pelapor'),
                     _buildInfoCard([
                       _buildInfoItem('Nama', complaint.namaPelapor ?? '-'),
-                      _buildInfoItem('Email', complaint.emailPelapor ?? '-'), 
-                      _buildInfoItem('No. Telepon', complaint.noTeleponPelapor ?? '-'),
-                      _buildInfoItem('Alamat', complaint.domisiliPelapor ?? '-'),
-                      _buildInfoItem('Jenis Kelamin', complaint.jenisKelaminPelapor ?? '-'),
-                      _buildInfoItem('Status Pelapor', complaint.statusPelapor ?? '-'),
-                      _buildInfoItem('Keterangan Disabilitas', complaint.keteranganDisabilitas ?? '-'),
-                      _buildInfoItem('No Telepon Pihak Lain ', complaint.noTeleponPihakLain ?? '-'),
+                      _buildInfoItem('Email', complaint.emailPelapor ?? '-'),
+                      _buildInfoItem(
+                          'No. Telepon', complaint.noTeleponPelapor ?? '-'),
+                      _buildInfoItem(
+                          'Alamat', complaint.domisiliPelapor ?? '-'),
+                      _buildInfoItem('Jenis Kelamin',
+                          complaint.jenisKelaminPelapor ?? '-'),
+                      _buildInfoItem(
+                          'Status Pelapor', complaint.statusPelapor ?? '-'),
+                      _buildInfoItem('Keterangan Disabilitas',
+                          complaint.keteranganDisabilitas ?? '-'),
+                      _buildInfoItem('No Telepon Pihak Lain ',
+                          complaint.noTeleponPihakLain ?? '-'),
                     ]),
-
                     const SizedBox(height: 24),
                     _buildSectionTitle('Detail Pengaduan'),
                     _buildInfoCard([
-                      _buildInfoItem('Bentuk Kekerasan', complaint.bentukKekerasanSeksual ?? '-'),
-                      _buildInfoItem('Status Terlapor', complaint.statusTerlapor ?? '-'),
-                      _buildInfoItem('Jenis Kelamin Terlapor', complaint.jenisKelaminTerlapor ?? '-'),
-                      _buildInfoItem('Alasan Pengaduan', complaint.alasanPengaduan ?? '-'),
-                      _buildInfoItem('Identifikasi Kebutuhan', complaint.identifikasiKebutuhan ?? '-'),
+                      _buildInfoItem('Bentuk Kekerasan',
+                          complaint.bentukKekerasanSeksual ?? '-'),
+                      _buildInfoItem(
+                          'Status Terlapor', complaint.statusTerlapor ?? '-'),
+                      _buildInfoItem('Jenis Kelamin Terlapor',
+                          complaint.jenisKelaminTerlapor ?? '-'),
+                      _buildInfoItem(
+                          'Alasan Pengaduan', complaint.alasanPengaduan ?? '-'),
+                      _buildInfoItem('Identifikasi Kebutuhan',
+                          complaint.identifikasiKebutuhan ?? '-'),
                       const Divider(height: 24),
-                      _buildDescriptionItem('Cerita Singkat Peristiwa', complaint.ceritaSingkatPeristiwa ?? '-'),
+                      _buildDescriptionItem('Cerita Singkat Peristiwa',
+                          complaint.ceritaSingkatPeristiwa ?? '-'),
                     ]),
-
                     const SizedBox(height: 24),
                     _buildSectionTitle('Bukti Pendukung'),
                     _buildInfoCard([
@@ -149,7 +158,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                         Builder(
                           builder: (context) {
                             try {
-                              final cleanedBase64 = ktpImageData.replaceAll(RegExp(r'\s+'), '');
+                              final cleanedBase64 =
+                                  ktpImageData.replaceAll(RegExp(r'\s+'), '');
                               final imageBytes = base64Decode(cleanedBase64);
                               return GestureDetector(
                                 onTap: () {
@@ -161,16 +171,22 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                           child: Image.memory(
                                             imageBytes,
                                             fit: BoxFit.contain,
-                                            errorBuilder: (context, error, stackTrace) {
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
                                               return Center(
                                                 child: Column(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
                                                   children: [
-                                                    Icon(Icons.error, color: Colors.red.shade300, size: 40),
+                                                    Icon(Icons.error,
+                                                        color:
+                                                            Colors.red.shade300,
+                                                        size: 40),
                                                     const SizedBox(height: 8),
                                                     const Text(
                                                       'Gagal memuat gambar KTP / KTM',
-                                                      style: TextStyle(color: Colors.red),
+                                                      style: TextStyle(
+                                                          color: Colors.red),
                                                     ),
                                                   ],
                                                 ),
@@ -195,7 +211,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                         width: double.infinity,
                                         color: Colors.grey.shade200,
                                         child: const Center(
-                                          child: Text('Tidak dapat menampilkan gambar KTP / KTM'),
+                                          child: Text(
+                                              'Tidak dapat menampilkan gambar KTP / KTM'),
                                         ),
                                       );
                                     },
@@ -208,7 +225,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                 width: double.infinity,
                                 color: Colors.grey.shade200,
                                 child: const Center(
-                                  child: Text('Format gambar KTP / KTM tidak valid'),
+                                  child: Text(
+                                      'Format gambar KTP / KTM tidak valid'),
                                 ),
                               );
                             }
@@ -223,7 +241,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Center(
-                            child: Text('Tidak ada foto KTP / KTM yang diunggah'),
+                            child:
+                                Text('Tidak ada foto KTP / KTM yang diunggah'),
                           ),
                         ),
                       const SizedBox(height: 16),
@@ -241,7 +260,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                         Builder(
                           builder: (context) {
                             try {
-                              final cleanedBase64 = buktiImageData.replaceAll(RegExp(r'\s+'), '');
+                              final cleanedBase64 =
+                                  buktiImageData.replaceAll(RegExp(r'\s+'), '');
                               final imageBytes = base64Decode(cleanedBase64);
                               return GestureDetector(
                                 onTap: () {
@@ -253,16 +273,22 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                           child: Image.memory(
                                             imageBytes,
                                             fit: BoxFit.contain,
-                                            errorBuilder: (context, error, stackTrace) {
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
                                               return Center(
                                                 child: Column(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
                                                   children: [
-                                                    Icon(Icons.error, color: Colors.red.shade300, size: 40),
+                                                    Icon(Icons.error,
+                                                        color:
+                                                            Colors.red.shade300,
+                                                        size: 40),
                                                     const SizedBox(height: 8),
                                                     const Text(
                                                       'Gagal memuat gambar bukti',
-                                                      style: TextStyle(color: Colors.red),
+                                                      style: TextStyle(
+                                                          color: Colors.red),
                                                     ),
                                                   ],
                                                 ),
@@ -287,7 +313,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                         width: double.infinity,
                                         color: Colors.grey.shade200,
                                         child: const Center(
-                                          child: Text('Tidak dapat menampilkan bukti pendukung'),
+                                          child: Text(
+                                              'Tidak dapat menampilkan bukti pendukung'),
                                         ),
                                       );
                                     },
@@ -300,7 +327,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                 width: double.infinity,
                                 color: Colors.grey.shade200,
                                 child: const Center(
-                                  child: Text('Format gambar bukti tidak valid'),
+                                  child:
+                                      Text('Format gambar bukti tidak valid'),
                                 ),
                               );
                             }
@@ -315,11 +343,11 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Center(
-                            child: Text('Tidak ada bukti pendukung yang diunggah'),
+                            child:
+                                Text('Tidak ada bukti pendukung yang diunggah'),
                           ),
                         ),
                     ]),
-
                     if (progress.isNotEmpty) ...[
                       const SizedBox(height: 24),
                       _buildSectionTitle('Riwayat Progress'),
@@ -332,8 +360,7 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                           return Card(
                             margin: const EdgeInsets.only(bottom: 12),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)
-                            ),
+                                borderRadius: BorderRadius.circular(12)),
                             child: Padding(
                               padding: const EdgeInsets.all(16),
                               child: Column(
@@ -341,21 +368,24 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                 children: [
                                   Row(
                                     children: [
-                                      Icon(Icons.check_circle, color: Colors.green.shade700),
+                                      Icon(Icons.check_circle,
+                                          color: Colors.green.shade700),
                                       const SizedBox(width: 8),
                                       Text(
                                         item.title,
                                         style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold
-                                        ),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    DateFormat('dd MMMM yyyy').format(DateTime.parse(item.date)),
-                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                                    DateFormat('dd MMMM yyyy')
+                                        .format(DateTime.parse(item.date)),
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 12),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(item.description),
@@ -391,9 +421,7 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
 
   Widget _buildInfoCard(List<Widget> children) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12)
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

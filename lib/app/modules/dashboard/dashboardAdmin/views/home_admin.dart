@@ -8,6 +8,7 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(DashboardAdminController());
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -101,39 +102,55 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
   }
 
   Widget _buildStatCards() {
-    return GridView.count(
-      crossAxisCount: 2,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: [
-        _buildStatCard(
-          title: 'Pengaduan Menunggu',
-          value: '${controller.pendingComplaints}',
-          icon: Icons.pending_actions,
-          color: Colors.orange,
-        ),
-        _buildStatCard(
-          title: 'Pengaduan Diproses',
-          value: '${controller.processedComplaints}',
-          icon: Icons.sync,
-          color: Colors.blue,
-        ),
-        _buildStatCard(
-          title: 'Pengaduan Ditolak',
-          value: '${controller.completedComplaints}',
-          icon: Icons.cancel,
-          color: Colors.red,
-        ),
-        _buildStatCard(
-          title: 'Pengaduan Selesai',
-          value: '${controller.completedComplaints}',
-          icon: Icons.check_circle,
-          color: Colors.green,
-        ),
-      ],
-    );
+    return Obx(() => GridView.count(
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            _buildStatCard(
+              title: 'Pengaduan Menunggu',
+              value: '${controller.pendingComplaints.value}',
+              icon: Icons.pending_actions,
+              color: Colors.orange,
+              onTap: () => Get.toNamed('/complaint-list', arguments: ComplaintListView(
+                  statusFilter: 0,
+                  title: 'Menunggu Persetujuan'
+                )),
+            ),
+            _buildStatCard(
+              title: 'Pengaduan Diproses',
+              value: '${controller.processedComplaints.value}',
+              icon: Icons.sync,
+              color: Colors.blue,
+              onTap: () => Get.toNamed('/complaint-list', arguments: ComplaintListView(
+                  statusFilter: 1,
+                  title: 'Pengaduan Aktif'
+                )),
+            ),
+            _buildStatCard(
+              title: 'Pengaduan Ditolak',
+              value: '${controller.rejectedComplaints.value}',
+              icon: Icons.cancel,
+              color: Colors.red,
+               onTap: () => Get.toNamed('/complaint-list', arguments: ComplaintListView(
+                  statusFilter: 3,
+                  title: 'Pengaduan Ditolak'
+                )),
+            ),
+            _buildStatCard(
+              title: 'Pengaduan Selesai',
+              value: '${controller.completedComplaints.value}',
+              icon: Icons.check_circle,
+              color: Colors.green,
+              onTap: () => Get.toNamed('/complaint-list', arguments: ComplaintListView(
+                  statusFilter: 2,
+                  title: 'Pengaduan Selesai'
+                )),
+            ),
+          ],
+        ));
   }
 
   Widget _buildStatCard({
@@ -141,37 +158,42 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
     required String value,
     required IconData icon,
     required Color color,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Icon(icon, color: color, size: 28),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 14,
-              color: color.withOpacity(0.8),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 14,
+                color: color.withOpacity(0.8),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
