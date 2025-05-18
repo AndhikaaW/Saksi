@@ -116,6 +116,9 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                       _buildInfoItem('No. Telepon', complaint.noTeleponPelapor ?? '-'),
                       _buildInfoItem('Alamat', complaint.domisiliPelapor ?? '-'),
                       _buildInfoItem('Jenis Kelamin', complaint.jenisKelaminPelapor ?? '-'),
+                      _buildInfoItem('Status Pelapor', complaint.statusPelapor ?? '-'),
+                      _buildInfoItem('Keterangan Disabilitas', complaint.keteranganDisabilitas ?? '-'),
+                      _buildInfoItem('No Telepon Pihak Lain ', complaint.noTeleponPihakLain ?? '-'),
                     ]),
 
                     const SizedBox(height: 24),
@@ -124,6 +127,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                       _buildInfoItem('Bentuk Kekerasan', complaint.bentukKekerasanSeksual ?? '-'),
                       _buildInfoItem('Status Terlapor', complaint.statusTerlapor ?? '-'),
                       _buildInfoItem('Jenis Kelamin Terlapor', complaint.jenisKelaminTerlapor ?? '-'),
+                      _buildInfoItem('Alasan Pengaduan', complaint.alasanPengaduan ?? '-'),
+                      _buildInfoItem('Identifikasi Kebutuhan', complaint.identifikasiKebutuhan ?? '-'),
                       const Divider(height: 24),
                       _buildDescriptionItem('Cerita Singkat Peristiwa', complaint.ceritaSingkatPeristiwa ?? '-'),
                     ]),
@@ -131,43 +136,85 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                     const SizedBox(height: 24),
                     _buildSectionTitle('Bukti Pendukung'),
                     _buildInfoCard([
-                      if (complaint.lampiranKtp.isNotEmpty) ...[
-                        const Text(
-                          'Foto KTP',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey,
-                          ),
+                      // FOTO KTP
+                      const Text(
+                        'Foto KTP / KTM',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey,
                         ),
-                        const SizedBox(height: 8),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.memory(
-                            base64Decode(ktpImageData),
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
+                      ),
+                      const SizedBox(height: 8),
+                      if (complaint.lampiranKtp.isNotEmpty)
+                        Builder(
+                          builder: (context) {
+                            try {
+                              final cleanedBase64 = ktpImageData.replaceAll(RegExp(r'\s+'), '');
+                              final imageBytes = base64Decode(cleanedBase64);
+                              return GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext dialogContext) {
+                                      return Dialog(
+                                        child: InteractiveViewer(
+                                          child: Image.memory(
+                                            imageBytes,
+                                            fit: BoxFit.contain,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Center(
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(Icons.error, color: Colors.red.shade300, size: 40),
+                                                    const SizedBox(height: 8),
+                                                    const Text(
+                                                      'Gagal memuat gambar KTP / KTM',
+                                                      style: TextStyle(color: Colors.red),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.memory(
+                                    imageBytes,
+                                    height: 200,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        height: 200,
+                                        width: double.infinity,
+                                        color: Colors.grey.shade200,
+                                        child: const Center(
+                                          child: Text('Tidak dapat menampilkan gambar KTP / KTM'),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              );
+                            } catch (e) {
                               return Container(
                                 height: 200,
                                 width: double.infinity,
                                 color: Colors.grey.shade200,
                                 child: const Center(
-                                  child: Text('Tidak dapat menampilkan gambar KTP'),
+                                  child: Text('Format gambar KTP / KTM tidak valid'),
                                 ),
                               );
-                            },
-                          ),
-                        ),
-                      ] else ...[
-                        const Text(
-                          'Foto KTP',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
+                            }
+                          },
+                        )
+                      else
                         Container(
                           height: 200,
                           width: double.infinity,
@@ -176,48 +223,90 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Center(
-                            child: Text('Tidak ada foto KTP yang diunggah'),
+                            child: Text('Tidak ada foto KTP / KTM yang diunggah'),
                           ),
                         ),
-                      ],
                       const SizedBox(height: 16),
-                      if (complaint.lampiranBukti.isNotEmpty) ...[
-                        const Text(
-                          'Bukti Pendukung',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey,
-                          ),
+
+                      // BUKTI PENDUKUNG
+                      const Text(
+                        'Bukti Pendukung',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey,
                         ),
-                        const SizedBox(height: 8),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.memory(
-                            base64Decode(buktiImageData),
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
+                      ),
+                      const SizedBox(height: 8),
+                      if (complaint.lampiranBukti.isNotEmpty)
+                        Builder(
+                          builder: (context) {
+                            try {
+                              final cleanedBase64 = buktiImageData.replaceAll(RegExp(r'\s+'), '');
+                              final imageBytes = base64Decode(cleanedBase64);
+                              return GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext dialogContext) {
+                                      return Dialog(
+                                        child: InteractiveViewer(
+                                          child: Image.memory(
+                                            imageBytes,
+                                            fit: BoxFit.contain,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Center(
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(Icons.error, color: Colors.red.shade300, size: 40),
+                                                    const SizedBox(height: 8),
+                                                    const Text(
+                                                      'Gagal memuat gambar bukti',
+                                                      style: TextStyle(color: Colors.red),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.memory(
+                                    imageBytes,
+                                    height: 200,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        height: 200,
+                                        width: double.infinity,
+                                        color: Colors.grey.shade200,
+                                        child: const Center(
+                                          child: Text('Tidak dapat menampilkan bukti pendukung'),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              );
+                            } catch (e) {
                               return Container(
                                 height: 200,
                                 width: double.infinity,
                                 color: Colors.grey.shade200,
                                 child: const Center(
-                                  child: Text('Tidak dapat menampilkan bukti pendukung'),
+                                  child: Text('Format gambar bukti tidak valid'),
                                 ),
                               );
-                            },
-                          ),
-                        ),
-                      ] else ...[
-                        const Text(
-                          'Bukti Pendukung',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
+                            }
+                          },
+                        )
+                      else
                         Container(
                           height: 200,
                           width: double.infinity,
@@ -229,7 +318,6 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                             child: Text('Tidak ada bukti pendukung yang diunggah'),
                           ),
                         ),
-                      ],
                     ]),
 
                     if (progress.isNotEmpty) ...[
@@ -333,7 +421,7 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
           ),
           Expanded(
             child: Text(
-              value,
+              ': ' + value,
               style: const TextStyle(
                 fontWeight: FontWeight.w500,
               ),
@@ -346,7 +434,7 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
 
   Widget _buildDescriptionItem(String label, String value) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Text(
           label,

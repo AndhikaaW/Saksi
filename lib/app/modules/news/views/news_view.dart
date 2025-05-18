@@ -59,30 +59,6 @@ class NewsView extends GetView<NewsController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Daftar Berita',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blueGrey,
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () => Get.to(() => const AddNewsView()),
-                      icon: const Icon(Icons.add, size: 18),
-                      label: const Text('Tambah Berita'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueGrey,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
                 Expanded(
                   child: ListView.builder(
                     itemCount: controller.news.length,
@@ -204,11 +180,11 @@ class NewsView extends GetView<NewsController> {
           ),
         );
       }),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () => Get.to(() => const AddNewsView()),
-      //   backgroundColor: Colors.blueGrey,
-      //   child: const Icon(Icons.add),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Get.to(() => const AddNewsView()),
+        backgroundColor: Colors.blueGrey,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
@@ -227,7 +203,7 @@ class NewsView extends GetView<NewsController> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                controller.deleteNews(newsId);
+                controller.hardDeleteNews(newsId);
               },
               child: const Text('Hapus', style: TextStyle(color: Colors.red)),
             ),

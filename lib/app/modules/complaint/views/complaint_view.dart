@@ -532,11 +532,11 @@ class ComplaintView extends GetView<ComplaintController> {
             ),
         ),
         const SizedBox(height: 8),
-        // ElevatedButton.icon(
-        //   onPressed: () => controller.pickKtpImage(),
-        //   icon: const Icon(Icons.upload),
-        //   label: const Text('Upload KTP'),
-        // ),
+        ElevatedButton.icon(
+          onPressed: () => controller.pickKtpImage(),
+          icon: const Icon(Icons.upload),
+          label: const Text('Upload KTP'),
+        ),
         const SizedBox(height: 16),
         const Text(
           'Upload Bukti Pendukung',
@@ -563,11 +563,11 @@ class ComplaintView extends GetView<ComplaintController> {
             ),
         ),
         const SizedBox(height: 8),
-        // ElevatedButton.icon(
-        //   onPressed: () => controller.pickBuktiImage(),
-        //   icon: const Icon(Icons.upload),
-        //   label: const Text('Upload Bukti'),
-        // ),
+        ElevatedButton.icon(
+          onPressed: () => controller.pickBuktiImage(),
+          icon: const Icon(Icons.upload),
+          label: const Text('Upload Bukti'),
+        ),
         const SizedBox(height: 16),
         _buildNavigationButtons(controller),
       ],
@@ -624,6 +624,99 @@ class ComplaintView extends GetView<ComplaintController> {
                 const Divider(),
                 _buildInfoRow('Status Terlapor', controller.statusTerlapor.text),
                 _buildInfoRow('Jenis Kelamin Terlapor', controller.genderTerlapor.text),
+                // Preview lampiran KTP
+                const SizedBox(height: 8),
+                const Text(
+                  'Lampiran KTP',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Obx(() => GestureDetector(
+                      onTap: () {
+                        if (controller.ktpImage.value != null) {
+                          showDialog(
+                            context: Get.context!, // Pastikan context tersedia di sini
+                            builder: (BuildContext dialogContext) {
+                              return Dialog(
+                                child: Image.file(
+                                  controller.ktpImage.value!,
+                                  fit: BoxFit.contain,
+                                ),
+                              );
+                            },
+                          );
+                        }
+                      },
+                      child: controller.ktpImage.value != null
+                          ? Container(
+                              height: 200,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                image: DecorationImage(
+                                  image: FileImage(controller.ktpImage.value!),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            )
+                          : Container(
+                              height: 200,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Center(
+                                child: Text('Belum ada foto KTP'),
+                              ),
+                            ),
+                    )),
+                const SizedBox(height: 16),
+                const Text(
+                  'Lampiran Bukti Pendukung',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Obx(() => GestureDetector(
+                      onTap: () {
+                        if (controller.buktiImage.value != null) {
+                          showDialog(
+                            context: Get.context!, // Pastikan context tersedia di sini
+                            builder: (BuildContext dialogContext) {
+                              return Dialog(
+                                child: Image.file(
+                                  controller.buktiImage.value!,
+                                  fit: BoxFit.contain,
+                                ),
+                              );
+                            },
+                          );
+                        }
+                      },
+                      child: controller.buktiImage.value != null
+                          ? Container(
+                              height: 200,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                image: DecorationImage(
+                                  image: FileImage(controller.buktiImage.value!),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            )
+                          : Container(
+                              height: 200,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Center(
+                                child: Text('Belum ada bukti pendukung'),
+                              ),
+                            ),
+                    )),
 
                 const SizedBox(height: 16),
                 const Divider(),

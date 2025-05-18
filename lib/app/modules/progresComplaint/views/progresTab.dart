@@ -13,7 +13,7 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
   Widget build(BuildContext context) {
     final controller = Get.put(ProgresComplaintController());
     controller.refreshComplaints(); // Memanggil refresh data saat build
-    
+
     return Obx(() {
       if (controller.isLoading.value) {
         return const Center(
@@ -41,12 +41,13 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
       }
 
       // Filter complaints berdasarkan uid user yang login
-      final userComplaints = controller.userComplaints.where((complaint) => 
-        complaint.uid == controller.uid.value
-      ).toList();
+      final userComplaints = controller.userComplaints
+          .where((complaint) => complaint.uid == controller.uid.value)
+          .toList();
 
       final progressComplaints = controller.userComplaints
-          .where((complaint) => complaint.statusPengaduan == 0 || complaint.statusPengaduan == 1)
+          .where((complaint) =>
+              complaint.statusPengaduan == 0 || complaint.statusPengaduan == 1)
           .toList();
 
       if (progressComplaints.isEmpty) {
@@ -56,48 +57,51 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
       }
 
       return ListView.builder(
-        padding: EdgeInsets.zero,
-        itemCount: userComplaints.length,
-        itemBuilder: (context, index) {
-          final complaint = userComplaints[index];
-          final complaintId = complaint.complaintId ?? 'Tidak Diketahui';
-          final status = complaint.statusPengaduan.toString() ?? 'Tidak Diketahui';
-          final dateTime = (complaint.tanggalPelaporan as Timestamp).toDate();
-          final complaintDate = DateFormat('dd MMM yyyy').format(dateTime) ?? 'Tidak Diketahui';
-          final progress = complaint.progress ?? [];
-        
-          // Siapkan variabel untuk menyimpan gambar KTP dan bukti
-          String ktpImageData = complaint.lampiranKtp;
-          String buktiImageData = complaint.lampiranBukti;
-          
-          // Log untuk debugging
-          print('KTP Image Length: ${ktpImageData.length > 100 ? "${ktpImageData.substring(0, 100)}..." : ktpImageData}');
-          print('Bukti Image Length: ${buktiImageData.length > 100 ? "${buktiImageData.substring(0, 100)}..." : buktiImageData}');
+          padding: EdgeInsets.zero,
+          itemCount: userComplaints.length,
+          itemBuilder: (context, index) {
+            final complaint = userComplaints[index];
+            final complaintId = complaint.complaintId ?? 'Tidak Diketahui';
+            final status =
+                complaint.statusPengaduan.toString() ?? 'Tidak Diketahui';
+            final dateTime = (complaint.tanggalPelaporan as Timestamp).toDate();
+            final complaintDate =
+                DateFormat('dd MMM yyyy').format(dateTime) ?? 'Tidak Diketahui';
+            final progress = complaint.progress ?? [];
 
-          if (status != '0' && status != '1') {
-            return const SizedBox.shrink();
-          }
+            // Siapkan variabel untuk menyimpan gambar KTP dan bukti
+            String ktpImageData = complaint.lampiranKtp;
+            String buktiImageData = complaint.lampiranBukti;
 
-          return Column(
-            children: [
-              _buildHeader(complaintId, complaintDate, status),
-              const Divider(),
-              _buildReporterInfo(complaint),
-              const Divider(),
-              _buildIncidentInfo(complaint),
-              const Divider(), 
-              _buildReportedPersonInfo(complaint),
-              const Divider(),
-              _buildProgressTimeline(progress),
-              const Divider(),
-              _buildBuktiSection(ktpImageData),
-              const Divider(),
-              _buildContactPIC(),
-              const SizedBox(height: 20),
-            ],
-          );
-        }
-      );
+            // Log untuk debugging
+            print(
+                'KTP / KTM Image Length: ${ktpImageData.length > 100 ? "${ktpImageData.substring(0, 100)}..." : ktpImageData}');
+            print(
+                'Bukti Image Length: ${buktiImageData.length > 100 ? "${buktiImageData.substring(0, 100)}..." : buktiImageData}');
+
+            if (status != '0' && status != '1') {
+              return const SizedBox.shrink();
+            }
+
+            return Column(
+              children: [
+                _buildHeader(complaintId, complaintDate, status),
+                const Divider(),
+                _buildReporterInfo(complaint),
+                const Divider(),
+                _buildIncidentInfo(complaint),
+                const Divider(),
+                _buildReportedPersonInfo(complaint),
+                const Divider(),
+                _buildBuktiSection(ktpImageData, buktiImageData),
+                const Divider(),
+                _buildProgressTimeline(progress),
+                const Divider(),
+                _buildContactPIC(),
+                const SizedBox(height: 20),
+              ],
+            );
+          });
     });
   }
 
@@ -172,7 +176,7 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
     );
   }
 
-  // 2. Reporter Information
+  // 2.  Informasi Pelapor
   Widget _buildReporterInfo(dynamic complaint) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -186,13 +190,15 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
           _infoRow('No. Telepon', complaint.noTeleponPelapor ?? '-'),
           _infoRow('Domisili', complaint.domisiliPelapor ?? '-'),
           _infoRow('Jenis Kelamin', complaint.jenisKelaminPelapor ?? '-'),
-          _infoRow('Keterangan Disabilitas', complaint.keteranganDisabilitas ?? 'Tidak Ada'),
+          _infoRow('Status', complaint.statusPelapor ?? '-'),
+          _infoRow('Keterangan Disabilitas', complaint.keteranganDisabilitas ?? '-'),
+          _infoRow('No Telepon Pihak Lain', complaint.noTeleponPihakLain ?? '-'),
         ],
       ),
     );
   }
 
-  // 3. Incident Information
+  // 3. Informasi Kejadian
   Widget _buildIncidentInfo(dynamic complaint) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -201,7 +207,8 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
         children: [
           _sectionTitle('Detail Peristiwa'),
           const SizedBox(height: 12),
-          _infoRow('Jenis Kekerasan Seksual', complaint.bentukKekerasanSeksual ?? '-'),
+          _infoRow('Bentuk Kekerasan Seksual',
+              complaint.bentukKekerasanSeksual ?? '-'),
           const SizedBox(height: 8),
           const Text(
             'Cerita Singkat Peristiwa:',
@@ -229,7 +236,7 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
     );
   }
 
-  // 4. Reported Person Information
+  // 4. Informasi Terlapor
   Widget _buildReportedPersonInfo(dynamic complaint) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -244,8 +251,8 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
           _sectionTitle('Alasan & Kebutuhan'),
           const SizedBox(height: 8),
           _infoRow('Alasan Pengaduan', complaint.alasanPengaduan ?? '-'),
-          _infoRow('Identifikasi Kebutuhan', complaint.identifikasiKebutuhan ?? '-'),
-          _infoRow('No. Telepon Pihak Lain', complaint.noTeleponPihakLain ?? '-'),
+          _infoRow(
+              'Identifikasi Kebutuhan', complaint.identifikasiKebutuhan ?? '-'),
         ],
       ),
     );
@@ -264,7 +271,8 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
             Center(
               child: Column(
                 children: [
-                  Icon(Icons.pending_actions, size: 40, color: Colors.grey.shade400),
+                  Icon(Icons.pending_actions,
+                      size: 40, color: Colors.grey.shade400),
                   const SizedBox(height: 8),
                   Text(
                     'Belum ada progress',
@@ -288,7 +296,8 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
           for (int i = 0; i < progressList.length; i++)
             _buildTimelineItem(
               title: progressList[i].title,
-              date: DateFormat('dd MMM yyyy').format(DateTime.parse(progressList[i].date)),
+              date: DateFormat('dd MMM yyyy')
+                  .format(DateTime.parse(progressList[i].date)),
               description: progressList[i].description,
               isCompleted: true,
               isLast: i == progressList.length - 1,
@@ -319,7 +328,9 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
                 shape: BoxShape.circle,
                 color: isCompleted ? Colors.green : Colors.grey.shade400,
                 border: Border.all(
-                  color: isCompleted ? Colors.green.shade700 : Colors.grey.shade600,
+                  color: isCompleted
+                      ? Colors.green.shade700
+                      : Colors.grey.shade600,
                   width: 2,
                 ),
               ),
@@ -352,7 +363,8 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: isCompleted ? Colors.black : Colors.grey.shade600,
+                          color:
+                              isCompleted ? Colors.black : Colors.grey.shade600,
                         ),
                       ),
                     ),
@@ -360,7 +372,9 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
                       date,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isCompleted ? Colors.green.shade700 : Colors.grey.shade500,
+                        color: isCompleted
+                            ? Colors.green.shade700
+                            : Colors.grey.shade500,
                       ),
                     ),
                   ],
@@ -382,9 +396,99 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
   }
 
   // 7. Bukti Section
-  Widget _buildBuktiSection(String ktpImageData) {
-    final controller = Get.find<ProgresComplaintController>();
-    
+  Widget _buildBuktiSection(String ktpImageData, String buktiImageData) {
+    // final controller = Get.find<ProgresComplaintController>(); // Controller is not used in this function
+
+    // Helper function to build a tappable image widget
+    Widget _buildTappableImage(String base64String, String imageType) {
+      if (base64String.isEmpty) {
+        return _buildNoImagePlaceholder(imageType);
+      }
+
+      // Decode the image bytes
+      final cleanedBase64 = base64String.replaceAll(RegExp(r'\s+'), '');
+      try {
+        final imageBytes = base64Decode(cleanedBase64);
+
+        return GestureDetector(
+          onTap: () {
+            // Show full-screen preview dialog
+            showDialog(
+              context: Get.context!, // Use Get.context for dialog
+              builder: (BuildContext dialogContext) {
+                return Dialog(
+                  // Wrap with InteractiveViewer for zoom/pan
+                  child: InteractiveViewer(
+                    child: Image.memory(
+                      imageBytes,
+                      fit: BoxFit.contain, // Use contain for full view
+                      errorBuilder: (context, error, stackTrace) {
+                        print(
+                            'Error loading $imageType image in dialog: $error');
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.error,
+                                  color: Colors.red.shade300, size: 40),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Gagal memuat gambar $imageType',
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+          // Display the image thumbnail
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.memory(
+              imageBytes,
+              fit: BoxFit.cover, // Use cover for thumbnail
+              errorBuilder: (context, error, stackTrace) {
+                print('Error loading $imageType image thumbnail: $error');
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error, color: Colors.red.shade300, size: 40),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Gagal memuat gambar $imageType',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      } catch (e) {
+        print('$imageType Base64 decode error: $e');
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.broken_image, color: Colors.orange.shade700, size: 40),
+              const SizedBox(height: 8),
+              Text(
+                'Format gambar $imageType tidak valid',
+                style: const TextStyle(color: Colors.orange),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -392,13 +496,13 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
         children: [
           _sectionTitle('Bukti Pendukung'),
           const SizedBox(height: 16),
-          
+
           // KTP Image
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Foto KTP:',
+                'Foto KTP / KTM:',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
@@ -412,15 +516,14 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: ktpImageData.isNotEmpty ? 
-                  _buildImageFromBase64(ktpImageData, 'KTP') :
-                  _buildNoImagePlaceholder('KTP'),
+                child: _buildTappableImage(
+                    ktpImageData, 'KTP / KTM'), // Use the new helper
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Bukti Image
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,13 +543,9 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Obx(() {
-                  if (controller.buktiImageBase64.value.isNotEmpty) {
-                    return _buildImageFromBase64(controller.buktiImageBase64.value, 'bukti');
-                  } else {
-                    return _buildNoImagePlaceholder('bukti');
-                  }
-                }),
+                // Removed Obx as buktiImageData is a simple string, not an Rx variable
+                child: _buildTappableImage(
+                    buktiImageData, 'bukti'), // Use the new helper
               ),
             ],
           ),
@@ -454,58 +553,17 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
       ),
     );
   }
-  
-  Widget _buildImageFromBase64(String base64String, String imageType) {
-    try {
-      final cleanedBase64 = base64String.replaceAll(RegExp(r'\s+'), '');
-      final imageBytes = base64Decode(cleanedBase64);
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.memory(
-          imageBytes,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            print('Error loading $imageType image: $error');
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error, color: Colors.red.shade300, size: 40),
-                  const SizedBox(height: 8),
-                  Text('Gagal memuat gambar $imageType', 
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      );
-    } catch (e) {
-      print('$imageType Base64 decode error: $e');
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.broken_image, color: Colors.orange.shade700, size: 40),
-            const SizedBox(height: 8),
-            Text('Format gambar $imageType tidak valid', 
-              style: const TextStyle(color: Colors.orange),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-  
+
   Widget _buildNoImagePlaceholder(String imageType) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.image_not_supported, color: Colors.grey.shade400, size: 40),
+          Icon(Icons.image_not_supported,
+              color: Colors.grey.shade400, size: 40),
           const SizedBox(height: 8),
-          Text('Tidak ada gambar $imageType', 
+          Text(
+            'Tidak ada gambar $imageType',
             style: const TextStyle(color: Colors.grey),
           ),
         ],
@@ -535,37 +593,22 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
             ),
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(Icons.person, size: 16, color: Colors.blue.shade700),
-              const SizedBox(width: 8),
-              const Text(
-                'PIC: Bapak Alif (Ketua Satgas PPKS)',
-                style: TextStyle(fontSize: 14),
-              ),
-            ],
+          Text(
+            'Jika Anda memiliki pertanyaan atau membutuhkan bantuan terkait pengaduan Anda, silakan hubungi kami melalui fitur chat.',
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
           ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Icon(Icons.phone, size: 16, color: Colors.blue.shade700),
-              const SizedBox(width: 8),
-              const Text(
-                '0857-8596-6636',
-                style: TextStyle(fontSize: 14),
+          const SizedBox(height: 16),
+          Center( // Center the button
+            child: ElevatedButton(
+              onPressed: () {
+                Get.toNamed('/chat-list');
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                textStyle: const TextStyle(fontSize: 16),
               ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Icon(Icons.email, size: 16, color: Colors.blue.shade700),
-              const SizedBox(width: 8),
-              const Text(
-                'satgasppks@pnm.ac.id',
-                style: TextStyle(fontSize: 14),
-              ),
-            ],
+              child: const Text('Buka Fitur Chat'),
+            ),
           ),
         ],
       ),

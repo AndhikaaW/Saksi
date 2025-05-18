@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Complaint {
   final String complaintId;
   final String uid;
+  
   final String emailPelapor;
   final String namaPelapor;
   final String noTeleponPelapor;
@@ -30,6 +31,7 @@ class Complaint {
   final int statusPengaduan;
   final List<ProgressItem> progress;
   final Timestamp tanggalPelaporan;
+  final String? alasanTolak; // Tambahan alasanTolak
 
   Complaint({
     required this.complaintId,
@@ -55,6 +57,7 @@ class Complaint {
     required this.tanggalPelaporan,
     required this.lampiranKtp,
     required this.lampiranBukti,
+    this.alasanTolak, // Tambahan alasanTolak
   });
 
   factory Complaint.fromJson(Map<String, dynamic> json) {
@@ -85,6 +88,7 @@ class Complaint {
               ?.map((item) => ProgressItem.fromJson(item))
               .toList() ??
           [],
+      alasanTolak: json['alasanTolak'], // Tambahan alasanTolak
     );
   }
 
@@ -113,6 +117,7 @@ class Complaint {
       'lampiranKtp': lampiranKtp,
       'lampiranBukti': lampiranBukti,
       'progress': progress.map((e) => e.toJson()).toList(),
+      'alasanTolak': alasanTolak, // Tambahan alasanTolak
     };
   }
 }

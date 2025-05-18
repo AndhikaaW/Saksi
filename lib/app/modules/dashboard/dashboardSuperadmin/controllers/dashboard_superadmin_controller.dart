@@ -1,9 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:saksi_app/app/modules/chat/views/chat_list_view.dart';
-import 'package:saksi_app/app/modules/chat/views/chat_view.dart';
+import 'package:saksi_app/app/modules/chat/views/chat_list_view_admin.dart';
 import 'package:saksi_app/app/modules/dashboard/dashboardSuperadmin/views/home_superadmin.dart';
 import 'package:saksi_app/app/modules/profile/views/profile_view.dart';
 
@@ -12,7 +10,6 @@ class DashboardSuperadminController extends GetxController {
   var username = ''.obs;
   final currentIndex = 0.obs; // Gunakan .obs untuk reaktivitas
   late List<Widget> tabPages;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final RxInt admins = 0.obs;
   final RxInt users = 0.obs;
   final RxBool isLoading = false.obs;
@@ -23,7 +20,7 @@ class DashboardSuperadminController extends GetxController {
     tabPages = [
       // const DashboardUserView(),   // Tab Utama
       const HomeTabViewSuperadmin(), // Tab Chat
-      const ChatListView(), // Tab Chat
+      const ChatListViewAdmin(), // Tab Chat
       const ProfileView(), // Tab Chat
     ];
     // getLength();

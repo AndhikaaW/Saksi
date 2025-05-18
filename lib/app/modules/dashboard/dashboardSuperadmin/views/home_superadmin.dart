@@ -99,24 +99,50 @@ class HomeTabViewSuperadmin extends GetView<DashboardSuperadminController> {
               ),
             ],
           ),
+
           const SizedBox(height: 16),
 
+          //Manajemen Berita
+          _buildMenuSection(
+            title: 'Manajemen Berita',
+            menus: [
+              MenuItemData(
+                title: 'Kelola Berita',
+                icon: Icons.newspaper,
+                color: Colors.indigo.shade700,
+                onTap: () => Get.toNamed('/news'),
+              ),
+              // MenuItemData(
+              //   title: 'Log Aktivitas',
+              //   icon: Icons.history,
+              //   color: Colors.indigo.shade700,
+              //   onTap: () => Get.toNamed('/log-aktivitas'),
+              // ),
+              // MenuItemData(
+              //   title: 'Backup & Restore',
+              //   icon: Icons.backup,
+              //   color: Colors.cyan.shade700,
+              //   onTap: () => Get.toNamed('/backup'),
+              // ),
+            ],
+          ),
+          const SizedBox(height: 16),
           // System Menu
           _buildMenuSection(
             title: 'Sistem',
             menus: [
-              MenuItemData(
-                title: 'Konfigurasi Aplikasi',
-                icon: Icons.settings,
-                color: Colors.grey.shade700,
-                onTap: () => Get.toNamed('/konfigurasi'),
-              ),
-              MenuItemData(
-                title: 'Log Aktivitas',
-                icon: Icons.history,
-                color: Colors.indigo.shade700,
-                onTap: () => Get.toNamed('/log-aktivitas'),
-              ),
+              // MenuItemData(
+              //   title: 'Konfigurasi Aplikasi',
+              //   icon: Icons.settings,
+              //   color: Colors.grey.shade700,
+              //   onTap: () => Get.toNamed('/konfigurasi'),
+              // ),
+              // MenuItemData(
+              //   title: 'Log Aktivitas',
+              //   icon: Icons.history,
+              //   color: Colors.indigo.shade700,
+              //   onTap: () => Get.toNamed('/log-aktivitas'),
+              // ),
               MenuItemData(
                 title: 'Backup & Restore',
                 icon: Icons.backup,
@@ -125,6 +151,8 @@ class HomeTabViewSuperadmin extends GetView<DashboardSuperadminController> {
               ),
             ],
           ),
+
+          
         ],
       ),
     );

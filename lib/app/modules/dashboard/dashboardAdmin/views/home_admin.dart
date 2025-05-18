@@ -52,7 +52,7 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
                 icon: Icons.report_problem_outlined,
                 color: Colors.amber.shade700,
                 onTap: () => Get.toNamed('/complaint-list',
-                    arguments: ComplaintListView(
+                    arguments: const ComplaintListView(
                         statusFilter: 0, title: 'Menunggu Persetujuan')),
               ),
               MenuItemData(
@@ -60,7 +60,7 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
                 icon: Icons.pending_actions,
                 color: Colors.blue.shade700,
                 onTap: () => Get.toNamed('/complaint-list',
-                    arguments: ComplaintListView(
+                    arguments: const ComplaintListView(
                         statusFilter: 1, title: 'Pengaduan Aktif')),
               ),
               MenuItemData(
@@ -68,7 +68,7 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
                 icon: Icons.check_circle,
                 color: Colors.green.shade700,
                 onTap: () => Get.toNamed('/complaint-list',
-                    arguments: ComplaintListView(
+                    arguments: const ComplaintListView(
                         statusFilter: 2, title: 'Pengaduan Selesai')),
               ),
               MenuItemData(
@@ -76,7 +76,7 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
                 icon: Icons.close,
                 color: Colors.red.shade700,
                 onTap: () => Get.toNamed('/complaint-list',
-                    arguments: ComplaintListView(
+                    arguments: const ComplaintListView(
                         statusFilter: 3, title: 'Pengaduan Ditolak')),
               ),
             ],
@@ -85,11 +85,11 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
 
           // System Menu
           _buildMenuSection(
-            title: 'Sistem',
+            title: 'Manajemen Berita',
             menus: [
               MenuItemData(
-                title: 'berita',
-                icon: Icons.history,
+                title: 'Kelola Berita',
+                icon: Icons.newspaper,
                 color: Colors.indigo.shade700,
                 onTap: () => Get.toNamed('/news'),
               ),

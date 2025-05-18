@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-// import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:saksi_app/app/modules/dashboard/dashboardUser/controllers/dashboard_user_controller.dart';
 // import 'package:saksi_app/app/modules/dashboard/dashboardUser/views/dashboard_user_view.dart';
 import 'package:saksi_app/app/data/models/UserProfile.dart';
@@ -67,70 +67,70 @@ class ComplaintController extends GetxController {
   // Observable untuk foto KTP
   var ktpImage = Rxn<File>();
   var buktiImage = Rxn<File>();
-  // final ImagePicker _picker = ImagePicker();
-  // final TextEditingController maxWidthController = TextEditingController();
-  // final TextEditingController maxHeightController = TextEditingController();
-  // final TextEditingController qualityController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
+  final TextEditingController maxWidthController = TextEditingController();
+  final TextEditingController maxHeightController = TextEditingController();
+  final TextEditingController qualityController = TextEditingController();
 
-  // Future<void> pickKtpImage() async {
-  //   try {
-  //     final XFile? pickedFile = await _picker.pickImage(
-  //       source: ImageSource.gallery,
-  //       maxWidth: maxWidthController.text.isNotEmpty
-  //           ? double.parse(maxWidthController.text)
-  //           : 1024,
-  //       maxHeight: maxHeightController.text.isNotEmpty
-  //           ? double.parse(maxHeightController.text)
-  //           : 1024,
-  //       imageQuality: qualityController.text.isNotEmpty
-  //           ? int.parse(qualityController.text)
-  //           : 50,
-  //     );
+  Future<void> pickKtpImage() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: maxWidthController.text.isNotEmpty
+            ? double.parse(maxWidthController.text)
+            : 1024,
+        maxHeight: maxHeightController.text.isNotEmpty
+            ? double.parse(maxHeightController.text)
+            : 1024,
+        imageQuality: qualityController.text.isNotEmpty
+            ? int.parse(qualityController.text)
+            : 50,
+      );
 
-  //     if (pickedFile != null) {
-  //       final File imageFile = File(pickedFile.path);
-  //       if (await imageFile.exists()) {
-  //         ktpImage.value = imageFile;
-  //         Get.snackbar('Berhasil', 'Foto KTP berhasil dipilih');
-  //       } else {
-  //         Get.snackbar('Gagal', 'File foto tidak ditemukan');
-  //       }
-  //     }
-  //   } catch (e) {
-  //     Get.snackbar('Error', 'Terjadi kesalahan saat memilih foto KTP');
-  //     print('Error picking KTP image: $e');
-  //   }
-  // }
+      if (pickedFile != null) {
+        final File imageFile = File(pickedFile.path);
+        if (await imageFile.exists()) {
+          ktpImage.value = imageFile;
+          Get.snackbar('Berhasil', 'Foto KTP berhasil dipilih');
+        } else {
+          Get.snackbar('Gagal', 'File foto tidak ditemukan');
+        }
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Terjadi kesalahan saat memilih foto KTP');
+      print('Error picking KTP image: $e');
+    }
+  }
 
-  // Future<void> pickBuktiImage() async {
-  //   try {
-  //     final XFile? pickedFile = await _picker.pickImage(
-  //       source: ImageSource.gallery,
-  //       maxWidth: maxWidthController.text.isNotEmpty
-  //           ? double.parse(maxWidthController.text)
-  //           : 1024,
-  //       maxHeight: maxHeightController.text.isNotEmpty
-  //           ? double.parse(maxHeightController.text)
-  //           : 1024,
-  //       imageQuality: qualityController.text.isNotEmpty
-  //           ? int.parse(qualityController.text)
-  //           : 50,
-  //     );
+  Future<void> pickBuktiImage() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: maxWidthController.text.isNotEmpty
+            ? double.parse(maxWidthController.text)
+            : 1024,
+        maxHeight: maxHeightController.text.isNotEmpty
+            ? double.parse(maxHeightController.text)
+            : 1024,
+        imageQuality: qualityController.text.isNotEmpty
+            ? int.parse(qualityController.text)
+            : 50,
+      );
 
-  //     if (pickedFile != null) {
-  //       final File imageFile = File(pickedFile.path);
-  //       if (await imageFile.exists()) {
-  //         buktiImage.value = imageFile;
-  //         Get.snackbar('Berhasil', 'Bukti pendukung berhasil dipilih');
-  //       } else {
-  //         Get.snackbar('Gagal', 'File bukti tidak ditemukan');
-  //       }
-  //     }
-  //   } catch (e) {
-  //     Get.snackbar('Error', 'Terjadi kesalahan saat memilih bukti pendukung');
-  //     print('Error picking evidence image: $e');
-  //   }
-  // }
+      if (pickedFile != null) {
+        final File imageFile = File(pickedFile.path);
+        if (await imageFile.exists()) {
+          buktiImage.value = imageFile;
+          Get.snackbar('Berhasil', 'Bukti pendukung berhasil dipilih');
+        } else {
+          Get.snackbar('Gagal', 'File bukti tidak ditemukan');
+        }
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Terjadi kesalahan saat memilih bukti pendukung');
+      print('Error picking evidence image: $e');
+    }
+  }
 
   // Observable untuk disabilitas
   // var StatusTerlapor = ''.obs;

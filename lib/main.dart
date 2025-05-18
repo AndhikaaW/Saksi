@@ -15,9 +15,8 @@ Future<void> handleBackgroundNotification(ReceivedAction receivedAction) async {
   if (receivedAction.payload != null &&
       receivedAction.payload!['complaintId'] != null) {
     // Simpan data untuk diproses saat aplikasi dibuka
-    final box = await GetStorage.init();
-    GetStorage()
-        .write('pendingNotification', receivedAction.payload!['complaintId']);
+    // final box = await GetStorage.init();
+    GetStorage().write('pendingNotification', receivedAction.payload!['complaintId']);
   }
 }
 

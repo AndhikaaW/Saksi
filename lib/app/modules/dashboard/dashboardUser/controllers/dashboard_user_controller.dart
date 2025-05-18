@@ -9,7 +9,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:saksi_app/app/modules/dashboard/dashboardUser/views/home_user.dart';
 import 'package:saksi_app/app/data/models/UserProfile.dart';
 import 'package:saksi_app/app/modules/news/controllers/news_controller.dart';
-import 'package:saksi_app/app/modules/news/models/news_model.dart';
+import 'package:saksi_app/app/data/models/News.dart';
 import 'package:saksi_app/app/modules/profile/views/profile_view.dart';
 import 'package:saksi_app/app/modules/progresComplaint/views/progres_complaint_view.dart';
 

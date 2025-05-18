@@ -20,6 +20,7 @@ class ManageComplaintController extends GetxController {
 
   final TextEditingController statusController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController alasanTolak = TextEditingController();
 
   @override
   void onInit() {
@@ -122,19 +123,19 @@ class ManageComplaintController extends GetxController {
 
       final docSnapshot = snapshot.docs.first;
 
-      // Ambil data complaint
-      // final complaintData = docSnapshot.data() as Map<String, dynamic>;
-      // final complaint = Complaint.fromJson(complaintData);
-
-      // Update status pengaduan menjadi ditolak (3)
+      // Update status pengaduan menjadi ditolak (3) dan simpan alasan penolakan
       await FirebaseFirestore.instance
           .collection('complaints')
           .doc(docSnapshot.id)
-          .update({'statusPengaduan': 3});
+          .update({
+            'statusPengaduan': 3,
+            'alasanTolak': alasanTolak.text, // simpan alasan tolak dari controller
+          });
 
       Get.back();
       loadComplaints();
       Get.snackbar('Sukses', 'Pengaduan telah ditolak');
+      alasanTolak.clear(); // reset field alasan tolak setelah submit
     } catch (error) {
       Get.snackbar('Error', 'Gagal menolak pengaduan: $error');
     }
@@ -187,7 +188,7 @@ class ManageComplaintController extends GetxController {
         }
       });
 
-      Get.snackbar('Sukses', 'Progress berhasil ditambahkan');
+      // Get.snackbar('Sukses', 'Progress berhasil ditambahkan');
     } catch (error) {
       Get.snackbar('Error', 'Gagal menambahkan progress: $error');
     }

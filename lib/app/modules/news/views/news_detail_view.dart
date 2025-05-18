@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:saksi_app/app/modules/news/controllers/news_controller.dart';
-import 'package:saksi_app/app/modules/news/models/news_model.dart';
+import 'package:saksi_app/app/data/models/News.dart';
 
 class NewsDetailView extends GetView<NewsController> {
   final NewsModel news;

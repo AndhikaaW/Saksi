@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+// import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:saksi_app/app/modules/news/models/news_model.dart';
+import 'package:saksi_app/app/data/models/News.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class NewsController extends GetxController {
@@ -87,41 +87,40 @@ class NewsController extends GetxController {
 
   // Buka link berita di browser
   Future<void> openNewsUrl(String url) async {
-    try {
-      if (url.isEmpty) {
-        Get.snackbar('Error', 'URL berita tidak valid',
-            snackPosition: SnackPosition.BOTTOM);
-        return;
-      }
+  try {
+    if (url.isEmpty) {
+      Get.snackbar('Error', 'URL berita tidak valid',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
 
-      // Pastikan URL memiliki protokol http atau https
-      String formattedUrl = url;
-      if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        formattedUrl = 'https://$url';
-      }
+    // Pastikan URL memiliki protokol http atau https
+    String formattedUrl = url;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      formattedUrl = 'https://$url';
+    }
 
-      final Uri uri = Uri.parse(formattedUrl);
-
-      // Coba gunakan mode in-app browser untuk debugging
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(
-          uri,
-          mode: LaunchMode
-              .inAppWebView, // Coba ubah ke inAppWebView untuk pengujian
-          webViewConfiguration: const WebViewConfiguration(
-            enableJavaScript: true,
-            enableDomStorage: true,
-          ),
-        );
-      } else {
-        Get.snackbar('Error', 'Tidak dapat membuka URL: $formattedUrl',
-            snackPosition: SnackPosition.BOTTOM);
-      }
-    } catch (e) {
-      Get.snackbar('Error', 'Terjadi kesalahan: $e',
+    final Uri uri = Uri.parse(formattedUrl);
+    
+    // Coba gunakan mode in-app browser untuk debugging
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(
+        uri,
+        mode: LaunchMode.inAppWebView,  // Coba ubah ke inAppWebView untuk pengujian
+        webViewConfiguration: const WebViewConfiguration(
+          enableJavaScript: true,
+          enableDomStorage: true,
+        ),
+      );
+    } else {
+      Get.snackbar('Error', 'Tidak dapat membuka URL: $formattedUrl',
           snackPosition: SnackPosition.BOTTOM);
     }
+  } catch (e) {
+    Get.snackbar('Error', 'Terjadi kesalahan: $e',
+        snackPosition: SnackPosition.BOTTOM);
   }
+}
 
   // Tambah berita ke Firestore
   Future<void> addNews() async {
@@ -166,40 +165,6 @@ class NewsController extends GetxController {
           snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading.value = false;
-    }
-  }
-
-  // Update berita di Firestore
-  Future<void> updateNews(NewsModel newsItem) async {
-    try {
-      await _firestore
-          .collection('news')
-          .doc(newsItem.id)
-          .update(newsItem.toJson());
-      int index = news.indexWhere((item) => item.id == newsItem.id);
-      if (index != -1) {
-        news[index] = newsItem;
-      }
-      Get.snackbar('Sukses', 'Berita berhasil diperbarui',
-          snackPosition: SnackPosition.BOTTOM);
-    } catch (e) {
-      print('Error updating news: $e');
-      Get.snackbar('Error', 'Gagal memperbarui berita: $e',
-          snackPosition: SnackPosition.BOTTOM);
-    }
-  }
-
-  // Hapus berita (soft delete dengan mengubah isActive)
-  Future<void> deleteNews(String id) async {
-    try {
-      await _firestore.collection('news').doc(id).update({'isActive': false});
-      news.removeWhere((item) => item.id == id);
-      Get.snackbar('Sukses', 'Berita berhasil dihapus',
-          snackPosition: SnackPosition.BOTTOM);
-    } catch (e) {
-      print('Error deleting news: $e');
-      Get.snackbar('Error', 'Gagal menghapus berita: $e',
-          snackPosition: SnackPosition.BOTTOM);
     }
   }
 
