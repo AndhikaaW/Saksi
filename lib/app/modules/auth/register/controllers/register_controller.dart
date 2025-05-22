@@ -63,6 +63,7 @@ class RegisterController extends GetxController {
           password: confirmPasswordController.text,
           gender: jenisKelaminController.text,
           phone: noTeleponController.text,
+          photoUrl: "",
           status: 2
       );
 

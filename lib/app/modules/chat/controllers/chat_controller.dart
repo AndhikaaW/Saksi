@@ -445,7 +445,6 @@ class ChatController extends GetxController {
       if (messageSnapshot.docs.isEmpty) {
         return {
           'message': "Belum ada pesan",
-          'time': "",
         };
       }
 
@@ -523,14 +522,16 @@ class ChatController extends GetxController {
   }
 
   // Fungsi untuk membuka chat room
-  void openChatRoom(String roomId, String userName) {
+  void openChatRoom(String roomId, String userName, String photoUrl) {
     currentRoomId = roomId;
     currentAdminName = userName;
+    currentPhotoUrl = photoUrl;
     _startChatStream();
 
     Get.toNamed('/chat', arguments: {
       'roomId': roomId,
       'adminName': userName,
+      'photoUrl': photoUrl,
     });
   }
 }

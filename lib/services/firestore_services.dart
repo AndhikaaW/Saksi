@@ -14,6 +14,7 @@ class DatabaseService {
     required String password,
     required String gender,
     required String phone,
+    required String photoUrl,
     required int status,
   }) async {
     try {
@@ -36,6 +37,7 @@ class DatabaseService {
         "password": password,
         "gender": gender,
         "phone": phone,
+        "photoUrl": photoUrl,
         "status": status,
         "createdAt": FieldValue.serverTimestamp(),
       });

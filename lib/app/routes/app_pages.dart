@@ -12,6 +12,7 @@ import '../modules/chat/bindings/chat_binding.dart';
 import '../modules/chat/views/chat_list_view.dart';
 import '../modules/chat/views/chat_list_view_admin.dart';
 import '../modules/chat/views/chat_view.dart';
+import '../modules/chat/views/admin_contacts_view.dart';
 import '../modules/complaint/bindings/complaint_binding.dart';
 import '../modules/complaint/views/complaint_view.dart';
 import '../modules/dashboard/dashboardAdmin/bindings/dashboard_admin_binding.dart';
@@ -87,6 +88,11 @@ class AppPages {
     GetPage(
       name: _Paths.CHAT_LIST_ADMIN,
       page: () => const ChatListViewAdmin(),
+      binding: ChatBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADMIN_CONTACTS,
+      page: () => const AdminContactsView(),
       binding: ChatBinding(),
     ),
     GetPage(

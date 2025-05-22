@@ -45,50 +45,130 @@ class ChatListViewAdmin extends GetView<ChatController> {
               return FutureBuilder<Map<String, dynamic>>(
                 future: controller.getLastMessage(chatRoom['id']),
                 builder: (context, messageSnapshot) {
-                  String lastMessage =
-                      messageSnapshot.data?['message'] ?? "Ketuk untuk memulai chat";
+                  String lastMessage = messageSnapshot.data?['message'] ??
+                      "Ketuk untuk memulai chat";
                   String lastMessageTime = "";
 
                   if (messageSnapshot.data?['time'] != null) {
-                    Timestamp timestamp = messageSnapshot.data!['time'] as Timestamp;
+                    Timestamp timestamp =
+                        messageSnapshot.data!['time'] as Timestamp;
                     DateTime messageDate = timestamp.toDate();
                     DateTime now = DateTime.now();
-                    
+
                     if (now.difference(messageDate).inDays == 0) {
-                      // Hari ini, tampilkan jam saja
                       lastMessageTime = DateFormat('HH:mm').format(messageDate);
                     } else if (now.difference(messageDate).inDays < 7) {
-                      // Minggu ini, tampilkan nama hari
-                      lastMessageTime = DateFormat('EEEE', 'id_ID').format(messageDate);
+                      lastMessageTime =
+                          DateFormat('EEEE', 'id_ID').format(messageDate);
                     } else {
-                      // Lebih dari seminggu, tampilkan tanggal
-                      lastMessageTime = DateFormat('dd/MM/yy').format(messageDate);
+                      lastMessageTime =
+                          DateFormat('dd/MM/yy').format(messageDate);
                     }
                   }
 
                   bool isUnread = messageSnapshot.data?['isUnread'] ?? false;
-                  String senderEmail = messageSnapshot.data?['sender'] ?? "";
-                  bool isFromAdmin = senderEmail == adminEmail;
+                  bool isFromAdmin =
+                      messageSnapshot.data?['sender'] == adminEmail;
 
                   return Column(
                     children: [
                       InkWell(
-                        onTap: () => controller.openChatRoom(
-                          chatInfo['roomId'],
-                          chatInfo['userName'],
-                        ),
+                        onTap: () async {
+                          // Dapatkan foto profil user
+                          QuerySnapshot userSnapshot = await FirebaseFirestore
+                              .instance
+                              .collection('users')
+                              .where('email', isEqualTo: chatInfo['userEmail'])
+                              .limit(1)
+                              .get();
+
+                          String photoUrl = '';
+                          if (userSnapshot.docs.isNotEmpty) {
+                            photoUrl = userSnapshot.docs.first
+                                    .get('photoUrl')
+                                    ?.toString() ??
+                                '';
+                          }
+
+                          controller.openChatRoom(
+                            chatInfo['roomId'],
+                            chatInfo['userName'],
+                            photoUrl,
+                          );
+                        },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
                           color: Colors.white,
                           child: Row(
                             children: [
-                              CircleAvatar(
-                                radius: 28,
-                                backgroundColor: Colors.teal,
-                                child: Text(
-                                  chatInfo['userName'].substring(0, 1).toUpperCase(),
-                                  style: const TextStyle(color: Colors.white, fontSize: 22),
-                                ),
+                              FutureBuilder<QuerySnapshot>(
+                                future: FirebaseFirestore.instance
+                                    .collection('users')
+                                    .where('email',
+                                        isEqualTo: chatInfo['userEmail'])
+                                    .limit(1)
+                                    .get(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return CircleAvatar(
+                                      radius: 28,
+                                      backgroundColor: Colors.teal,
+                                      child: const CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ),
+                                    );
+                                  }
+
+                                  // Ambil photoUrl dari data user
+                                  String? photoUrl;
+                                  if (snapshot.hasData &&
+                                      snapshot.data!.docs.isNotEmpty) {
+                                    photoUrl = snapshot.data!.docs.first
+                                        .get('photoUrl')
+                                        ?.toString();
+                                  }
+
+                                  // Jika photoUrl null atau kosong, tampilkan huruf awal dari Username
+                                  if (photoUrl == null || photoUrl.isEmpty) {
+                                    return CircleAvatar(
+                                      radius: 28,
+                                      backgroundColor: Colors.teal,
+                                      child: Text(
+                                        chatInfo['userName']
+                                            .substring(0, 1)
+                                            .toUpperCase(),
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 22),
+                                      ),
+                                    );
+                                  }
+
+                                  // Jika photoUrl ada, tampilkan gambar
+                                  return CircleAvatar(
+                                    radius: 28,
+                                    backgroundColor: Colors.teal,
+                                    child: ClipOval(
+                                      child: Image.network(
+                                        photoUrl,
+                                        width: 56,
+                                        height: 56,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Text(
+                                          chatInfo['userName']
+                                              .substring(0, 1)
+                                              .toUpperCase(),
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 22),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                               const SizedBox(width: 16),
                               Expanded(
@@ -98,7 +178,9 @@ class ChatListViewAdmin extends GetView<ChatController> {
                                     Text(
                                       chatInfo['userName'],
                                       style: TextStyle(
-                                        fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
+                                        fontWeight: isUnread
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
                                         fontSize: 16,
                                       ),
                                     ),
@@ -122,8 +204,12 @@ class ChatListViewAdmin extends GetView<ChatController> {
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                              color: isUnread ? Colors.black : Colors.grey[600],
-                                              fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
+                                              color: isUnread
+                                                  ? Colors.black
+                                                  : Colors.grey[600],
+                                              fontWeight: isUnread
+                                                  ? FontWeight.bold
+                                                  : FontWeight.normal,
                                             ),
                                           ),
                                         ),
@@ -140,7 +226,9 @@ class ChatListViewAdmin extends GetView<ChatController> {
                                       lastMessageTime,
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: isUnread ? Colors.teal : Colors.grey[600],
+                                        color: isUnread
+                                            ? Colors.teal
+                                            : Colors.grey[600],
                                       ),
                                     ),
                                   const SizedBox(height: 4),
