@@ -10,7 +10,6 @@ class ChatListView extends GetView<ChatController> {
 
   @override
   Widget build(BuildContext context) {
-    // Pastikan controller sudah diinisialisasi
     final ChatController controller = Get.put(ChatController());
     final storage = GetStorage();
     final userEmail = storage.read('email');
@@ -69,9 +68,13 @@ class ChatListView extends GetView<ChatController> {
                     }
                   }
 
-                  bool isUnread = messageSnapshot.data?['isUnread'] ?? false;
-                  bool isFromUser =
-                      messageSnapshot.data?['sender'] == userEmail;
+                  // Ambil sender dari pesan terakhir
+                  String? lastMessageSender = messageSnapshot.data?['sender'];
+                  bool isFromCurrentUser = lastMessageSender == userEmail;
+                  
+                  // Gunakan unread count dari controller
+                  int unreadCount = controller.getUnreadCount(chatRoom['id']);
+                  bool hasUnreadMessages = unreadCount > 0;
 
                   return Column(
                     children: [
@@ -124,7 +127,6 @@ class ChatListView extends GetView<ChatController> {
                                     );
                                   }
 
-                                  // Ambil photoUrl dari data user
                                   String? photoUrl;
                                   if (snapshot.hasData &&
                                       snapshot.data!.docs.isNotEmpty) {
@@ -133,7 +135,6 @@ class ChatListView extends GetView<ChatController> {
                                         ?.toString();
                                   }
 
-                                  // Jika photoUrl null atau kosong, tampilkan huruf awal dari Username
                                   if (photoUrl == null || photoUrl.isEmpty) {
                                     return CircleAvatar(
                                       radius: 28,
@@ -148,7 +149,6 @@ class ChatListView extends GetView<ChatController> {
                                     );
                                   }
 
-                                  // Jika photoUrl ada, tampilkan gambar
                                   return CircleAvatar(
                                     radius: 28,
                                     backgroundColor: Colors.teal,
@@ -181,7 +181,7 @@ class ChatListView extends GetView<ChatController> {
                                     Text(
                                       chatInfo['userName'],
                                       style: TextStyle(
-                                        fontWeight: isUnread
+                                        fontWeight: hasUnreadMessages
                                             ? FontWeight.bold
                                             : FontWeight.normal,
                                         fontSize: 16,
@@ -190,7 +190,8 @@ class ChatListView extends GetView<ChatController> {
                                     const SizedBox(height: 4),
                                     Row(
                                       children: [
-                                        if (isFromUser)
+                                        // Tampilkan ikon centang jika pesan dari user saat ini
+                                        if (isFromCurrentUser)
                                           Row(
                                             children: [
                                               Icon(
@@ -207,10 +208,10 @@ class ChatListView extends GetView<ChatController> {
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                              color: isUnread
+                                              color: hasUnreadMessages
                                                   ? Colors.black
                                                   : Colors.grey[600],
-                                              fontWeight: isUnread
+                                              fontWeight: hasUnreadMessages
                                                   ? FontWeight.bold
                                                   : FontWeight.normal,
                                             ),
@@ -229,33 +230,53 @@ class ChatListView extends GetView<ChatController> {
                                       lastMessageTime,
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: isUnread
+                                        color: hasUnreadMessages
                                             ? Colors.teal
                                             : Colors.grey[600],
                                       ),
                                     ),
                                   const SizedBox(height: 4),
-                                  if (isUnread && !isFromUser)
-                                    Container(
-                                      padding: const EdgeInsets.all(6),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.teal,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Text(
-                                        "1",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
+                                  // Badge untuk pesan yang belum dibaca
+                                  // Jika ingin inisiasi unreadCount menggunakan stream agar otomatis fetch,
+                                  // pastikan unreadCount diambil dari RxMap unreadCounts di controller yang sudah di-stream.
+                                  // Contoh: unreadCounts[roomId] akan otomatis update jika ada perubahan di Firestore.
+                                  Obx(() {
+                                    final unread = controller.unreadCounts[chatRoom['id']] ?? 0;
+                                    if (unread > 0)
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.teal,
+                                          borderRadius: BorderRadius.circular(12),
                                         ),
-                                      ),
-                                    ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 20,
+                                          minHeight: 20,
+                                        ),
+                                        child: Text(
+                                          unread > 99 ? '99+' : unread.toString(),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      );
+                                    return const SizedBox.shrink();
+                                  }),
                                 ],
                               ),
                             ],
                           ),
                         ),
+                      ),
+                      // Divider antar item chat
+                      Divider(
+                        height: 1,
+                        color: Colors.grey[300],
+                        indent: 72,
                       ),
                     ],
                   );

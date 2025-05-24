@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:intl/date_symbol_data_local.dart'; // Import untuk inisialisasi locale
+import 'package:intl/date_symbol_data_local.dart';
 
 class ChatController extends GetxController {
   final isLoading = true.obs;
@@ -13,35 +13,39 @@ class ChatController extends GetxController {
   final TextEditingController messageController = TextEditingController();
   final storage = GetStorage();
 
+  // Map untuk menyimpan jumlah pesan yang belum dibaca per chat room
+  final RxMap<String, int> unreadCounts = <String, int>{}.obs;
+
   String? currentRoomId;
   String? currentAdminName;
   String? currentPhotoUrl;
 
   StreamSubscription<QuerySnapshot>? _chatSubscription;
   StreamSubscription<QuerySnapshot>? _chatRoomsSubscription;
+  Map<String, StreamSubscription<QuerySnapshot>?> _unreadSubscriptions = {};
+  StreamSubscription? _markReadSubscription;
 
   @override
   void onInit() {
     super.onInit();
-    // Inisialisasi format tanggal untuk Indonesia
     initializeDateFormatting('id_ID', null);
-    
-    // Mulai mendengarkan chat rooms saat controller diinisialisasi
+
     final userEmail = storage.read('email');
     if (userEmail != null) {
       startChatRoomsStream();
-      startNotificationCheck(); // Mulai pemeriksaan notifikasi
+      startNotificationCheck();
     }
   }
 
   @override
   void onReady() {
-    super.onReady();  
-    // Periksa apakah ada argumen roomId saat navigasi
+    super.onReady();
     if (Get.arguments != null && Get.arguments['roomId'] != null) {
       currentRoomId = Get.arguments['roomId'];
       currentAdminName = Get.arguments['adminName'];
       _startChatStream();
+      // Tandai pesan sebagai sudah dibaca ketika membuka chat
+      markMessagesAsRead(currentRoomId!);
     }
   }
 
@@ -50,6 +54,9 @@ class ChatController extends GetxController {
     messageController.dispose();
     _chatSubscription?.cancel();
     _chatRoomsSubscription?.cancel();
+    // Cancel semua subscription untuk unread count
+    _unreadSubscriptions.values
+        .forEach((subscription) => subscription?.cancel());
     super.onClose();
   }
 
@@ -74,7 +81,6 @@ class ChatController extends GetxController {
         });
       }
       isLoading.value = false;
-      // Memastikan UI diperbarui
       messages.refresh();
     }, onError: (error) {
       print("Error dalam stream chat: $error");
@@ -87,12 +93,79 @@ class ChatController extends GetxController {
     });
   }
 
+  // Fungsi untuk menandai pesan sebagai sudah dibaca
+  // Fungsi untuk menandai pesan sebagai sudah dibaca, sekarang dengan stream agar otomatis
+  
+
+  Future<void> markMessagesAsRead(String roomId) async {
+    try {
+      String? currentUserEmail = storage.read('email');
+      if (currentUserEmail == null) return;
+
+      // Cancel stream sebelumnya jika ada
+      _markReadSubscription?.cancel();
+
+      // Stream pesan yang belum dibaca dan bukan dari user saat ini
+      _markReadSubscription = FirebaseFirestore.instance
+          .collection("chatRooms")
+          .doc(roomId)
+          .collection("messages")
+          .where("isRead", isEqualTo: false)
+          .where("sender", isNotEqualTo: currentUserEmail)
+          .snapshots()
+          .listen((QuerySnapshot unreadMessages) async {
+        if (unreadMessages.docs.isEmpty) {
+          // Reset unread count untuk room ini jika tidak ada pesan yang belum dibaca
+          unreadCounts[roomId] = 0;
+          unreadCounts.refresh();
+          return;
+        }
+
+        WriteBatch batch = FirebaseFirestore.instance.batch();
+
+        for (var doc in unreadMessages.docs) {
+          batch.update(doc.reference, {"isRead": true});
+        }
+
+        await batch.commit();
+
+        // Reset unread count untuk room ini
+        unreadCounts[roomId] = 0;
+        unreadCounts.refresh(); // Memaksa refresh UI
+      });
+    } catch (e) {
+      print("Error marking messages as read: $e");
+    }
+  }
+
+  // Fungsi untuk memulai stream unread count untuk setiap chat room
+  void _startUnreadCountStream(String roomId) {
+    String? currentUserEmail = storage.read('email');
+    if (currentUserEmail == null) return;
+
+    // Cancel existing subscription jika ada
+    _unreadSubscriptions[roomId]?.cancel();
+
+    _unreadSubscriptions[roomId] = FirebaseFirestore.instance
+        .collection("chatRooms")
+        .doc(roomId)
+        .collection("messages")
+        .where("isRead", isEqualTo: false)
+        .where("sender", isNotEqualTo: currentUserEmail)
+        .snapshots()
+        .listen((QuerySnapshot snapshot) {
+      unreadCounts[roomId] = snapshot.docs.length;
+      unreadCounts.refresh(); // Memaksa refresh UI
+    }, onError: (error) {
+      print("Error dalam stream unread count untuk $roomId: $error");
+    });
+  }
+
   Future<List<QueryDocumentSnapshot>> readActiveAdmins() async {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection("users")
-          .where("status", isEqualTo: 1)
-          .get();
+          .where("status", whereIn: [0, 1]).get();
       return querySnapshot.docs;
     } catch (e) {
       print("Error: $e");
@@ -118,9 +191,7 @@ class ChatController extends GetxController {
         throw Exception("User not logged in or not authorized");
       }
 
-      // Dapatkan nama pengguna dari Firestore berdasarkan email
       String username = await getUsernameFromEmail(email);
-
       String roomId = generateChatRoomId(email, adminUid);
 
       DocumentReference chatRoomRef =
@@ -138,17 +209,17 @@ class ChatController extends GetxController {
         });
       }
 
-      // Simpan data terlebih dahulu ke variabel lokal
       currentRoomId = roomId;
       currentAdminName = adminName;
       currentPhotoUrl = photoUrl;
 
-      // Kemudian navigasi dengan arguments
       Get.toNamed('/chat', arguments: {
         'roomId': roomId,
         'adminName': adminName,
       });
       _startChatStream();
+      // Tandai pesan sebagai sudah dibaca ketika membuka chat
+      markMessagesAsRead(roomId);
     } catch (e) {
       print("Error creating chat room: $e");
       Get.snackbar(
@@ -185,7 +256,7 @@ class ChatController extends GetxController {
       String email = storage.read('email');
       String username = await getUsernameFromEmail(email);
 
-      // Simpan pesan ke Firestore
+      // Simpan pesan ke Firestore dengan status isRead: false
       await FirebaseFirestore.instance
           .collection("chatRooms")
           .doc(currentRoomId)
@@ -195,16 +266,15 @@ class ChatController extends GetxController {
         "sender": email,
         "senderName": username,
         "time": FieldValue.serverTimestamp(),
+        "isRead": false, // Tambahkan field untuk tracking read status
       });
       messageController.clear();
 
-      // Update lastUpdated pada chatRoom
       await FirebaseFirestore.instance
           .collection("chatRooms")
           .doc(currentRoomId)
           .update({"lastUpdated": FieldValue.serverTimestamp()});
 
-      // Kirim notifikasi ke pengguna lain
       await _sendNotificationToOtherUser(message, username);
     } catch (e) {
       print("Error sending message: $e");
@@ -219,7 +289,6 @@ class ChatController extends GetxController {
   Future<void> _sendNotificationToOtherUser(
       String message, String senderName) async {
     try {
-      // Dapatkan informasi chat room
       DocumentSnapshot chatRoomDoc = await FirebaseFirestore.instance
           .collection("chatRooms")
           .doc(currentRoomId)
@@ -231,12 +300,10 @@ class ChatController extends GetxController {
           chatRoomDoc.data() as Map<String, dynamic>;
       List<dynamic> users = chatRoomData['users'];
 
-      // Dapatkan email pengguna lain
       String currentUserEmail = storage.read('email');
       String otherUserEmail =
           users.firstWhere((email) => email != currentUserEmail);
 
-      // Dapatkan informasi pengguna lain
       QuerySnapshot userSnapshot = await FirebaseFirestore.instance
           .collection("users")
           .where("email", isEqualTo: otherUserEmail)
@@ -245,7 +312,6 @@ class ChatController extends GetxController {
 
       if (userSnapshot.docs.isEmpty) return;
 
-      // Simpan status notifikasi di Firestore
       await FirebaseFirestore.instance
           .collection("chatRooms")
           .doc(currentRoomId)
@@ -263,22 +329,18 @@ class ChatController extends GetxController {
     }
   }
 
-  // Fungsi untuk memeriksa notifikasi baru
   void startNotificationCheck() {
-    // Periksa notifikasi baru setiap 30 detik
     Timer.periodic(const Duration(seconds: 5), (timer) async {
       try {
         String? email = storage.read('email');
         if (email == null) return;
 
-        // Cek semua chat room yang memiliki notifikasi belum dibaca
         QuerySnapshot chatRooms = await FirebaseFirestore.instance
             .collection("chatRooms")
             .where("users", arrayContains: email)
             .get();
 
         for (var chatRoom in chatRooms.docs) {
-          // Cek notifikasi yang belum dibaca untuk chat room ini
           QuerySnapshot unreadNotifications = await FirebaseFirestore.instance
               .collection("chatRooms")
               .doc(chatRoom.id)
@@ -293,14 +355,12 @@ class ChatController extends GetxController {
             var notification =
                 unreadNotifications.docs.first.data() as Map<String, dynamic>;
 
-            // Dapatkan nama admin dari chat room
             List<dynamic> userNames =
                 chatRoom.get("userNames") as List<dynamic>;
             List<dynamic> users = chatRoom.get("users") as List<dynamic>;
             int currentUserIndex = users.indexOf(email);
             String adminName = userNames[currentUserIndex == 0 ? 1 : 0];
 
-            // Tampilkan notifikasi
             await AwesomeNotifications().createNotification(
               content: NotificationContent(
                 id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
@@ -331,7 +391,6 @@ class ChatController extends GetxController {
               ],
             );
 
-            // Tandai notifikasi sebagai telah dibaca
             await FirebaseFirestore.instance
                 .collection("chatRooms")
                 .doc(chatRoom.id)
@@ -346,17 +405,16 @@ class ChatController extends GetxController {
     });
   }
 
-  // Fungsi untuk memulai stream chat rooms untuk admin
   void startChatRoomsStream() {
-    final adminEmail = storage.read('email');
-    if (adminEmail == null) return;
+    final userEmail = storage.read('email');
+    if (userEmail == null) return;
 
-    print("Memulai stream chat rooms untuk: $adminEmail");
+    print("Memulai stream chat rooms untuk: $userEmail");
 
     _chatRoomsSubscription?.cancel();
     _chatRoomsSubscription = FirebaseFirestore.instance
         .collection("chatRooms")
-        .where("users", arrayContains: adminEmail)
+        .where("users", arrayContains: userEmail)
         .snapshots()
         .listen((QuerySnapshot snapshot) {
       chatRooms.clear();
@@ -366,10 +424,10 @@ class ChatController extends GetxController {
           'id': doc.id,
           ...data,
         });
-        print("Chat room ditemukan: ${doc.id}");
+        // Mulai stream unread count untuk setiap chat room
+        _startUnreadCountStream(doc.id);
       }
 
-      // Urutkan berdasarkan lastUpdated jika tersedia
       chatRooms.sort((a, b) {
         Timestamp? timeA = a['lastUpdated'] as Timestamp?;
         Timestamp? timeB = b['lastUpdated'] as Timestamp?;
@@ -378,11 +436,10 @@ class ChatController extends GetxController {
         if (timeA == null) return 1;
         if (timeB == null) return -1;
 
-        return timeB.compareTo(timeA); // Descending order
+        return timeB.compareTo(timeA);
       });
 
       chatRooms.refresh();
-      print("Total chat rooms: ${chatRooms.length}");
     }, onError: (error) {
       print("Error dalam stream chat rooms: $error");
       Get.snackbar(
@@ -393,13 +450,11 @@ class ChatController extends GetxController {
     });
   }
 
-  // Fungsi untuk mendapatkan informasi chat room
   Map<String, dynamic> getChatRoomInfo(
       Map<String, dynamic> chatRoom, String adminEmail) {
     var users = List<String>.from(chatRoom['users'] ?? []);
     var userNames = List<String>.from(chatRoom['userNames'] ?? []);
 
-    // Cari user yang bukan admin
     int adminIndex = users.indexOf(adminEmail);
     if (adminIndex == -1) {
       print("Admin email tidak ditemukan dalam daftar users: $adminEmail");
@@ -431,7 +486,6 @@ class ChatController extends GetxController {
     };
   }
 
-  // Fungsi untuk mendapatkan pesan terakhir dari chat room
   Future<Map<String, dynamic>> getLastMessage(String roomId) async {
     try {
       QuerySnapshot messageSnapshot = await FirebaseFirestore.instance
@@ -453,6 +507,8 @@ class ChatController extends GetxController {
       return {
         'message': lastMessageData['message'] ?? "Belum ada pesan",
         'time': lastMessageData['time'],
+        'sender': lastMessageData['sender'],
+        'isRead': lastMessageData['isRead'] ?? true,
       };
     } catch (e) {
       print("Error mendapatkan pesan terakhir: $e");
@@ -463,17 +519,14 @@ class ChatController extends GetxController {
     }
   }
 
-  // Fungsi untuk mendapatkan pesan terakhir untuk admin tertentu dari sisi user
   Future<Map<String, dynamic>> getLastMessageForAdmin(
       String adminEmail, String? userEmail) async {
     try {
-      // Cari chat room antara user dan admin
       QuerySnapshot roomSnapshot = await FirebaseFirestore.instance
           .collection("chatRooms")
           .where("users", arrayContains: userEmail)
           .get();
 
-      // Filter untuk mendapatkan room yang berisi admin yang dipilih
       String? roomId;
       for (var doc in roomSnapshot.docs) {
         List<dynamic> users = doc['users'];
@@ -490,7 +543,6 @@ class ChatController extends GetxController {
         };
       }
 
-      // Dapatkan pesan terakhir dari room tersebut
       QuerySnapshot messageSnapshot = await FirebaseFirestore.instance
           .collection("chatRooms")
           .doc(roomId)
@@ -521,17 +573,23 @@ class ChatController extends GetxController {
     }
   }
 
-  // Fungsi untuk membuka chat room
   void openChatRoom(String roomId, String userName, String photoUrl) {
     currentRoomId = roomId;
     currentAdminName = userName;
     currentPhotoUrl = photoUrl;
     _startChatStream();
+    markMessagesAsRead(roomId);
 
     Get.toNamed('/chat', arguments: {
       'roomId': roomId,
       'adminName': userName,
       'photoUrl': photoUrl,
     });
+    unreadCounts.refresh();
+  }
+
+  // Fungsi helper untuk mendapatkan unread count
+  int getUnreadCount(String roomId) {
+    return unreadCounts[roomId] ?? 0;
   }
 }

@@ -99,7 +99,7 @@ class AdminContactsView extends GetView<ChatController> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                "Admin",
+                                adminData['status'] == 0 ? "Superadmin" : "Admin",
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey[600],

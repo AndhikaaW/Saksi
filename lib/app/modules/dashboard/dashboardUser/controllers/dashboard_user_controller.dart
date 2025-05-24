@@ -19,6 +19,7 @@ class DashboardUserController extends GetxController {
 
   final currentIndex = 0.obs;
   late List<Widget> tabPages;
+  final RxBool isExpanded = false.obs;
 
   var email = ''.obs;
   var uid = ''.obs;
@@ -191,14 +192,22 @@ class DashboardUserController extends GetxController {
           case 2:
             status = 'User';
             break;
+          case 1:
+            status = 'Admin';
+            break;
+          case 0:
+            status = 'Superadmin';
+            break;
           default:
             status = '';
         }
+        print(status);
         return {
           'id': doc.id,
           'name': data['name'] ?? '',
           'status': status,
           'email': data['email'] ?? '',
+          'gender': data['gender'] ?? '',
           'photoUrl': data['photoUrl'] ?? '',
         };
       }).toList();

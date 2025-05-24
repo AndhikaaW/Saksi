@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:saksi_app/firebase_options.dart';
+import 'package:saksi_app/app/controllers/internet_controller.dart';
 
 import 'app/routes/app_pages.dart';
 
@@ -16,7 +17,8 @@ Future<void> handleBackgroundNotification(ReceivedAction receivedAction) async {
       receivedAction.payload!['complaintId'] != null) {
     // Simpan data untuk diproses saat aplikasi dibuka
     // final box = await GetStorage.init();
-    GetStorage().write('pendingNotification', receivedAction.payload!['complaintId']);
+    GetStorage()
+        .write('pendingNotification', receivedAction.payload!['complaintId']);
   }
 }
 
@@ -27,8 +29,8 @@ Future<void> onActionReceivedMethod(ReceivedAction receivedAction) async {
     if (receivedAction.payload!['complaintId'] != null) {
       // Handle notifikasi pengaduan
       await GetStorage.init();
-      GetStorage().write(
-          'pendingNotification', receivedAction.payload!['complaintId']);
+      GetStorage()
+          .write('pendingNotification', receivedAction.payload!['complaintId']);
     } else if (receivedAction.payload!['roomId'] != null) {
       // Handle notifikasi chat di background
       // Simpan data untuk diproses saat aplikasi dibuka
@@ -44,6 +46,9 @@ Future<void> onActionReceivedMethod(ReceivedAction receivedAction) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi InternetController
+  Get.put(InternetController());
 
   // Inisialisasi Awesome Notifications dengan perizinan
   await AwesomeNotifications().initialize(
@@ -131,6 +136,7 @@ void main() async {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
         fontFamily: 'Poppins',
+        scaffoldBackgroundColor: Colors.grey[200],
       ),
       // onInit: () {
       //   // Jika ada notifikasi tertunda, navigasikan ke halaman detail

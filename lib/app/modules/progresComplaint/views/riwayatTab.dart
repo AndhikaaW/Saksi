@@ -42,6 +42,7 @@ class RiwayatTab extends GetView<ProgresComplaintController> {
       }
 
       return ListView.builder(
+        
         padding: const EdgeInsets.all(16),
         itemCount: completedComplaints.length + 1, // +1 untuk header
         itemBuilder: (context, index) {

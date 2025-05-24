@@ -43,7 +43,7 @@ class ChatListViewAdmin extends GetView<ChatController> {
               var chatInfo = controller.getChatRoomInfo(chatRoom, adminEmail!);
 
               return FutureBuilder<Map<String, dynamic>>(
-                future: controller.getLastMessage(chatRoom['id']),
+                future: controller.getLastMessageForAdmin(adminEmail, chatInfo['userEmail']),
                 builder: (context, messageSnapshot) {
                   String lastMessage = messageSnapshot.data?['message'] ??
                       "Ketuk untuk memulai chat";
@@ -66,9 +66,13 @@ class ChatListViewAdmin extends GetView<ChatController> {
                     }
                   }
 
-                  bool isUnread = messageSnapshot.data?['isUnread'] ?? false;
-                  bool isFromAdmin =
-                      messageSnapshot.data?['sender'] == adminEmail;
+                  // Ambil sender dari pesan terakhir
+                  String? lastMessageSender = messageSnapshot.data?['sender'];
+                  bool isFromAdmin = lastMessageSender == adminEmail;
+
+                  // Ambil unread count dari controller (RxMap)
+                  int unreadCount = controller.getUnreadCount(chatInfo['roomId']);
+                  bool hasUnreadMessages = unreadCount > 0;
 
                   return Column(
                     children: [
@@ -178,7 +182,7 @@ class ChatListViewAdmin extends GetView<ChatController> {
                                     Text(
                                       chatInfo['userName'],
                                       style: TextStyle(
-                                        fontWeight: isUnread
+                                        fontWeight: hasUnreadMessages
                                             ? FontWeight.bold
                                             : FontWeight.normal,
                                         fontSize: 16,
@@ -204,10 +208,10 @@ class ChatListViewAdmin extends GetView<ChatController> {
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                              color: isUnread
+                                              color: hasUnreadMessages
                                                   ? Colors.black
                                                   : Colors.grey[600],
-                                              fontWeight: isUnread
+                                              fontWeight: hasUnreadMessages
                                                   ? FontWeight.bold
                                                   : FontWeight.normal,
                                             ),
@@ -226,33 +230,50 @@ class ChatListViewAdmin extends GetView<ChatController> {
                                       lastMessageTime,
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: isUnread
+                                        color: hasUnreadMessages
                                             ? Colors.teal
                                             : Colors.grey[600],
                                       ),
                                     ),
                                   const SizedBox(height: 4),
-                                  if (isUnread && !isFromAdmin)
-                                    Container(
-                                      padding: const EdgeInsets.all(6),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.teal,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Text(
-                                        "1",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
+                                  // Badge notifikasi unread, sama seperti di ChatListView
+                                  Obx(() {
+                                    final unread = controller.unreadCounts[chatInfo['roomId']] ?? 0;
+                                    if (unread > 0)
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.teal,
+                                          borderRadius: BorderRadius.circular(12),
                                         ),
-                                      ),
-                                    ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 20,
+                                          minHeight: 20,
+                                        ),
+                                        child: Text(
+                                          unread > 99 ? '99+' : unread.toString(),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      );
+                                    return const SizedBox.shrink();
+                                  }),
                                 ],
                               ),
                             ],
                           ),
                         ),
+                      ),
+                      // Divider antar item chat
+                      Divider(
+                        height: 1,
+                        color: Colors.grey[300],
+                        indent: 72,
                       ),
                     ],
                   );

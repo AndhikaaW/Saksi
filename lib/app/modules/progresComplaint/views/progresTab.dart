@@ -57,6 +57,7 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
       }
 
       return ListView.builder(
+        
           padding: EdgeInsets.zero,
           itemCount: userComplaints.length,
           itemBuilder: (context, index) {
@@ -73,12 +74,6 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
             String ktpImageData = complaint.lampiranKtp;
             String buktiImageData = complaint.lampiranBukti;
 
-            // Log untuk debugging
-            print(
-                'KTP / KTM Image Length: ${ktpImageData.length > 100 ? "${ktpImageData.substring(0, 100)}..." : ktpImageData}');
-            print(
-                'Bukti Image Length: ${buktiImageData.length > 100 ? "${buktiImageData.substring(0, 100)}..." : buktiImageData}');
-
             if (status != '0' && status != '1') {
               return const SizedBox.shrink();
             }
@@ -86,7 +81,7 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
             return Column(
               children: [
                 _buildHeader(complaintId, complaintDate, status),
-                const Divider(),
+                // const Divider(),
                 _buildReporterInfo(complaint),
                 const Divider(),
                 _buildIncidentInfo(complaint),
@@ -139,7 +134,7 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
 
     return Container(
       padding: const EdgeInsets.all(16.0),
-      color: Colors.blue.shade50,
+      color: Colors.blueGrey.withOpacity(0.15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -148,7 +143,7 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.blue.shade800,
+              color: Colors.blueGrey.shade700,
             ),
           ),
           const SizedBox(height: 4),

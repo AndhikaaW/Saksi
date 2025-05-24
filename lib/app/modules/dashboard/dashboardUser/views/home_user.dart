@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+// import 'package:http/http.dart';
 import 'package:saksi_app/app/modules/dashboard/dashboardUser/controllers/dashboard_user_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:saksi_app/app/modules/news/views/news_detail_view.dart';
@@ -39,102 +40,154 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
             await controller.fetchAdminUsers();
           },
           child: SingleChildScrollView(
+            padding: const EdgeInsets.only(top: 30),
             physics: const AlwaysScrollableScrollPhysics(),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                          radius: 30,
-                          backgroundImage: userPhoto != null &&
-                                  userPhoto.isNotEmpty
-                              ? NetworkImage(userPhoto) as ImageProvider
-                              : const AssetImage('assets/defaultProfile.png')),
-                      const SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                  // Card utama seperti saldo rekening
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 20, horizontal: 16),
+                      child: Column(
                         children: [
-                          Text(
-                            'Hallo, $userName',
-                            style: const TextStyle(
-                                fontSize: 16, color: Colors.blueGrey),
-                          ),
-                          Text(
-                            userData,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              // fontWeight: FontWeight.bold,
-                              color: Colors.blueGrey,
+                          Container(
+                            padding: const EdgeInsets.only(
+                                top: 10, bottom: 10, left: 10, right: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.blueGrey.withOpacity(
+                                  0.15),
+                              borderRadius: BorderRadius.circular(12),
                             ),
+                            child: Row(
+                              children: [
+                                userPhoto != null && userPhoto.isNotEmpty
+                                    ? CircleAvatar(
+                                        radius: 30,
+                                        backgroundImage:
+                                            NetworkImage(userPhoto),
+                                      )
+                                    : CircleAvatar(
+                                        radius: 30,
+                                        backgroundColor:
+                                            Colors.blueGrey.shade200,
+                                        child: Text(
+                                          userName.isNotEmpty
+                                              ? userName[0].toUpperCase()
+                                              : '',
+                                          style: const TextStyle(
+                                            fontSize: 24,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Hallo, $userName',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.blueGrey.shade700,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        userData,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.blueGrey.shade700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.notifications,
+                                      size: 30, color: Colors.blueGrey),
+                                  onPressed: () {
+                                    // Aksi notifikasi
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          // Menu-menu di dalam card
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _buildMenuItem(
+                                context: context,
+                                icon: Icons.receipt_long,
+                                label: 'Pengaduan',
+                                color: Colors.blueGrey
+                                    .shade700, // warna biru grey yang lebih soft
+                                onTap: () async {
+                                  if (_isProfileIncomplete() == true) {
+                                    _showProfileIncompleteDialog(context);
+                                  } else {
+                                    bool hasActiveComplaint = await Get.find<
+                                            DashboardUserController>()
+                                        .checkActiveComplaints();
+                                    if (hasActiveComplaint) {
+                                      _showActiveComplaintDialog(context);
+                                    } else {
+                                      Get.toNamed('/complaint');
+                                    }
+                                  }
+                                },
+                              ),
+                              _buildMenuItem(
+                                context: context,
+                                icon: Icons.chat,
+                                label: 'Chat',
+                                color: Colors.blueGrey
+                                    .shade700, // hijau diganti ke bluegrey agar tidak terlalu kontras
+                                onTap: () {
+                                  Get.toNamed('/chat-list');
+                                },
+                              ),
+                              _buildMenuItem(
+                                context: context,
+                                icon: Icons.book,
+                                label: 'Panduan',
+                                color: Colors.blueGrey
+                                    .shade700, // oranye diganti ke bluegrey yang lebih muda
+                                onTap: () {
+                                  Get.toNamed('/guide');
+                                },
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      const Spacer(),
-                      const Icon(Icons.notifications,
-                          size: 30, color: Colors.blueGrey),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  GridView.count(
-                    shrinkWrap: true,
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    children: [
-                      _buildMenuItem(
-                        context: context,
-                        icon: Icons.receipt_long,
-                        label: 'Pengaduan',
-                        color: Colors.blueGrey,
-                        onTap: () async {
-                          if (_isProfileIncomplete() == true) {
-                            _showProfileIncompleteDialog(context);
-                          } else {
-                            // Cek apakah ada pengaduan aktif
-                            bool hasActiveComplaint =
-                                await Get.find<DashboardUserController>()
-                                    .checkActiveComplaints();
-                            if (hasActiveComplaint) {
-                              _showActiveComplaintDialog(context);
-                            } else {
-                              Get.toNamed('/complaint');
-                            }
-                          }
-                        },
-                      ),
-                      _buildMenuItem(
-                        context: context,
-                        icon: Icons.chat,
-                        label: 'Chat',
-                        color: Colors.blueGrey,
-                        onTap: () {
-                          Get.toNamed('/chat-list');
-                        },
-                      ),
-                      _buildMenuItem(
-                        context: context,
-                        icon: Icons.settings,
-                        label: 'Pengaturan',
-                        color: Colors.blueGrey,
-                        onTap: () {
-                          Get.toNamed('/settings');
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Struktur Satgas PPKS',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blueGrey),
+                    ),
                   ),
                   const SizedBox(height: 12),
-                  // struktur satgas
+                  const Padding(
+                    padding: EdgeInsets.only(left: 10.0),
+                    child: Text(
+                      'Struktur Satgas PPKS',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueGrey),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Obx(() {
                     if (controller.isLoading.value) {
                       return const Center(
@@ -152,145 +205,626 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                       );
                     }
 
-                    return Container(
-                      height: 130,
-                      decoration: BoxDecoration(
-                        // color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(12),
+                    // Tentukan berapa admin yang ditampilkan di baris utama
+                    int jumlahTampil = controller.admins.length > 3 &&
+                            !controller.isExpanded.value
+                        ? 3
+                        : controller.admins.length;
+
+                    return Card(
+                      elevation: 4,
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: controller.admins.length,
-                        itemBuilder: (context, index) {
-                          final admin = controller.admins[index];
-                          return InkWell(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text('Detail Anggota Satgas PPKS'),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
+                      child: Column(
+                        children: [
+                          // Baris horizontal admin utama
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: List.generate(
+                                jumlahTampil,
+                                (index) {
+                                  final admin = controller.admins[index];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                            ),
+                                            title: Row(
+                                              children: [
+                                                CircleAvatar(
+                                                  radius: 24,
+                                                  backgroundColor:
+                                                      Colors.blueGrey[100],
+                                                  backgroundImage: (admin[
+                                                                  'photoUrl'] !=
+                                                              null &&
+                                                          admin['photoUrl'] !=
+                                                              '')
+                                                      ? NetworkImage(
+                                                          admin['photoUrl'])
+                                                      : null,
+                                                  child: (admin['photoUrl'] ==
+                                                              null ||
+                                                          admin['photoUrl'] ==
+                                                              '')
+                                                      ? Text(
+                                                          (admin['name'] ?? '-')
+                                                                  .toString()
+                                                                  .isNotEmpty
+                                                              ? (admin['name'] ??
+                                                                      '-')[0]
+                                                                  .toUpperCase()
+                                                              : '-',
+                                                          style:
+                                                              const TextStyle(
+                                                            color:
+                                                                Colors.blueGrey,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 18,
+                                                          ),
+                                                        )
+                                                      : null,
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: Text(
+                                                    admin['name'] ?? '-',
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.blueGrey,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    const Icon(Icons.badge,
+                                                        color: Colors.blueGrey,
+                                                        size: 20),
+                                                    const SizedBox(width: 8),
+                                                    Expanded(
+                                                      child: Text(
+                                                        admin['status'] ?? '-',
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                          color:
+                                                              Colors.blueGrey,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 12),
+                                                if (admin['email'] != null &&
+                                                    admin['email'] != '')
+                                                  Row(
+                                                    children: [
+                                                      const Icon(Icons.email,
+                                                          color:
+                                                              Colors.blueGrey,
+                                                          size: 20),
+                                                      const SizedBox(width: 8),
+                                                      Expanded(
+                                                        child: Text(
+                                                          admin['email'],
+                                                          style:
+                                                              const TextStyle(
+                                                            fontSize: 14,
+                                                            color:
+                                                                Colors.blueGrey,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                if (admin['phone'] != null &&
+                                                    admin['phone'] != '')
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 12.0),
+                                                    child: Row(
+                                                      children: [
+                                                        const Icon(Icons.phone,
+                                                            color:
+                                                                Colors.blueGrey,
+                                                            size: 20),
+                                                        const SizedBox(
+                                                            width: 8),
+                                                        Expanded(
+                                                          child: Text(
+                                                            admin['phone'],
+                                                            style:
+                                                                const TextStyle(
+                                                              fontSize: 14,
+                                                              color: Colors
+                                                                  .blueGrey,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Get.toNamed('/chat-list');
+                                                },
+                                                child: const Text('Hubungi',
+                                                    style: TextStyle(
+                                                        color:
+                                                            Colors.blueGrey)),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text('Tutup',
+                                                    style: TextStyle(
+                                                        color:
+                                                            Colors.blueGrey)),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Container(
+                                      width: 100,
+                                      margin: const EdgeInsets.only(
+                                          right: 8,
+                                          left: 8,
+                                          bottom: 8,
+                                          top: 12),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 18,
+                                            backgroundColor:
+                                                Colors.blueGrey[100],
+                                            backgroundImage:
+                                                (admin['photoUrl'] != null &&
+                                                        admin['photoUrl'] != '')
+                                                    ? NetworkImage(
+                                                        admin['photoUrl'])
+                                                    : null,
+                                            child: (admin['photoUrl'] == null ||
+                                                    admin['photoUrl'] == '')
+                                                ? Text(
+                                                    (admin['name'] ?? '-')
+                                                            .toString()
+                                                            .isNotEmpty
+                                                        ? (admin['name'] ??
+                                                                '-')[0]
+                                                            .toUpperCase()
+                                                        : '-',
+                                                    style: const TextStyle(
+                                                      color: Colors.blueGrey,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 18,
+                                                    ),
+                                                  )
+                                                : null,
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            admin['name'] ?? '-',
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blueGrey,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            admin['status'] ?? '-',
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.blueGrey,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          // Jika expanded, tampilkan admin lain (selain 3 pertama) dalam bentuk list di bawahnya
+                          // AnimatedCrossFade untuk animasi expand/collapse
+                          AnimatedCrossFade(
+                            crossFadeState: (controller.isExpanded.value &&
+                                    controller.admins.length > 3)
+                                ? CrossFadeState.showFirst
+                                : CrossFadeState.showSecond,
+                            duration: const Duration(milliseconds: 350),
+                            firstCurve: Curves.easeInOut,
+                            secondCurve: Curves.easeInOut,
+                            sizeCurve: Curves.easeInOut,
+                            firstChild: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 8),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: List.generate(
+                                    controller.admins.length - 3,
+                                    (i) {
+                                      final admin = controller.admins[i + 3];
+                                      return GestureDetector(
+                                        onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AlertDialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                ),
+                                                title: Row(
+                                                  children: [
+                                                    CircleAvatar(
+                                                      radius: 24,
+                                                      backgroundColor:
+                                                          Colors.blueGrey[100],
+                                                      backgroundImage: (admin[
+                                                                      'photoUrl'] !=
+                                                                  null &&
+                                                              admin['photoUrl'] !=
+                                                                  '')
+                                                          ? NetworkImage(
+                                                              admin['photoUrl'])
+                                                          : null,
+                                                      child: (admin['photoUrl'] ==
+                                                                  null ||
+                                                              admin['photoUrl'] ==
+                                                                  '')
+                                                          ? Text(
+                                                              (admin['name'] ??
+                                                                          '-')
+                                                                      .toString()
+                                                                      .isNotEmpty
+                                                                  ? (admin['name'] ??
+                                                                          '-')[0]
+                                                                      .toUpperCase()
+                                                                  : '-',
+                                                              style:
+                                                                  const TextStyle(
+                                                                color: Colors
+                                                                    .blueGrey,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 18,
+                                                              ),
+                                                            )
+                                                          : null,
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                    Expanded(
+                                                      child: Text(
+                                                        admin['name'] ?? '-',
+                                                        style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color:
+                                                              Colors.blueGrey,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                content: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        const Icon(Icons.badge,
+                                                            color:
+                                                                Colors.blueGrey,
+                                                            size: 20),
+                                                        const SizedBox(
+                                                            width: 8),
+                                                        Expanded(
+                                                          child: Text(
+                                                            admin['status'] ??
+                                                                '-',
+                                                            style:
+                                                                const TextStyle(
+                                                              fontSize: 14,
+                                                              color: Colors
+                                                                  .blueGrey,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 12),
+                                                    if (admin['email'] !=
+                                                            null &&
+                                                        admin['email'] != '')
+                                                      Row(
+                                                        children: [
+                                                          const Icon(
+                                                              Icons.email,
+                                                              color: Colors
+                                                                  .blueGrey,
+                                                              size: 20),
+                                                          const SizedBox(
+                                                              width: 8),
+                                                          Expanded(
+                                                            child: Text(
+                                                              admin['email'],
+                                                              style:
+                                                                  const TextStyle(
+                                                                fontSize: 14,
+                                                                color: Colors
+                                                                    .blueGrey,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    if (admin['gender'] !=
+                                                            null &&
+                                                        admin['gender'] != '')
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(
+                                                                top: 12.0),
+                                                        child: Row(
+                                                          children: [
+                                                            const Icon(
+                                                                Icons.person,
+                                                                color: Colors
+                                                                    .blueGrey,
+                                                                size: 20),
+                                                            const SizedBox(
+                                                                width: 8),
+                                                            Expanded(
+                                                              child: Text(
+                                                                admin['gender'],
+                                                                style:
+                                                                    const TextStyle(
+                                                                  fontSize: 14,
+                                                                  color: Colors
+                                                                      .blueGrey,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Get.toNamed('/chat-list');
+                                                    },
+                                                    child: const Text('Hubungi',
+                                                        style: TextStyle(
+                                                            color: Colors
+                                                                .blueGrey)),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                    child: const Text('Tutup',
+                                                        style: TextStyle(
+                                                            color: Colors
+                                                                .blueGrey)),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child: Container(
+                                          width: 100,
+                                          margin: const EdgeInsets.all(8),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              CircleAvatar(
+                                                radius: 18,
+                                                backgroundColor:
+                                                    Colors.blueGrey[100],
+                                                backgroundImage:
+                                                    (admin['photoUrl'] !=
+                                                                null &&
+                                                            admin['photoUrl'] !=
+                                                                '')
+                                                        ? NetworkImage(
+                                                            admin['photoUrl'])
+                                                        : null,
+                                                child: (admin['photoUrl'] ==
+                                                            null ||
+                                                        admin['photoUrl'] == '')
+                                                    ? Text(
+                                                        (admin['name'] ?? '-')
+                                                                .toString()
+                                                                .isNotEmpty
+                                                            ? (admin['name'] ??
+                                                                    '-')[0]
+                                                                .toUpperCase()
+                                                            : '-',
+                                                        style: const TextStyle(
+                                                          color:
+                                                              Colors.blueGrey,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 18,
+                                                        ),
+                                                      )
+                                                    : null,
+                                              ),
+                                              const SizedBox(height: 6),
+                                              Text(
+                                                admin['name'] ?? '-',
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.blueGrey,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                admin['status'] ?? '-',
+                                                style: const TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.blueGrey,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                            secondChild: const SizedBox.shrink(),
+                          ),
+                          const SizedBox(height: 12),
+                          const Divider(
+                            color: Colors.grey,
+                            height: 0.5,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (controller.admins.length > 3)
+                                GestureDetector(
+                                  onTap: () {
+                                    controller.isExpanded.value =
+                                        !controller.isExpanded.value;
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                    width: 350,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        CircleAvatar(
-                                          radius: 40,
-                                          backgroundImage: admin['photoUrl'] !=
-                                                      null &&
-                                                  admin['photoUrl'].isNotEmpty
-                                              ? NetworkImage(admin['photoUrl'])
-                                                  as ImageProvider
-                                              : const AssetImage(
-                                                  'assets/defaultProfile.png'),
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Text(
-                                          admin['name'] ?? 'Tidak ada nama',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
+                                        AnimatedSwitcher(
+                                          duration:
+                                              const Duration(milliseconds: 300),
+                                          transitionBuilder:
+                                              (child, animation) =>
+                                                  FadeTransition(
+                                            opacity: animation,
+                                            child: child,
                                           ),
-                                          textAlign: TextAlign.center,
+                                          child: Text(
+                                            controller.isExpanded.value
+                                                ? 'Tutup'
+                                                : 'Lainnya',
+                                            key: ValueKey(
+                                                controller.isExpanded.value),
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.blueGrey,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          admin['status'] ?? 'Admin',
-                                          style: const TextStyle(
-                                            fontSize: 14,
+                                        const SizedBox(width: 6),
+                                        AnimatedSwitcher(
+                                          duration:
+                                              const Duration(milliseconds: 300),
+                                          transitionBuilder:
+                                              (child, animation) =>
+                                                  RotationTransition(
+                                            turns: Tween<double>(
+                                                    begin: 0, end: 0.5)
+                                                .animate(animation),
+                                            child: child,
+                                          ),
+                                          child: Icon(
+                                            controller.isExpanded.value
+                                                ? Icons.arrow_drop_down
+                                                : Icons.arrow_drop_up,
+                                            key: ValueKey(
+                                                controller.isExpanded.value),
+                                            size: 32,
                                             color: Colors.blueGrey,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          admin['email'] ?? 'Tidak ada email',
-                                          style: const TextStyle(
-                                            fontSize: 14,
                                           ),
                                         ),
                                       ],
                                     ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Tutup'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                          Get.toNamed('/chat-list');
-                                        },
-                                        child: const Text('Hubungi'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            child: Card(
-                              margin: const EdgeInsets.all(6),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              color: Colors.grey[100],
-                              child: Container(
-                                width: 120,
-                                padding: const EdgeInsets.all(8),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 30,
-                                      backgroundImage:
-                                          admin['photoUrl'] != null &&
-                                                  admin['photoUrl'].isNotEmpty
-                                              ? NetworkImage(admin['photoUrl'])
-                                                  as ImageProvider
-                                              : const AssetImage(
-                                                  'assets/defaultProfile.png'),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      admin['name'] ?? '',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                        color: Colors.blueGrey,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    Text(
-                                      admin['status'] ?? 'Admin',
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.blueGrey,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                          );
-                        },
+                            ],
+                          ),
+                        ],
                       ),
                     );
                   }),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Berita Terkini',
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blueGrey),
-                      ),
-                    ],
+                  const SizedBox(height: 12),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 10.0), // margin start setara dengan card di atasnya
+                    child: Text(
+                      'Berita Terkini',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueGrey),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Obx(() {
@@ -303,7 +837,7 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                         child: Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(20),
-                          child: Column(
+                          child: const Column(
                             children: [
                               const Icon(Icons.newspaper,
                                   size: 50, color: Colors.blueGrey),
@@ -349,30 +883,35 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
   }) {
     return InkWell(
       onTap: onTap,
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        color: Colors.grey[100],
-        child: SizedBox(
-          width: 100,
-          height: 100,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 30, color: color),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: color,
-                ),
-                textAlign: TextAlign.center,
+      child: SizedBox(
+        width: 95,
+        height: 95,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
               ),
-            ],
-          ),
+              color: Colors.white,
+              elevation: 4,
+              shadowColor: Colors.grey.withOpacity(1),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Icon(icon, size: 30, color: color),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: color,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
@@ -386,9 +925,10 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 2,
-        color: Colors.grey[100],
+        color: Colors.white,
+        shadowColor: Colors.grey.withOpacity(1),
         child: SizedBox(
-          width: 180,
+          width: 172,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -464,7 +1004,7 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                               style: TextStyle(
                                 fontSize: 10,
                                 color: Colors.blue,
-                                decoration: TextDecoration.underline,
+                                // decoration: TextDecoration.underline,
                               ),
                             ),
                           ],

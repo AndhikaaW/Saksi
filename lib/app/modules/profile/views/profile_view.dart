@@ -26,7 +26,8 @@ class ProfileView extends StatelessWidget {
         }
 
         return ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.only(top: 50),
+          // padding: const EdgeInsets.all(16),
           children: [
             // Profile Image & Change Button
             ListTile(
@@ -118,33 +119,71 @@ class ProfileView extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(currentValue.isEmpty ? "Pilih $title" : "Edit $title"),
+          backgroundColor: Colors.grey.shade100,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          title: Text(
+            currentValue.isEmpty ? "Pilih $title" : "Edit $title",
+            style: TextStyle(
+              color: Colors.blueGrey.shade800,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
-              return DropdownButton<String>(
-                value: selectedStatus.isNotEmpty ? selectedStatus : null,
-                hint: Text("Pilih $title"),
-                items: <String>['Mahasiswa', 'Pendidik/Dosen', 'Tenaga Kependidikan', 'Warga Kampus', 'Masyarakat Umum']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedStatus = newValue!;
-                  });
-                },
+              return Container(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    elevation: 1,
+                    dropdownColor: Colors.grey.shade200,
+                    value: selectedStatus.isNotEmpty ? selectedStatus : null,
+                    hint: Text("Pilih $title"),
+                    isExpanded: true,
+                    items: <String>[
+                      'Mahasiswa',
+                      'Pendidik/Dosen',
+                      'Tenaga Kependidikan',
+                      'Warga Kampus',
+                      'Masyarakat Umum'
+                    ].map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedStatus = newValue!;
+                      });
+                    },
+                  ),
+                ),
               );
             },
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.blueGrey,
+              ),
               child: Text("Batal"),
             ),
-            TextButton(
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueGrey,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 0,
+              ),
               onPressed: () async {
                 if (selectedStatus.isNotEmpty) {
                   await controller.updateUserProfile(title, selectedStatus);
@@ -166,17 +205,50 @@ class ProfileView extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(currentValue.isEmpty ? "Tambah $title" : "Edit $title"),
+          backgroundColor: Colors.grey.shade100,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          title: Text(
+            currentValue.isEmpty ? "Tambah $title" : "Edit $title",
+            style: TextStyle(
+              color: Colors.blueGrey.shade800,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           content: TextField(
             controller: controllerText,
-            decoration: InputDecoration(hintText: "Masukkan $title"),
+            decoration: InputDecoration(
+              hintText: "Masukkan $title",
+              filled: true,
+              fillColor: Colors.grey.shade200,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.blueGrey.shade100),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+              ),
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.blueGrey,
+              ),
               child: Text("Batal"),
             ),
-            TextButton(
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueGrey,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 0,
+              ),
               onPressed: () async {
                 if (controllerText.text.isNotEmpty) {
                   await controller.updateUserProfile(title, controllerText.text);
@@ -199,9 +271,9 @@ class ProfileView extends StatelessWidget {
       throw Exception('Gagal memuat data wilayah');
     }
   }
+
   // dialog gender
   void showGenderSelectionDialog(BuildContext context, String title, String currentValue, ProfileController controller) {
-    // Create a local state variable for selected gender
     String selectedGender = currentValue;
 
     showDialog(
@@ -210,7 +282,17 @@ class ProfileView extends StatelessWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text(currentValue.isEmpty ? "Pilih Gender" : "Edit Gender"),
+              backgroundColor: Colors.grey.shade100,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              title: Text(
+                currentValue.isEmpty ? "Pilih Gender" : "Edit Gender",
+                style: TextStyle(
+                  color: Colors.blueGrey.shade800,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -218,6 +300,7 @@ class ProfileView extends StatelessWidget {
                     title: const Text("Laki-laki"),
                     value: "Laki-laki",
                     groupValue: selectedGender,
+                    activeColor: Colors.blueGrey,
                     onChanged: (value) {
                       setState(() {
                         selectedGender = value!;
@@ -228,6 +311,7 @@ class ProfileView extends StatelessWidget {
                     title: const Text("Perempuan"),
                     value: "Perempuan",
                     groupValue: selectedGender,
+                    activeColor: Colors.blueGrey,
                     onChanged: (value) {
                       setState(() {
                         selectedGender = value!;
@@ -239,9 +323,20 @@ class ProfileView extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.blueGrey,
+                  ),
                   child: Text("Batal"),
                 ),
-                TextButton(
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueGrey,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 0,
+                  ),
                   onPressed: () async {
                     if (selectedGender.isNotEmpty) {
                       await controller.updateUserProfile(title, selectedGender);
@@ -257,6 +352,7 @@ class ProfileView extends StatelessWidget {
       },
     );
   }
+
   // dialog ttl
   void showTempatTanggalLahirDialog(BuildContext context, String currentValue, ProfileController controller) async {
     String tempat = "";
@@ -278,23 +374,49 @@ class ProfileView extends StatelessWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text(currentValue.isEmpty ? "Tambah Tempat Tanggal Lahir" : "Edit Tempat Tanggal Lahir"),
+              backgroundColor: Colors.grey.shade100,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              title: Text(
+                currentValue.isEmpty ? "Tambah Tempat Tanggal Lahir" : "Edit Tempat Tanggal Lahir",
+                style: TextStyle(
+                  color: Colors.blueGrey.shade800,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
                     controller: tempatController,
-                    decoration: InputDecoration(hintText: "Masukkan Tempat Lahir"),
+                    decoration: InputDecoration(
+                      hintText: "Masukkan Tempat Lahir",
+                      filled: true,
+                      fillColor: Colors.grey.shade200,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.blueGrey.shade100),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+                      ),
+                    ),
                   ),
                   SizedBox(height: 12),
                   Row(
                     children: [
                       Text(
                         tanggal != null ? DateFormat("dd-MM-yyyy").format(tanggal!) : "Pilih Tanggal Lahir",
+                        style: TextStyle(
+                          color: Colors.blueGrey.shade700,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       Spacer(),
                       IconButton(
-                        icon: Icon(Icons.calendar_today),
+                        icon: Icon(Icons.calendar_today, color: Colors.blueGrey),
                         onPressed: () async {
                           DateTime now = DateTime.now();
                           DateTime? picked = await showDatePicker(
@@ -302,6 +424,20 @@ class ProfileView extends StatelessWidget {
                             initialDate: tanggal ?? DateTime(now.year - 20),
                             firstDate: DateTime(1900),
                             lastDate: DateTime(now.year, now.month, now.day),
+                            builder: (context, child) {
+                              return Theme(
+                                data: ThemeData.light().copyWith(
+                                  colorScheme: ColorScheme.light(
+                                    primary: Colors.blueGrey,
+                                    onPrimary: Colors.white,
+                                    surface: Colors.grey.shade100,
+                                    onSurface: Colors.blueGrey.shade900,
+                                  ),
+                                  dialogBackgroundColor: Colors.grey.shade100,
+                                ),
+                                child: child!,
+                              );
+                            },
                           );
                           if (picked != null) {
                             setState(() => tanggal = picked);
@@ -315,9 +451,20 @@ class ProfileView extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.blueGrey,
+                  ),
                   child: Text("Batal"),
                 ),
-                TextButton(
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueGrey,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 0,
+                  ),
                   onPressed: () async {
                     if (tempatController.text.isNotEmpty && tanggal != null) {
                       String newValue = "${tempatController.text}, ${DateFormat("dd-MM-yyyy").format(tanggal!)}";
@@ -334,6 +481,7 @@ class ProfileView extends StatelessWidget {
       },
     );
   }
+
   //dialog alamat
   void showAlamatDialog(BuildContext context, String currentValue, ProfileController controller) {
     String? selectedProvinsi, selectedKabupaten, selectedKecamatan, selectedKelurahan;
@@ -371,13 +519,36 @@ class ProfileView extends StatelessWidget {
           if (provinsiList.isEmpty) loadProvinsi();
 
           return AlertDialog(
-            title: Text("Pilih Alamat"),
+            backgroundColor: Colors.grey.shade100,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+            title: Text(
+              "Pilih Alamat",
+              style: TextStyle(
+                color: Colors.blueGrey.shade800,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             content: SingleChildScrollView(
               child: Column(
                 children: [
                   DropdownButtonFormField(
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey.shade200,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.blueGrey.shade100),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+                      ),
+                    ),
                     hint: Text("Provinsi"),
                     value: selectedProvinsi,
+                    dropdownColor: Colors.grey.shade200,
                     items: provinsiList.map<DropdownMenuItem<String>>((item) {
                       return DropdownMenuItem(
                         child: Text(item['name']),
@@ -399,60 +570,106 @@ class ProfileView extends StatelessWidget {
                     },
                   ),
                   if (kabupatenList.isNotEmpty)
-                    DropdownButtonFormField(
-                      hint: const Text("Kabupaten/Kota"),
-                      value: selectedKabupaten,
-                      items: kabupatenList.map<DropdownMenuItem<String>>((item) {
-                        return DropdownMenuItem(
-                          child: Text(item['name']),
-                          value: item['name'],
-                          onTap: () {
-                            idKabupaten = item['id'];
-                          },
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        selectedKabupaten = val as String;
-                        selectedKecamatan = null;
-                        selectedKelurahan = null;
-                        kecamatanList.clear();
-                        kelurahanList.clear();
-                        if (idKabupaten != null) loadKecamatan(idKabupaten!);
-                      },
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: DropdownButtonFormField(
+                        dropdownColor: Colors.grey.shade200,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.grey.shade200,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.blueGrey.shade100),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+                          ),
+                        ),
+                        hint: const Text("Kabupaten/Kota"),
+                        value: selectedKabupaten,
+                        items: kabupatenList.map<DropdownMenuItem<String>>((item) {
+                          return DropdownMenuItem(
+                            child: Text(item['name']),
+                            value: item['name'],
+                            onTap: () {
+                              idKabupaten = item['id'];
+                            },
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          selectedKabupaten = val as String;
+                          selectedKecamatan = null;
+                          selectedKelurahan = null;
+                          kecamatanList.clear();
+                          kelurahanList.clear();
+                          if (idKabupaten != null) loadKecamatan(idKabupaten!);
+                        },
+                      ),
                     ),
                   if (kecamatanList.isNotEmpty)
-                    DropdownButtonFormField(
-                      hint: Text("Kecamatan"),
-                      value: selectedKecamatan,
-                      items: kecamatanList.map<DropdownMenuItem<String>>((item) {
-                        return DropdownMenuItem(
-                          child: Text(item['name']),
-                          value: item['name'],
-                          onTap: () {
-                            idKecamatan = item['id'];
-                          },
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        selectedKecamatan = val as String;
-                        selectedKelurahan = null;
-                        kelurahanList.clear();
-                        if (idKecamatan != null) loadKelurahan(idKecamatan!);
-                      },
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: DropdownButtonFormField(
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.grey.shade200,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.blueGrey.shade100),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+                          ),
+                        ),
+                        hint: Text("Kecamatan"),
+                        value: selectedKecamatan,
+                        items: kecamatanList.map<DropdownMenuItem<String>>((item) {
+                          return DropdownMenuItem(
+                            child: Text(item['name']),
+                            value: item['name'],
+                            onTap: () {
+                              idKecamatan = item['id'];
+                            },
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          selectedKecamatan = val as String;
+                          selectedKelurahan = null;
+                          kelurahanList.clear();
+                          if (idKecamatan != null) loadKelurahan(idKecamatan!);
+                        },
+                      ),
                     ),
                   if (kelurahanList.isNotEmpty)
-                    DropdownButtonFormField(
-                      hint: Text("Kelurahan"),
-                      value: selectedKelurahan,
-                      items: kelurahanList.map<DropdownMenuItem<String>>((item) {
-                        return DropdownMenuItem(
-                          child: Text(item['name']),
-                          value: item['name'],
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        selectedKelurahan = val as String;
-                      },
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: DropdownButtonFormField(
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.grey.shade200,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.blueGrey.shade100),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+                          ),
+                        ),
+                        hint: Text("Kelurahan"),
+                        value: selectedKelurahan,
+                        items: kelurahanList.map<DropdownMenuItem<String>>((item) {
+                          return DropdownMenuItem(
+                            child: Text(item['name']),
+                            value: item['name'],
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          selectedKelurahan = val as String;
+                        },
+                      ),
                     ),
                 ],
               ),
@@ -460,9 +677,20 @@ class ProfileView extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.blueGrey,
+                ),
                 child: Text("Batal"),
               ),
-              TextButton(
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueGrey,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 0,
+                ),
                 onPressed: () async {
                   if (selectedProvinsi != null &&
                       selectedKabupaten != null &&
@@ -482,6 +710,7 @@ class ProfileView extends StatelessWidget {
       },
     );
   }
+
   // dialog no telepon
   void showNoTeleponDialog(BuildContext context, String title, String currentValue, ProfileController controller) {
     TextEditingController controllerText = TextEditingController(text: currentValue);
@@ -489,18 +718,51 @@ class ProfileView extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(currentValue.isEmpty ? "Tambah $title" : "Edit $title"),
+          backgroundColor: Colors.grey.shade100,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          title: Text(
+            currentValue.isEmpty ? "Tambah $title" : "Edit $title",
+            style: TextStyle(
+              color: Colors.blueGrey.shade800,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           content: TextField(
             keyboardType: TextInputType.number,
             controller: controllerText,
-            decoration: InputDecoration(hintText: "Masukkan $title"),
+            decoration: InputDecoration(
+              hintText: "Masukkan $title",
+              filled: true,
+              fillColor: Colors.grey.shade200,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.blueGrey.shade100),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+              ),
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.blueGrey,
+              ),
               child: Text("Batal"),
             ),
-            TextButton(
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueGrey,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 0,
+              ),
               onPressed: () async {
                 if (controllerText.text.isNotEmpty) {
                   await controller.updateUserProfile(title, controllerText.text);
