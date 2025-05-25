@@ -570,39 +570,83 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
   Widget _buildContactPIC() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16.0),
-      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.all(20.0),
+      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade200),
+        gradient: LinearGradient(
+          colors: [Colors.blueGrey.shade50, Colors.blueGrey.shade50],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blueGrey.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: Colors.blueGrey.shade100),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Butuh Bantuan?',
+          Row(
+            children: [
+              Icon(Icons.support_agent, color: Colors.blueGrey.shade700, size: 28),
+              const SizedBox(width: 10),
+              const Text(
+                'Butuh Bantuan?',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueGrey,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Jika Anda memiliki pertanyaan atau kendala terkait pengaduan, jangan ragu untuk menghubungi kami melalui fitur chat di bawah ini.',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              color: Colors.blueGrey.shade800,
+              height: 1.4,
             ),
           ),
-          const SizedBox(height: 12),
-          Text(
-            'Jika Anda memiliki pertanyaan atau membutuhkan bantuan terkait pengaduan Anda, silakan hubungi kami melalui fitur chat.',
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
-          ),
-          const SizedBox(height: 16),
-          Center( // Center the button
-            child: ElevatedButton(
+          const SizedBox(height: 18),
+          Center(
+            child: ElevatedButton.icon(
               onPressed: () {
                 Get.toNamed('/chat-list');
               },
+              icon: Icon(Icons.chat_bubble_outline, color: Colors.white),
+              label: const Text('Buka Fitur Chat'),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                textStyle: const TextStyle(fontSize: 16),
+                backgroundColor: Colors.blueGrey.shade700,
+                foregroundColor: Colors.white,
+                elevation: 2,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+                shadowColor: Colors.blueGrey.shade100,
               ),
-              child: const Text('Buka Fitur Chat'),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Center(
+            child: Text(
+              'Respon cepat & ramah!',
+              style: TextStyle(
+                color: Colors.blueGrey.shade400,
+                fontSize: 13,
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ),
         ],

@@ -5,6 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:saksi_app/app/data/models/UserProfile.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileController extends GetxController {
   final box = GetStorage();
@@ -91,6 +94,62 @@ class ProfileController extends GetxController {
       Get.snackbar("Error", "Gagal memperbarui data.");
     }
   }
+
+  
+
+  Future<XFile?> pickImageFromGallery() async {
+    // Fungsi ini menggunakan image_picker untuk memilih gambar dari galeri
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+      return pickedFile;
+    } catch (e) {
+      print("Gagal memilih gambar dari galeri: $e");
+      return null;
+    }
+  }
+
+  Future<XFile?> pickImageFromCamera() async {
+    // Fungsi ini menggunakan image_picker untuk mengambil gambar dari kamera
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? pickedFile = await picker.pickImage(source: ImageSource.camera, imageQuality: 80);
+      return pickedFile;
+    } catch (e) {
+      print("Gagal mengambil gambar dari kamera: $e");
+      return null;
+    }
+  }
+
+  Future<void> uploadProfilePhoto(XFile pickedFile) async {
+    if (pickedFile == null) {
+      Get.snackbar("Error", "Tidak ada file yang dipilih.");
+      return;
+    }
+    try {
+      String userId = uid.value;
+      // Baca file sebagai bytes
+      final bytes = await File(pickedFile.path).readAsBytes();
+      // Encode ke base64
+      String base64Image = base64Encode(bytes);
+
+      // Update field photoUrl di Firestore dengan base64 string
+      await _firestore.collection('users').doc(userId).update({'photoUrl': base64Image});
+
+      // Update di local userProfile
+      userProfile.update((user) {
+        if (user != null) {
+          userProfile.value = user.copyWith(photoUrl: base64Image);
+        }
+      });
+
+      Get.snackbar("Sukses", "Foto profil berhasil diperbarui!");
+    } catch (e) {
+      print("Gagal upload foto profil: $e");
+      Get.snackbar("Error", "Gagal upload foto profil.");
+    }
+  }
+
 
   void logout() async {
     // Implementasi logout

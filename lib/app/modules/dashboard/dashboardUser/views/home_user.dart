@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:get/get.dart';
 // import 'package:http/http.dart';
 import 'package:saksi_app/app/modules/dashboard/dashboardUser/controllers/dashboard_user_controller.dart';
@@ -63,18 +64,28 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                             padding: const EdgeInsets.only(
                                 top: 10, bottom: 10, left: 10, right: 10),
                             decoration: BoxDecoration(
-                              color: Colors.blueGrey.withOpacity(
-                                  0.15),
+                              color: Colors.blueGrey.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
                               children: [
                                 userPhoto != null && userPhoto.isNotEmpty
-                                    ? CircleAvatar(
-                                        radius: 30,
-                                        backgroundImage:
-                                            NetworkImage(userPhoto),
-                                      )
+                                    ? (userPhoto.startsWith('http')
+                                        // Jika link (dari Google, dsb)
+                                        ? CircleAvatar(
+                                            radius: 30,
+                                            backgroundImage:
+                                                NetworkImage(userPhoto),
+                                          )
+                                        // Jika base64
+                                        : CircleAvatar(
+                                            radius: 30,
+                                            backgroundImage: MemoryImage(
+                                                base64Decode(userPhoto.replaceFirst(
+                                                    RegExp(
+                                                        r'data:image/[^;]+;base64,'),
+                                                    ''))),
+                                          ))
                                     : CircleAvatar(
                                         radius: 30,
                                         backgroundColor:
@@ -248,8 +259,22 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                                                               null &&
                                                           admin['photoUrl'] !=
                                                               '')
-                                                      ? NetworkImage(
-                                                          admin['photoUrl'])
+                                                      ? (admin['photoUrl']
+                                                              .toString()
+                                                              .startsWith(
+                                                                  'http')
+                                                          // Jika link (dari Google, dsb)
+                                                          ? NetworkImage(
+                                                              admin['photoUrl'])
+                                                          // Jika base64
+                                                          : MemoryImage(base64Decode(admin[
+                                                                      'photoUrl']
+                                                                  .toString()
+                                                                  .replaceFirst(
+                                                                      RegExp(
+                                                                          r'data:image/[^;]+;base64,'),
+                                                                      '')))
+                                                              as ImageProvider)
                                                       : null,
                                                   child: (admin['photoUrl'] ==
                                                               null ||
@@ -402,15 +427,28 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                                             CrossAxisAlignment.center,
                                         children: [
                                           CircleAvatar(
-                                            radius: 18,
+                                            radius: 24,
                                             backgroundColor:
                                                 Colors.blueGrey[100],
-                                            backgroundImage:
-                                                (admin['photoUrl'] != null &&
-                                                        admin['photoUrl'] != '')
+                                            backgroundImage: admin[
+                                                            'photoUrl'] !=
+                                                        null &&
+                                                    admin['photoUrl'] != ''
+                                                ? (admin['photoUrl']
+                                                        .toString()
+                                                        .startsWith('http')
+                                                    // Jika link (dari Google, dsb)
                                                     ? NetworkImage(
                                                         admin['photoUrl'])
-                                                    : null,
+                                                    // Jika base64
+                                                    : MemoryImage(base64Decode(admin[
+                                                            'photoUrl']
+                                                        .toString()
+                                                        .replaceFirst(
+                                                            RegExp(
+                                                                r'data:image/[^;]+;base64,'),
+                                                            ''))) as ImageProvider)
+                                                : null,
                                             child: (admin['photoUrl'] == null ||
                                                     admin['photoUrl'] == '')
                                                 ? Text(
@@ -498,13 +536,26 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                                                       radius: 24,
                                                       backgroundColor:
                                                           Colors.blueGrey[100],
-                                                      backgroundImage: (admin[
+                                                      backgroundImage: admin[
                                                                       'photoUrl'] !=
                                                                   null &&
                                                               admin['photoUrl'] !=
-                                                                  '')
-                                                          ? NetworkImage(
-                                                              admin['photoUrl'])
+                                                                  ''
+                                                          ? (admin['photoUrl']
+                                                                  .toString()
+                                                                  .startsWith(
+                                                                      'http')
+                                                              // Jika link (dari Google, dsb)
+                                                              ? NetworkImage(admin[
+                                                                  'photoUrl'])
+                                                              // Jika base64
+                                                              : MemoryImage(base64Decode(admin[
+                                                                      'photoUrl']
+                                                                  .toString()
+                                                                  .replaceFirst(
+                                                                      RegExp(
+                                                                          r'data:image/[^;]+;base64,'),
+                                                                      ''))) as ImageProvider)
                                                           : null,
                                                       child: (admin['photoUrl'] ==
                                                                   null ||
@@ -668,17 +719,29 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                                                 CrossAxisAlignment.center,
                                             children: [
                                               CircleAvatar(
-                                                radius: 18,
+                                                radius: 24,
                                                 backgroundColor:
                                                     Colors.blueGrey[100],
-                                                backgroundImage:
-                                                    (admin['photoUrl'] !=
-                                                                null &&
-                                                            admin['photoUrl'] !=
-                                                                '')
+                                                backgroundImage: admin[
+                                                                'photoUrl'] !=
+                                                            null &&
+                                                        admin['photoUrl'] != ''
+                                                    ? (admin['photoUrl']
+                                                            .toString()
+                                                            .startsWith('http')
+                                                        // Jika link (dari Google, dsb)
                                                         ? NetworkImage(
                                                             admin['photoUrl'])
-                                                        : null,
+                                                        // Jika base64
+                                                        : MemoryImage(base64Decode(admin[
+                                                                    'photoUrl']
+                                                                .toString()
+                                                                .replaceFirst(
+                                                                    RegExp(
+                                                                        r'data:image/[^;]+;base64,'),
+                                                                    '')))
+                                                            as ImageProvider)
+                                                    : null,
                                                 child: (admin['photoUrl'] ==
                                                             null ||
                                                         admin['photoUrl'] == '')
@@ -817,7 +880,9 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                   }),
                   const SizedBox(height: 12),
                   const Padding(
-                    padding: EdgeInsets.only(left: 10.0), // margin start setara dengan card di atasnya
+                    padding: EdgeInsets.only(
+                        left:
+                            10.0), // margin start setara dengan card di atasnya
                     child: Text(
                       'Berita Terkini',
                       style: TextStyle(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../controllers/chat_controller.dart';
+import 'dart:convert';
 
 class AdminContactsView extends GetView<ChatController> {
   const AdminContactsView({Key? key}) : super(key: key);
@@ -64,26 +65,30 @@ class AdminContactsView extends GetView<ChatController> {
                         CircleAvatar(
                           radius: 28,
                           backgroundColor: Colors.teal,
-                          child: photoUrl != null && photoUrl.isNotEmpty
-                              ? ClipOval(
-                                  child: Image.network(
-                                    photoUrl,
-                                    width: 56,
-                                    height: 56,
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) => Text(
-                                      adminName.substring(0, 1).toUpperCase(),
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 22),
-                                    ),
+                          backgroundImage: photoUrl != null && photoUrl.isNotEmpty
+                              ? (photoUrl.startsWith('http')
+                                  ? NetworkImage(photoUrl)
+                                  : MemoryImage(
+                                      base64Decode(
+                                        photoUrl.replaceFirst(
+                                          RegExp(r'data:image/[^;]+;base64,'),
+                                          '',
+                                        ),
+                                      ),
+                                    ) as ImageProvider)
+                              : null,
+                          child: (photoUrl == null || photoUrl.isEmpty)
+                              ? Text(
+                                  (adminName.isNotEmpty
+                                          ? adminName[0]
+                                          : '-')
+                                      .toUpperCase(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
                                   ),
                                 )
-                              : Text(
-                                  adminName.substring(0, 1).toUpperCase(),
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 22),
-                                ),
+                              : null,
                         ),
                         const SizedBox(width: 16),
                         Expanded(

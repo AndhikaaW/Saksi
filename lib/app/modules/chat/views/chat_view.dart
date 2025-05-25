@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../controllers/chat_controller.dart';
+import 'dart:convert';
 
 class ChatView extends GetView<ChatController> {
   const ChatView({super.key});
@@ -14,31 +15,40 @@ class ChatView extends GetView<ChatController> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundColor: Colors.blue,
-              child: controller.currentPhotoUrl != null &&
+              radius: 30,
+              backgroundImage: controller.currentPhotoUrl != null &&
                       controller.currentPhotoUrl!.isNotEmpty
-                  ? ClipOval(
-                      child: Image.network(
-                        controller.currentPhotoUrl!,
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Text(
-                          controller.currentAdminName
-                                  ?.substring(0, 1)
-                                  .toUpperCase() ??
-                              'A',
-                          style: const TextStyle(color: Colors.white),
-                        ),
+                  ? (
+                      controller.currentPhotoUrl!.startsWith('http')
+                          // Jika link (dari Google, dsb)
+                          ? NetworkImage(controller.currentPhotoUrl!)
+                          // Jika base64
+                          : MemoryImage(
+                              base64Decode(
+                                controller.currentPhotoUrl!
+                                    .replaceFirst(RegExp(r'data:image/[^;]+;base64,'), '')
+                              ),
+                            ) as ImageProvider
+                    )
+                  : null,
+              backgroundColor: controller.currentPhotoUrl != null &&
+                      controller.currentPhotoUrl!.isNotEmpty
+                  ? Colors.transparent
+                  : Colors.blueGrey.shade200,
+              child: (controller.currentPhotoUrl == null ||
+                      controller.currentPhotoUrl!.isEmpty)
+                  ? Text(
+                      (controller.currentAdminName != null &&
+                              controller.currentAdminName!.isNotEmpty)
+                          ? controller.currentAdminName![0].toUpperCase()
+                          : '',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
                     )
-                  : Text(
-                      controller.currentAdminName
-                              ?.substring(0, 1)
-                              .toUpperCase() ??
-                          'A',
-                      style: const TextStyle(color: Colors.white),
-                    ),
+                  : null,
             ),
             const SizedBox(width: 10),
             Column(

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import '../controllers/chat_controller.dart';
+import 'dart:convert';
 
 class ChatListViewAdmin extends GetView<ChatController> {
   const ChatListViewAdmin({Key? key}) : super(key: key);
@@ -129,48 +130,45 @@ class ChatListViewAdmin extends GetView<ChatController> {
                                   String? photoUrl;
                                   if (snapshot.hasData &&
                                       snapshot.data!.docs.isNotEmpty) {
-                                    photoUrl = snapshot.data!.docs.first
-                                        .get('photoUrl')
-                                        ?.toString();
+                                    try {
+                                      photoUrl = snapshot.data!.docs.first.get('photoUrl')?.toString();
+                                    } catch (e) {
+                                      photoUrl = '';
+                                    }
                                   }
 
                                   // Jika photoUrl null atau kosong, tampilkan huruf awal dari Username
-                                  if (photoUrl == null || photoUrl.isEmpty) {
-                                    return CircleAvatar(
-                                      radius: 28,
-                                      backgroundColor: Colors.teal,
-                                      child: Text(
-                                        chatInfo['userName']
-                                            .substring(0, 1)
-                                            .toUpperCase(),
-                                        style: const TextStyle(
-                                            color: Colors.white, fontSize: 22),
-                                      ),
-                                    );
+                                  ImageProvider? imageProvider;
+                                  if (photoUrl != null && photoUrl.isNotEmpty) {
+                                    if (photoUrl.startsWith('http')) {
+                                      imageProvider = NetworkImage(photoUrl);
+                                    } else {
+                                      try {
+                                        final base64Str = photoUrl.replaceFirst(
+                                            RegExp(r'data:image/[^;]+;base64,'), '');
+                                        imageProvider = MemoryImage(base64Decode(base64Str));
+                                      } catch (e) {
+                                        imageProvider = null;
+                                      }
+                                    }
                                   }
 
-                                  // Jika photoUrl ada, tampilkan gambar
                                   return CircleAvatar(
-                                    radius: 28,
-                                    backgroundColor: Colors.teal,
-                                    child: ClipOval(
-                                      child: Image.network(
-                                        photoUrl,
-                                        width: 56,
-                                        height: 56,
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                Text(
-                                          chatInfo['userName']
-                                              .substring(0, 1)
-                                              .toUpperCase(),
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 22),
-                                        ),
-                                      ),
-                                    ),
+                                    radius: 24,
+                                    backgroundColor: Colors.blueGrey[100],
+                                    backgroundImage: imageProvider,
+                                    child: (imageProvider == null)
+                                        ? Text(
+                                            (chatInfo['userName'] ?? '-').toString().isNotEmpty
+                                                ? (chatInfo['userName'] ?? '-')[0].toUpperCase()
+                                                : '-',
+                                            style: const TextStyle(
+                                              color: Colors.blueGrey,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                            ),
+                                          )
+                                        : null,
                                   );
                                 },
                               ),
