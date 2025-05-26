@@ -52,18 +52,18 @@ class DashboardAdminController extends GetxController {
     username.value = box.read('email') ?? 'Guest';
   }
 
-  String get currentTitle {
-    switch (currentIndex.value) {
-      case 0:
-        return 'Dashboard Admin';
-      case 1:
-        return 'Chat';
-      case 2:
-        return 'Profil';
-      default:
-        return '';
-    }
-  }
+  // String get currentTitle {
+  //   switch (currentIndex.value) {
+  //     case 0:
+  //       return 'Dashboard Admin';
+  //     case 1:
+  //       return 'Chat';
+  //     case 2:
+  //       return 'Profil';
+  //     default:
+  //       return '';
+  //   }
+  // }
 
   /// Fungsi ini akan memantau koleksi complaints di Firestore secara real-time,
   /// dan otomatis mengupdate jumlah pengaduan berdasarkan statusPengaduan.

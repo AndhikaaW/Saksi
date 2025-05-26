@@ -12,111 +12,190 @@ class NewsDetailView extends GetView<NewsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text('Detail Berita',
-            style: TextStyle(color: Colors.blueGrey)),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.blueGrey),
-        elevation: 1,
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+        backgroundColor: Colors.blueGrey[800],
+        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 2,
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (news.imageUrl.isNotEmpty)
-              Image.network(
-                news.imageUrl,
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    height: 200,
-                    width: double.infinity,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.image_not_supported,
-                        size: 50, color: Colors.grey),
-                  );
-                },
-              ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Stack(
                 children: [
-                  Text(
-                    news.title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueGrey,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_today,
-                          size: 16, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Text(
-                        DateFormat('dd MMM yyyy').format(news.publishedAt),
-                        style:
-                            const TextStyle(fontSize: 14, color: Colors.grey),
+                  Hero(
+                    tag: news.imageUrl,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(32),
+                        bottomRight: Radius.circular(32),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    news.description,
-                    style:
-                        const TextStyle(fontSize: 16, color: Colors.blueGrey),
-                  ),
-                  const SizedBox(height: 24),
-                  if (news.newsUrl.isNotEmpty) ...[
-                    const Text(
-                      'Link Berita:',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blueGrey,
+                      child: Image.network(
+                        news.imageUrl,
+                        height: 240,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 240,
+                            width: double.infinity,
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.image_not_supported,
+                                size: 60, color: Colors.grey),
+                          );
+                        },
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.all(12),
+                  ),
+                  Positioned(
+                    bottom: 16,
+                    right: 16,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade300),
+                        color: Colors.black.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
                         children: [
+                          const Icon(Icons.calendar_today,
+                              size: 16, color: Colors.white),
+                          const SizedBox(width: 6),
                           Text(
-                            news.newsUrl,
+                            DateFormat('dd MMM yyyy').format(news.publishedAt),
                             style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.blue,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          ElevatedButton.icon(
-                            onPressed: () =>
-                                controller.openNewsUrl(news.newsUrl),
-                            icon: const Icon(Icons.open_in_browser),
-                            label: const Text('Buka Link Berita'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blueGrey,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 10),
-                            ),
+                                fontSize: 14, color: Colors.white),
                           ),
                         ],
                       ),
                     ),
-                  ],
+                  ),
                 ],
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+              child: Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        news.title,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueGrey,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      const Row(
+                        children: [
+                          Icon(Icons.person, size: 18, color: Colors.blueGrey),
+                          SizedBox(width: 6),
+                          Text(
+                            "Admin",
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.blueGrey,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      Container(
+                        width: 60,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.blueGrey[100],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        news.description,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black87,
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      if (news.newsUrl.isNotEmpty) ...[
+                        Row(
+                          children: const [
+                            Icon(Icons.link, color: Colors.blueGrey, size: 20),
+                            SizedBox(width: 8),
+                            Text(
+                              'Link Berita',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blueGrey,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.blueGrey[50],
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.blueGrey.shade100),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  news.newsUrl,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.blue,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              ElevatedButton.icon(
+                                onPressed: () =>
+                                    controller.openNewsUrl(news.newsUrl),
+                                icon: const Icon(Icons.open_in_browser, size: 18),
+                                label: const Text('Buka'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blueGrey[700],
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 8),
+                                  textStyle: const TextStyle(fontSize: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  elevation: 0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
             ),
           ],

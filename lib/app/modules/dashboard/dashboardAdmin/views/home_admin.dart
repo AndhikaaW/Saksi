@@ -8,17 +8,27 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(DashboardAdminController());
+    // final controller = Get.put(DashboardAdminController());
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            controller.username.toString(),
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+          const SizedBox(height: 30),
+          const Text(
+            'Dashboard Admin',
+            style: TextStyle(
+              color: Colors.blueGrey,
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
+            textAlign: TextAlign.left,
           ),
-          const SizedBox(height: 24),
+          // Text(
+          //   controller.username.toString(),
+          //   style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+          // ),
 
           // Stats Overview
           _buildStatCards(),
@@ -29,7 +39,7 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
             title: 'Manajemen Pengguna',
             menus: [
               MenuItemData(
-                title: 'Kelola User',
+                title: 'Manajemen Pengguna',
                 icon: Icons.people,
                 color: Colors.teal.shade700,
                 onTap: () => Get.toNamed('/manage-user'),
@@ -89,7 +99,7 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
             title: 'Manajemen Berita',
             menus: [
               MenuItemData(
-                title: 'Kelola Berita',
+                title: 'Manajemen Berita',
                 icon: Icons.newspaper,
                 color: Colors.indigo.shade700,
                 onTap: () => Get.toNamed('/news'),

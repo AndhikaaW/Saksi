@@ -14,8 +14,11 @@ class ComplaintListView extends GetView<ManageComplaintController> {
     final controller = Get.put(ManageComplaintController());
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        backgroundColor: Colors.blueGrey,
+        elevation: 0,
+        title: Text(title,style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
         centerTitle: true,
+         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -103,6 +106,7 @@ class ComplaintListView extends GetView<ManageComplaintController> {
                     }
 
                     return Card(
+                      color: Colors.white,
                       margin: const EdgeInsets.only(bottom: 12),
                       child: ListTile(
                         leading: CircleAvatar(
@@ -125,6 +129,7 @@ class ComplaintListView extends GetView<ManageComplaintController> {
                                   arguments: complaint.complaintId);
                         },
                         trailing: PopupMenuButton(
+                          color: Colors.white,
                           itemBuilder: (context) => [
                             const PopupMenuItem(
                               value: 'detail',

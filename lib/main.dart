@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:saksi_app/app/screens/get_started.dart';
 import 'package:saksi_app/firebase_options.dart';
 import 'package:saksi_app/app/controllers/internet_controller.dart';
+import 'package:saksi_app/app/screens/splash_screen.dart';
 
 import 'app/routes/app_pages.dart';
 
@@ -131,21 +133,17 @@ void main() async {
   runApp(
     GetMaterialApp(
       title: "Saksi",
-      initialRoute: initialRoute,
-      getPages: AppPages.routes,
+      initialRoute: '/splash',
+      getPages: [
+        GetPage(name: '/splash', page: () => const SplashScreen()),
+        GetPage(name: '/getStarted', page: () => const GetStartedScreen()),
+        ...AppPages.routes,
+      ],
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
         fontFamily: 'Poppins',
         scaffoldBackgroundColor: Colors.grey[200],
       ),
-      // onInit: () {
-      //   // Jika ada notifikasi tertunda, navigasikan ke halaman detail
-      //   if (pendingNotification != null) {
-      //     Future.delayed(Duration(seconds: 1), () {
-      //       Get.toNamed('/detail-complaint', arguments: pendingNotification);
-      //     });
-      //   }
-      // },
     ),
   );
 }

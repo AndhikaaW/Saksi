@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 // import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -35,6 +36,27 @@ class ProfileController extends GetxController {
     fetchUserProfile();
   }
 
+    //notifikasi error
+  void showError(String message) {
+    Get.snackbar(
+      'Perhatian',
+      message,
+      backgroundColor: Colors.red.shade400,
+      colorText: Colors.white,
+    );
+  }
+
+  //notifikasi berhasil
+  void showSuccess(String message) {
+    Get.snackbar(
+      'Berhasil',
+      message,
+      backgroundColor: Colors.green.shade400,
+      colorText: Colors.white,
+    );
+  }
+
+
   void loadUid() {
     uid.value = box.read('uid') ?? 'not found';
   }
@@ -58,6 +80,7 @@ class ProfileController extends GetxController {
 
   Future<void> updateUserProfile(String uiField, String newValue) async {
     try {
+      isLoading.value = true;
       String userId = uid.value;
       DocumentReference userDocRef = _firestore.collection('users').doc(userId);
 
@@ -84,18 +107,19 @@ class ProfileController extends GetxController {
             );
           }
         });
-
-        Get.snackbar("Sukses", "Data berhasil diperbarui!");
+        showSuccess("Data berhasil diperbarui!");
+        isLoading.value = false;
       } else {
-        Get.snackbar("Error", "Data pengguna tidak ditemukan.");
+        showError("Data pengguna tidak ditemukan.");
       }
     } catch (e) {
       print("Error updating profile: $e");
-      Get.snackbar("Error", "Gagal memperbarui data.");
+      showError("Gagal memperbarui data.");
+      isLoading.value = false;
+    } finally {
+      isLoading.value = false;
     }
   }
-
-  
 
   Future<XFile?> pickImageFromGallery() async {
     // Fungsi ini menggunakan image_picker untuk memilih gambar dari galeri
@@ -123,15 +147,27 @@ class ProfileController extends GetxController {
 
   Future<void> uploadProfilePhoto(XFile pickedFile) async {
     if (pickedFile == null) {
-      Get.snackbar("Error", "Tidak ada file yang dipilih.");
+      showError("Tidak ada file yang dipilih.");
       return;
     }
+    // Ada batas maksimal upload foto jika disimpan sebagai string base64 di Firestore.
+    // Berdasarkan error: "The value of property 'photoUrl' is longer than 1048487 bytes."
+    // Artinya, ukuran maksimal field photoUrl di Firestore adalah sekitar 1MB (1.048.487 bytes).
+    // Jadi, sebelum upload, sebaiknya cek ukuran file setelah di-encode base64.
+
     try {
+      isLoading.value = true;
       String userId = uid.value;
       // Baca file sebagai bytes
       final bytes = await File(pickedFile.path).readAsBytes();
       // Encode ke base64
       String base64Image = base64Encode(bytes);
+
+      // Cek batas maksimal 1MB (1.048.487 bytes)
+      if (base64Image.length > 1048487) {
+        showError("Ukuran foto terlalu besar. Maksimal 1MB.");
+        return;
+      }
 
       // Update field photoUrl di Firestore dengan base64 string
       await _firestore.collection('users').doc(userId).update({'photoUrl': base64Image});
@@ -143,10 +179,14 @@ class ProfileController extends GetxController {
         }
       });
 
-      Get.snackbar("Sukses", "Foto profil berhasil diperbarui!");
-    } catch (e) {
+      showSuccess("Foto profil berhasil diperbarui!");
+      isLoading.value = false;
+    } catch (e) { 
       print("Gagal upload foto profil: $e");
-      Get.snackbar("Error", "Gagal upload foto profil.");
+      showError("Gagal upload foto profil. $e");
+      isLoading.value = false;
+    } finally {
+      isLoading.value = false;
     }
   }
 

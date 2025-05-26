@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:saksi_app/app/data/models/UserProfile.dart';
 
 class ChatController extends GetxController {
   final isLoading = true.obs;
@@ -19,6 +20,9 @@ class ChatController extends GetxController {
   String? currentRoomId;
   String? currentAdminName;
   String? currentPhotoUrl;
+  String? currentAdminEmail;
+
+  var userProfile = Rx<UserProfile?>(null);
 
   StreamSubscription<QuerySnapshot>? _chatSubscription;
   StreamSubscription<QuerySnapshot>? _chatRoomsSubscription;
@@ -66,6 +70,8 @@ class ChatController extends GetxController {
     isLoading.value = true;
     _chatSubscription?.cancel();
 
+    String userEmail = storage.read('email');
+
     _chatSubscription = FirebaseFirestore.instance
         .collection("chatRooms")
         .doc(currentRoomId)
@@ -75,10 +81,15 @@ class ChatController extends GetxController {
         .listen((QuerySnapshot snapshot) {
       messages.clear();
       for (var doc in snapshot.docs) {
-        messages.add({
-          'id': doc.id,
-          ...doc.data() as Map<String, dynamic>,
-        });
+        var data = doc.data() as Map<String, dynamic>;
+        // Cek apakah pesan dihapus untuk user saat ini
+        List<dynamic>? deletedFor = data['deletedFor'] as List<dynamic>?;
+        if (deletedFor == null || !deletedFor.contains(userEmail)) {
+          messages.add({
+            'id': doc.id,
+            ...data,
+          });
+        }
       }
       isLoading.value = false;
       messages.refresh();
@@ -95,7 +106,6 @@ class ChatController extends GetxController {
 
   // Fungsi untuk menandai pesan sebagai sudah dibaca
   // Fungsi untuk menandai pesan sebagai sudah dibaca, sekarang dengan stream agar otomatis
-  
 
   Future<void> markMessagesAsRead(String roomId) async {
     try {
@@ -182,7 +192,7 @@ class ChatController extends GetxController {
   }
 
   Future<void> createChatRoom(
-      String adminName, String adminUid, String? photoUrl) async {
+      String adminName, String adminEmail, String? photoUrl) async {
     try {
       String? email = storage.read('email');
       int? status = storage.read('userStatus');
@@ -192,7 +202,7 @@ class ChatController extends GetxController {
       }
 
       String username = await getUsernameFromEmail(email);
-      String roomId = generateChatRoomId(email, adminUid);
+      String roomId = generateChatRoomId(email, adminEmail);
 
       DocumentReference chatRoomRef =
           FirebaseFirestore.instance.collection("chatRooms").doc(roomId);
@@ -202,7 +212,7 @@ class ChatController extends GetxController {
       if (!chatRoomSnapshot.exists) {
         await chatRoomRef.set({
           "roomId": roomId,
-          "users": [email, adminUid],
+          "users": [email, adminEmail],
           "userNames": [username, adminName],
           "createdAt": FieldValue.serverTimestamp(),
           "lastUpdated": FieldValue.serverTimestamp(),
@@ -212,14 +222,17 @@ class ChatController extends GetxController {
       currentRoomId = roomId;
       currentAdminName = adminName;
       currentPhotoUrl = photoUrl;
+      currentAdminEmail = adminEmail;
 
       Get.toNamed('/chat', arguments: {
         'roomId': roomId,
         'adminName': adminName,
+        'adminEMail': adminEmail
       });
       _startChatStream();
       // Tandai pesan sebagai sudah dibaca ketika membuka chat
       markMessagesAsRead(roomId);
+      fetchUserProfileByCurrentEmail();
     } catch (e) {
       print("Error creating chat room: $e");
       Get.snackbar(
@@ -420,12 +433,16 @@ class ChatController extends GetxController {
       chatRooms.clear();
       for (var doc in snapshot.docs) {
         var data = doc.data() as Map<String, dynamic>;
-        chatRooms.add({
-          'id': doc.id,
-          ...data,
-        });
-        // Mulai stream unread count untuk setiap chat room
-        _startUnreadCountStream(doc.id);
+        // Cek apakah room chat dihapus untuk user saat ini
+        List<dynamic>? deletedFor = data['deletedFor'] as List<dynamic>?;
+        if (deletedFor == null || !deletedFor.contains(userEmail)) {
+          chatRooms.add({
+            'id': doc.id,
+            ...data,
+          });
+          // Mulai stream unread count untuk setiap chat room
+          _startUnreadCountStream(doc.id);
+        }
       }
 
       chatRooms.sort((a, b) {
@@ -573,17 +590,21 @@ class ChatController extends GetxController {
     }
   }
 
-  void openChatRoom(String roomId, String userName, String photoUrl) {
+  void openChatRoom(
+      String roomId, String userName, String photoUrl, String userEmail) {
     currentRoomId = roomId;
     currentAdminName = userName;
     currentPhotoUrl = photoUrl;
+    currentAdminEmail = userEmail;
     _startChatStream();
     markMessagesAsRead(roomId);
+    fetchUserProfileByCurrentEmail();
 
     Get.toNamed('/chat', arguments: {
       'roomId': roomId,
       'adminName': userName,
       'photoUrl': photoUrl,
+      'userEmail': userEmail
     });
     unreadCounts.refresh();
   }
@@ -591,5 +612,155 @@ class ChatController extends GetxController {
   // Fungsi helper untuk mendapatkan unread count
   int getUnreadCount(String roomId) {
     return unreadCounts[roomId] ?? 0;
+  }
+
+  // Fungsi untuk menghapus pesan permanen
+  Future<void> deleteMessagePermanently(String messageId) async {
+    try {
+      if (currentRoomId == null) return;
+
+      await FirebaseFirestore.instance
+          .collection("chatRooms")
+          .doc(currentRoomId)
+          .collection("messages")
+          .doc(messageId)
+          .delete();
+
+      Get.snackbar(
+        'Sukses',
+        'Pesan berhasil dihapus',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      print("Error menghapus pesan: $e");
+      Get.snackbar(
+        'Error',
+        'Gagal menghapus pesan: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  // Fungsi untuk menghapus pesan dari satu sisi
+  Future<void> deleteMessageForUser(String messageId) async {
+    try {
+      if (currentRoomId == null) return;
+
+      String userEmail = storage.read('email');
+
+      await FirebaseFirestore.instance
+          .collection("chatRooms")
+          .doc(currentRoomId)
+          .collection("messages")
+          .doc(messageId)
+          .update({
+        "deletedFor": FieldValue.arrayUnion([userEmail])
+      });
+
+      Get.snackbar(
+        'Sukses',
+        'Pesan berhasil dihapus',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      print("Error menghapus pesan: $e");
+      Get.snackbar(
+        'Error',
+        'Gagal menghapus pesan: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  // Fungsi untuk menghapus room chat permanen
+  Future<void> deleteChatRoomPermanently(String roomId) async {
+    try {
+      // Hapus semua pesan dalam room
+      QuerySnapshot messages = await FirebaseFirestore.instance
+          .collection("chatRooms")
+          .doc(roomId)
+          .collection("messages")
+          .get();
+
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+      for (var doc in messages.docs) {
+        batch.delete(doc.reference);
+      }
+
+      // Hapus room chat
+      batch.delete(
+          FirebaseFirestore.instance.collection("chatRooms").doc(roomId));
+      await batch.commit();
+
+      Get.back(); // Kembali ke halaman sebelumnya
+      Get.snackbar(
+        'Sukses',
+        'Room chat berhasil dihapus',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      print("Error menghapus room chat: $e");
+      Get.snackbar(
+        'Error',
+        'Gagal menghapus room chat: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  // Fungsi untuk menghapus room chat dari satu sisi
+  Future<void> deleteChatRoomForUser(String roomId) async {
+    try {
+      String userEmail = storage.read('email');
+
+      await FirebaseFirestore.instance
+          .collection("chatRooms")
+          .doc(roomId)
+          .update({
+        "deletedFor": FieldValue.arrayUnion([userEmail])
+      });
+
+      Get.back(); // Kembali ke halaman sebelumnya
+      Get.snackbar(
+        'Sukses',
+        'Room chat berhasil dihapus',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      print("Error menghapus room chat: $e");
+      Get.snackbar(
+        'Error',
+        'Gagal menghapus room chat: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  // Fungsi untuk mengambil data user berdasarkan current email dan simpan ke userProfile
+  Future<void> fetchUserProfileByCurrentEmail() async {
+    try {
+      // String? currentEmail = currentAdminEmail;
+      if (currentAdminEmail == null) {
+        print("Email tidak ditemukan di storage.");
+        return;
+      }
+
+      QuerySnapshot userQuery = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: currentAdminEmail)
+          .limit(1)
+          .get();
+
+      if (userQuery.docs.isNotEmpty) {
+        var userData = userQuery.docs.first.data() as Map<String, dynamic>;
+        userProfile.value = UserProfile.fromJson(userData);
+      } else {
+        print("User dengan email $currentAdminEmail tidak ditemukan.");
+        userProfile.value = null;
+      }
+    } catch (e) {
+      print("Gagal mengambil data user: $e");
+      userProfile.value = null;
+    }
   }
 }

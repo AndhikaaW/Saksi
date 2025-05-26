@@ -16,22 +16,26 @@ class LoginView extends GetView<LoginController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/logoPoltek.png',
-                      height: 100,
+                // const SizedBox(height: 20),
+                Image.asset(
+                      'assets/logo1.png',
+                      height: 180,
                     ),
-                    const SizedBox(width: 20),
-                    Image.asset(
-                      'assets/logoPPKS.png', 
-                      height: 100,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     Image.asset(
+                //       'assets/logoPoltek.png',
+                //       height: 70,
+                //     ),
+                //     const SizedBox(width: 20),
+                //     Image.asset(
+                //       'assets/logoPPKS.png', 
+                //       height: 70,
+                //     ),
+                //   ],
+                // ),
+                const SizedBox(height: 10),
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(

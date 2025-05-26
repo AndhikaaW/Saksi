@@ -1,7 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:saksi_app/app/modules/manageComplaint/views/detail_complaint_view.dart';
+// import 'package:saksi_app/app/modules/manageComplaint/views/detail_complaint_view.dart';
 import '../controllers/manage_complaint_controller.dart';
 
 class ManageComplaintView extends GetView<ManageComplaintController> {
@@ -11,8 +11,14 @@ class ManageComplaintView extends GetView<ManageComplaintController> {
     Get.put(ManageComplaintController());
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Kelola Pengaduan'),
+          title: const Text(
+            "Manajemen Pengaduan",
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          ),
           centerTitle: true,
+          backgroundColor: Colors.blueGrey,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -38,64 +44,69 @@ class ManageComplaintView extends GetView<ManageComplaintController> {
                 child: Row(
                   children: [
                     Obx(() => FilterChip(
-                      label: const Text('Semua'),
-                      selected: controller.selectedFilter.value == -1,
-                      selectedColor: Colors.blue.shade100,
-                      onSelected: (bool selected) {
-                        if (selected) {
-                          controller.selectedFilter.value = -1;
-                          controller.filterComplaintsByStatus(-1);
-                        }
-                      },
-                    )),
+                          backgroundColor: Colors.white,
+                          label: const Text('Semua'),
+                          selected: controller.selectedFilter.value == -1,
+                          selectedColor: Colors.blue.shade100,
+                          onSelected: (bool selected) {
+                            if (selected) {
+                              controller.selectedFilter.value = -1;
+                              controller.filterComplaintsByStatus(-1);
+                            }
+                          },
+                        )),
                     const SizedBox(width: 8),
                     Obx(() => FilterChip(
-                      label: const Text('Menunggu'),
-                      selected: controller.selectedFilter.value == 0,
-                      selectedColor: Colors.blue.shade100,
-                      onSelected: (bool selected) {
-                        if (selected) {
-                          controller.selectedFilter.value = 0;
-                          controller.filterComplaintsByStatus(0);
-                        }
-                      },
-                    )),
+                          backgroundColor: Colors.white,
+                          label: const Text('Menunggu'),
+                          selected: controller.selectedFilter.value == 0,
+                          selectedColor: Colors.blue.shade100,
+                          onSelected: (bool selected) {
+                            if (selected) {
+                              controller.selectedFilter.value = 0;
+                              controller.filterComplaintsByStatus(0);
+                            }
+                          },
+                        )),
                     const SizedBox(width: 8),
                     Obx(() => FilterChip(
-                      label: const Text('Diproses'),
-                      selected: controller.selectedFilter.value == 1,
-                      selectedColor: Colors.blue.shade100,
-                      onSelected: (bool selected) {
-                        if (selected) {
-                          controller.selectedFilter.value = 1;
-                          controller.filterComplaintsByStatus(1);
-                        }
-                      },
-                    )),
+                          backgroundColor: Colors.white,  
+                          label: const Text('Diproses'),
+                          selected: controller.selectedFilter.value == 1,
+                          selectedColor: Colors.blue.shade100,
+                          onSelected: (bool selected) {
+                            if (selected) {
+                              controller.selectedFilter.value = 1;
+                              controller.filterComplaintsByStatus(1);
+                            }
+                          },
+                        )),
                     const SizedBox(width: 8),
                     Obx(() => FilterChip(
-                      label: const Text('Selesai'),
-                      selected: controller.selectedFilter.value == 2,
-                      selectedColor: Colors.blue.shade100,
-                      onSelected: (bool selected) {
-                        if (selected) {
-                          controller.selectedFilter.value = 2;
-                          controller.filterComplaintsByStatus(2);
-                        }
-                      },
-                    )),
+                          backgroundColor: Colors.white,
+                          label: const Text('Selesai'),
+                          selected: controller.selectedFilter.value == 2,
+                          selectedColor: Colors.blue.shade100,
+                          onSelected: (bool selected) {
+                            if (selected) {
+                              controller.selectedFilter.value = 2;
+                              controller.filterComplaintsByStatus(2);
+                            }
+                          },
+                        )),
                     const SizedBox(width: 8),
                     Obx(() => FilterChip(
-                      label: const Text('Ditolak'),
-                      selected: controller.selectedFilter.value == 3,
-                      selectedColor: Colors.blue.shade100,
-                      onSelected: (bool selected) {
-                        if (selected) {
-                          controller.selectedFilter.value = 3;
-                          controller.filterComplaintsByStatus(3);
-                        }
-                      },
-                    )),
+                          backgroundColor: Colors.white,
+                          label: const Text('Ditolak'),
+                          selected: controller.selectedFilter.value == 3,
+                          selectedColor: Colors.blue.shade100,
+                          onSelected: (bool selected) {
+                            if (selected) {
+                              controller.selectedFilter.value = 3;
+                              controller.filterComplaintsByStatus(3);
+                            }
+                          },
+                        )),
                   ],
                 ),
               ),
@@ -135,8 +146,10 @@ class ManageComplaintView extends GetView<ManageComplaintController> {
                       }
 
                       return Card(
+                        color: Colors.white,
                         margin: const EdgeInsets.only(bottom: 12),
                         child: ListTile(
+                          
                           leading: CircleAvatar(
                             backgroundColor: Colors.blue.shade100,
                             child: const Icon(Icons.report_problem,
@@ -154,6 +167,7 @@ class ManageComplaintView extends GetView<ManageComplaintController> {
                             ],
                           ),
                           trailing: PopupMenuButton(
+                            color: Colors.white,
                             itemBuilder: (context) => [
                               const PopupMenuItem(
                                 value: 'detail',

@@ -21,8 +21,11 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detail Pengaduan'),
+        title: const Text('Detail Pengaduan',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
         centerTitle: true,
+        backgroundColor: Colors.blueGrey,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           Obx(() {
             if (controller.userComplaints.isEmpty) {
@@ -34,6 +37,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                 orElse: () => controller.userComplaints.first);
 
             return PopupMenuButton(
+              color: Colors.white,
               itemBuilder: (context) => [
                 if (complaint.statusPengaduan == 0)
                   const PopupMenuItem(
@@ -59,13 +63,14 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                 if (value == 'hapus') {
                   Get.dialog(
                     AlertDialog(
+                      backgroundColor: Colors.white,
                       title: const Text('Hapus Pengaduan'),
                       content: const Text(
                           'Apakah Anda yakin ingin menghapus pengaduan ini?'),
                       actions: [
                         TextButton(
                           onPressed: () => Get.back(),
-                          child: const Text('Batal'),
+                          child: const Text('Batal',style: TextStyle( color: Colors.black),),
                         ),
                         TextButton(
                           onPressed: () {
@@ -73,7 +78,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                             Get.back();
                             Get.back();
                           },
-                          child: const Text('Hapus'),
+                          child: const Text('Hapus',style: TextStyle( color: Colors.black),),
                         ),
                       ],
                     ),
@@ -81,20 +86,21 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                 } else if (value == 'selesai') {
                   Get.dialog(
                     AlertDialog(
+                      backgroundColor: Colors.white,
                       title: const Text('Selesaikan Pengaduan'),
                       content: const Text(
                           'Apakah Anda yakin ingin menyelesaikan pengaduan ini?'),
                       actions: [
                         TextButton(
                           onPressed: () => Get.back(),
-                          child: const Text('Batal'),
+                          child: const Text('Batal',style: TextStyle( color: Colors.black),),
                         ),
                         TextButton(
                           onPressed: () {
                             controller.completeComplaint(complaint.complaintId);
                             Get.back();
                           },
-                          child: const Text('Selesaikan'),
+                          child: const Text('Selesaikan',style: TextStyle( color: Colors.black),),
                         ),
                       ],
                     ),
@@ -102,20 +108,21 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                 } else if (value == 'proses') {
                   Get.dialog(
                     AlertDialog(
+                      backgroundColor: Colors.white,
                       title: const Text('Proses Pengaduan'),
                       content: const Text(
                           'Apakah Anda yakin ingin memproses pengaduan ini?'),
                       actions: [
                         TextButton(
                           onPressed: () => Get.back(),
-                          child: const Text('Batal'),
+                          child: const Text('Batal',style: TextStyle( color: Colors.black),),
                         ),
                         TextButton(
                           onPressed: () {
                             controller.processComplaint(complaint.complaintId);
                             Get.back();
                           },
-                          child: const Text('Proses'),
+                          child: const Text('Proses',style: TextStyle( color: Colors.black),),
                         ),
                       ],
                     ),
@@ -123,20 +130,21 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                 } else if (value == 'tolak') {
                   Get.dialog(
                     AlertDialog(
+                      backgroundColor: Colors.white,
                       title: const Text('Tolak Pengaduan'),
                       content: const Text(
                           'Apakah Anda yakin ingin menolak pengaduan ini?'),
                       actions: [
                         TextButton(
                           onPressed: () => Get.back(),
-                          child: const Text('Batal'),
+                          child: const Text('Batal',style: TextStyle( color: Colors.black),),
                         ),
                         TextButton(
                           onPressed: () {
                             controller.rejectComplaint(complaint.complaintId);
                             Get.back();
                           },
-                          child: const Text('Tolak'),
+                          child: const Text('Tolak',style: TextStyle( color: Colors.black),),
                         ),
                       ],
                     ),
@@ -185,6 +193,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Card(
+                color: Colors.white,
                 margin: const EdgeInsets.only(bottom: 16),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -296,6 +305,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
               ),
               const SizedBox(height: 8),
               Card(
+                color: Colors.white,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -338,6 +348,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
               ),
               const SizedBox(height: 8),
               Card(
+                color: Colors.white,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -447,7 +458,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                             actions: [
                               TextButton(
                                 onPressed: () => Get.back(),
-                                child: const Text('Batal'),
+                                child: const Text('Batal',style: TextStyle( color: Colors.black),),
                               ),
                               TextButton(
                                 onPressed: () {
@@ -552,6 +563,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                               ),
                               const SizedBox(height: 16),
                               Card(
+                                color: Colors.white,
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Column(
@@ -687,7 +699,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                           actions: [
                             TextButton(
                               onPressed: () => Get.back(),
-                              child: const Text('Batal'),
+                              child: const Text('Batal',style: TextStyle( color: Colors.black),),
                             ),
                             TextButton(
                               onPressed: () {
@@ -743,7 +755,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                             actions: [
                               TextButton(
                                 onPressed: () => Get.back(),
-                                child: const Text('Batal'),
+                                child: const Text('Batal',style: TextStyle( color: Colors.black),),
                               ),
                               TextButton(
                                 onPressed: () {

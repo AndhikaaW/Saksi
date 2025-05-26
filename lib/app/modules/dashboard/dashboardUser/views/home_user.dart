@@ -74,12 +74,14 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                                         // Jika link (dari Google, dsb)
                                         ? CircleAvatar(
                                             radius: 30,
+                                            backgroundColor: Colors.blueGrey.shade200,
                                             backgroundImage:
                                                 NetworkImage(userPhoto),
                                           )
                                         // Jika base64
                                         : CircleAvatar(
                                             radius: 30,
+                                            backgroundColor: Colors.blueGrey.shade200,
                                             backgroundImage: MemoryImage(
                                                 base64Decode(userPhoto.replaceFirst(
                                                     RegExp(
@@ -217,10 +219,7 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
                     }
 
                     // Tentukan berapa admin yang ditampilkan di baris utama
-                    int jumlahTampil = controller.admins.length > 3 &&
-                            !controller.isExpanded.value
-                        ? 3
-                        : controller.admins.length;
+                    int jumlahTampil = controller.admins.length >= 3 ? 3 : controller.admins.length;
 
                     return Card(
                       elevation: 4,

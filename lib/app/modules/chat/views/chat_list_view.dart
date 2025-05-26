@@ -16,11 +16,15 @@ class ChatListView extends GetView<ChatController> {
     final userEmail = storage.read('email');
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Chat"),
+       appBar: AppBar(
+        title: const Text(
+          "Chat",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.blueGrey,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Container(
         color: Colors.grey[100],
@@ -101,6 +105,7 @@ class ChatListView extends GetView<ChatController> {
                             chatInfo['roomId'],
                             chatInfo['userName'],
                             photoUrl,
+                            chatInfo['userEmail'],
                           );
                         },
                         child: Container(

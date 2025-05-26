@@ -164,64 +164,64 @@ class ComplaintController extends GetxController {
     switch (currentStep.value) {
       case 0: // Data Diri
         if (namaPelapor.text.isEmpty) {
-          _showError('Nama pelapor harus diisi');
+          showError('Nama pelapor harus diisi');
           return false;
         }
         if (noTeleponPelapor.text.isEmpty) {
-          _showError('No telepon harus diisi');
+          showError('No telepon harus diisi');
           return false;
         }
         if (genderPelapor.text.isEmpty) {
-          _showError('Jenis kelamin belum dipilih');
+          showError('Jenis kelamin belum dipilih');
           return false;
         }
         if (domisiliPelapor.text.isEmpty) {
-          _showError('Domisili harus diisi');
+          showError('Domisili harus diisi');
           return false;
         }
         if (keteranganDisabilitas.text.isEmpty) {
-          _showError('Keterangan Disabilitas belum dipilih');
+          showError('Keterangan Disabilitas belum dipilih');
           return false;
         }
         if (noTeleponPihakLain.text.isEmpty) {
-          _showError('No Telepon Pihak Lain harus diisi');
+          showError('No Telepon Pihak Lain harus diisi');
           return false;
         }
         return true;
 
       case 1: // Detail Kejadian
         if (bentukKekerasan.text.isEmpty) {
-          _showError('Bentuk kekerasan harus diisi');
+          showError('Bentuk kekerasan harus diisi');
           return false;
         }
         if (ceritaSingkatPeristiwa.text.isEmpty) {
-          _showError('Cerita singkat kejadian harus diisi');
+          showError('Cerita singkat kejadian harus diisi');
           return false;
         }
         if (alasanPengaduan.text.isEmpty) {
-          _showError('Alasan pengaduan harus diisi');
+          showError('Alasan pengaduan harus diisi');
           return false;
         }
         if (identifikasiKebutuhan.text.isEmpty) {
-          _showError('Identifikasi kebutuhan harus diisi');
+          showError('Identifikasi kebutuhan harus diisi');
           return false;
         }
         return true;
 
       case 2: // Bukti
         if (statusTerlapor.text.isEmpty) {
-          _showError('Status terlapor belum dipilih');
+          showError('Status terlapor belum dipilih');
           return false;
         }
         if (genderTerlapor.text.isEmpty) {
-          _showError('Gender terlapor belum dipilih');
+          showError('Gender terlapor belum dipilih');
           return false;
         }
         return true;
 
       case 3: // Konfirmasi
         if (!agreementChecked.value) {
-          _showError(
+          showError(
               'Anda harus menyetujui pernyataan sebelum mengirim laporan');
           return false;
         }
@@ -326,21 +326,21 @@ class ComplaintController extends GetxController {
   }
 
   //notifikasi error
-  void _showError(String message) {
+  void showError(String message) {
     Get.snackbar(
       'Perhatian',
       message,
-      backgroundColor: Colors.red,
+      backgroundColor: Colors.red.shade400,
       colorText: Colors.white,
     );
   }
 
   //notifikasi berhasil
-  void _showSuccess(String message) {
+  void showSuccess(String message) {
     Get.snackbar(
       'Berhasil',
       message,
-      backgroundColor: Colors.green,
+      backgroundColor: Colors.green.shade400,
       colorText: Colors.white,
     );
   }
@@ -376,7 +376,7 @@ class ComplaintController extends GetxController {
       }
     } catch (e) {
       print("Error fetching profile: $e");
-      _showError('Gagal mengambil data profil');
+      showError('Gagal mengambil data profil');
     } finally {
       isLoading.value = false;
     }
@@ -399,7 +399,7 @@ class ComplaintController extends GetxController {
         }
       }
 
-      _showSuccess('Data profil berhasil dimuat');
+      showSuccess('Data profil berhasil dimuat');
     }
   }
 

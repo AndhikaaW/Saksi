@@ -20,6 +20,16 @@ class ChatListViewAdmin extends GetView<ChatController> {
     controller.startChatRoomsStream();
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          "Chat",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blueGrey,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
       body: Container(
         color: Colors.grey[100],
         child: Obx(() {
@@ -44,7 +54,8 @@ class ChatListViewAdmin extends GetView<ChatController> {
               var chatInfo = controller.getChatRoomInfo(chatRoom, adminEmail!);
 
               return FutureBuilder<Map<String, dynamic>>(
-                future: controller.getLastMessageForAdmin(adminEmail, chatInfo['userEmail']),
+                future: controller.getLastMessageForAdmin(
+                    adminEmail, chatInfo['userEmail']),
                 builder: (context, messageSnapshot) {
                   String lastMessage = messageSnapshot.data?['message'] ??
                       "Ketuk untuk memulai chat";
@@ -72,7 +83,8 @@ class ChatListViewAdmin extends GetView<ChatController> {
                   bool isFromAdmin = lastMessageSender == adminEmail;
 
                   // Ambil unread count dari controller (RxMap)
-                  int unreadCount = controller.getUnreadCount(chatInfo['roomId']);
+                  int unreadCount =
+                      controller.getUnreadCount(chatInfo['roomId']);
                   bool hasUnreadMessages = unreadCount > 0;
 
                   return Column(
@@ -94,11 +106,11 @@ class ChatListViewAdmin extends GetView<ChatController> {
                                     ?.toString() ??
                                 '';
                           }
-
                           controller.openChatRoom(
                             chatInfo['roomId'],
                             chatInfo['userName'],
                             photoUrl,
+                            chatInfo['userEmail'],
                           );
                         },
                         child: Container(
@@ -131,7 +143,9 @@ class ChatListViewAdmin extends GetView<ChatController> {
                                   if (snapshot.hasData &&
                                       snapshot.data!.docs.isNotEmpty) {
                                     try {
-                                      photoUrl = snapshot.data!.docs.first.get('photoUrl')?.toString();
+                                      photoUrl = snapshot.data!.docs.first
+                                          .get('photoUrl')
+                                          ?.toString();
                                     } catch (e) {
                                       photoUrl = '';
                                     }
@@ -145,8 +159,10 @@ class ChatListViewAdmin extends GetView<ChatController> {
                                     } else {
                                       try {
                                         final base64Str = photoUrl.replaceFirst(
-                                            RegExp(r'data:image/[^;]+;base64,'), '');
-                                        imageProvider = MemoryImage(base64Decode(base64Str));
+                                            RegExp(r'data:image/[^;]+;base64,'),
+                                            '');
+                                        imageProvider = MemoryImage(
+                                            base64Decode(base64Str));
                                       } catch (e) {
                                         imageProvider = null;
                                       }
@@ -159,8 +175,12 @@ class ChatListViewAdmin extends GetView<ChatController> {
                                     backgroundImage: imageProvider,
                                     child: (imageProvider == null)
                                         ? Text(
-                                            (chatInfo['userName'] ?? '-').toString().isNotEmpty
-                                                ? (chatInfo['userName'] ?? '-')[0].toUpperCase()
+                                            (chatInfo['userName'] ?? '-')
+                                                    .toString()
+                                                    .isNotEmpty
+                                                ? (chatInfo['userName'] ??
+                                                        '-')[0]
+                                                    .toUpperCase()
                                                 : '-',
                                             style: const TextStyle(
                                               color: Colors.blueGrey,
@@ -236,21 +256,26 @@ class ChatListViewAdmin extends GetView<ChatController> {
                                   const SizedBox(height: 4),
                                   // Badge notifikasi unread, sama seperti di ChatListView
                                   Obx(() {
-                                    final unread = controller.unreadCounts[chatInfo['roomId']] ?? 0;
+                                    final unread = controller
+                                            .unreadCounts[chatInfo['roomId']] ??
+                                        0;
                                     if (unread > 0)
                                       return Container(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 8, vertical: 4),
                                         decoration: BoxDecoration(
                                           color: Colors.teal,
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                         ),
                                         constraints: const BoxConstraints(
                                           minWidth: 20,
                                           minHeight: 20,
                                         ),
                                         child: Text(
-                                          unread > 99 ? '99+' : unread.toString(),
+                                          unread > 99
+                                              ? '99+'
+                                              : unread.toString(),
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 12,

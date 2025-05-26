@@ -9,17 +9,18 @@ class DashboardAdminView extends GetView<DashboardAdminController> {
 
     
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Obx(() => Text(controller.currentTitle)),
-          ],
-        ),
-      ),
+      // appBar: AppBar(
+      //   title: Column(
+      //     crossAxisAlignment: CrossAxisAlignment.start,
+      //     children: [
+      //       Obx(() => Text(controller.currentTitle)),
+      //     ],
+      //   ),
+      // ),
 
       body: Obx(() => controller.tabPages[controller.currentIndex.value]),
       bottomNavigationBar: Obx(() => BottomNavigationBar(
+        backgroundColor: Colors.white,
         currentIndex: controller.currentIndex.value,
         onTap: controller.changeTab,
         items: const [

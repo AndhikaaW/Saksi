@@ -2,11 +2,40 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:saksi_app/app/data/models/Complaint.dart';
 import '../controllers/progres_complaint_controller.dart';
 
 class DetailRiwayatTab extends GetView<ProgresComplaintController> {
   const DetailRiwayatTab({super.key});
+
+  Color _getStatusColor(int status) {
+    switch (status) {
+      case 0:
+        return Colors.orange;
+      case 1:
+        return Colors.blue;
+      case 2:
+        return Colors.green;
+      case 3:
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getStatusIcon(int status) {
+    switch (status) {
+      case 0:
+        return Icons.hourglass_empty_rounded;
+      case 1:
+        return Icons.sync_rounded;
+      case 2:
+        return Icons.check_circle_rounded;
+      case 3:
+        return Icons.cancel_rounded;
+      default:
+        return Icons.help_outline_rounded;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,10 +44,13 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
     final String complaintId = Get.arguments;
 
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text('Detail Riwayat Pengaduan'),
         centerTitle: true,
         elevation: 0,
+        backgroundColor: Colors.blue.shade700,
+        foregroundColor: Colors.white,
       ),
       body: Obx(() {
         final complaint = controller.userComplaints
@@ -54,52 +86,96 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
             children: [
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                 decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(30),
-                        bottomRight: Radius.circular(30))),
+                  gradient: LinearGradient(
+                    colors: [Colors.blue.shade700, Colors.blue.shade300],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(32),
+                    bottomRight: Radius.circular(32),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blue.shade100.withOpacity(0.3),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
                 child: Column(
                   children: [
                     CircleAvatar(
-                      radius: 40,
+                      radius: 44,
                       backgroundColor: Colors.white,
-                      child: Icon(Icons.description,
-                          size: 40, color: Colors.blue.shade700),
+                      child: Icon(Icons.description_rounded,
+                          size: 48, color: Colors.blue.shade700),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 18),
                     Text(
-                      'Pengaduan ${complaint.complaintId}',
+                      'Pengaduan #${complaint.complaintId}',
                       style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
-                                spreadRadius: 1,
-                                blurRadius: 4)
-                          ]),
-                      child: Text(
-                        status,
-                        style: TextStyle(
-                            color: complaint.statusPengaduan == 2
-                                ? Colors.green
-                                : Colors.blue,
-                            fontWeight: FontWeight.bold),
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      formattedTanggal,
-                      style: TextStyle(color: Colors.grey.shade700),
-                    )
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: _getStatusColor(complaint.statusPengaduan)
+                                .withOpacity(0.15),
+                            spreadRadius: 2,
+                            blurRadius: 8,
+                          )
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _getStatusIcon(complaint.statusPengaduan),
+                            color: _getStatusColor(complaint.statusPengaduan),
+                            size: 22,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            status,
+                            style: TextStyle(
+                              color: _getStatusColor(complaint.statusPengaduan),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.calendar_today_rounded,
+                            color: Colors.white70, size: 18),
+                        const SizedBox(width: 6),
+                        Text(
+                          formattedTanggal,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -125,7 +201,7 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                       _buildInfoItem('No Telepon Pihak Lain ',
                           complaint.noTeleponPihakLain ?? '-'),
                     ]),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
                     _buildSectionTitle('Detail Pengaduan'),
                     _buildInfoCard([
                       _buildInfoItem('Bentuk Kekerasan',
@@ -138,22 +214,29 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                           'Alasan Pengaduan', complaint.alasanPengaduan ?? '-'),
                       _buildInfoItem('Identifikasi Kebutuhan',
                           complaint.identifikasiKebutuhan ?? '-'),
-                      const Divider(height: 24),
+                      const Divider(height: 28, color: Colors.blueGrey),
                       _buildDescriptionItem('Cerita Singkat Peristiwa',
                           complaint.ceritaSingkatPeristiwa ?? '-'),
                     ]),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
                     _buildSectionTitle('Bukti Pendukung'),
                     _buildInfoCard([
                       // FOTO KTP
-                      const Text(
-                        'Foto KTP / KTM',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey,
-                        ),
+                      Row(
+                        children: const [
+                          Icon(Icons.credit_card_rounded, color: Colors.blueGrey, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Foto KTP / KTM',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.blueGrey,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       if (complaint.lampiranKtp.isNotEmpty)
                         Builder(
                           builder: (context) {
@@ -167,61 +250,68 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                     context: context,
                                     builder: (BuildContext dialogContext) {
                                       return Dialog(
-                                        child: InteractiveViewer(
-                                          child: Image.memory(
-                                            imageBytes,
-                                            fit: BoxFit.contain,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Center(
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Icon(Icons.error,
-                                                        color:
-                                                            Colors.red.shade300,
-                                                        size: 40),
-                                                    const SizedBox(height: 8),
-                                                    const Text(
-                                                      'Gagal memuat gambar KTP / KTM',
-                                                      style: TextStyle(
-                                                          color: Colors.red),
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            },
+                                        backgroundColor: Colors.transparent,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(16),
+                                          child: InteractiveViewer(
+                                            child: Image.memory(
+                                              imageBytes,
+                                              fit: BoxFit.contain,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Center(
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.center,
+                                                    children: [
+                                                      Icon(Icons.error,
+                                                          color:
+                                                              Colors.red.shade300,
+                                                          size: 40),
+                                                      const SizedBox(height: 8),
+                                                      const Text(
+                                                        'Gagal memuat gambar KTP / KTM',
+                                                        style: TextStyle(
+                                                            color: Colors.red),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                            ),
                                           ),
                                         ),
                                       );
                                     },
                                   );
                                 },
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.memory(
-                                    imageBytes,
-                                    height: 200,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        height: 200,
-                                        width: double.infinity,
-                                        color: Colors.grey.shade200,
-                                        child: const Center(
-                                          child: Text(
-                                              'Tidak dapat menampilkan gambar KTP / KTM'),
-                                        ),
-                                      );
-                                    },
+                                child: Hero(
+                                  tag: 'ktp_${complaint.complaintId}',
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.memory(
+                                      imageBytes,
+                                      height: 180,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Container(
+                                          height: 180,
+                                          width: double.infinity,
+                                          color: Colors.grey.shade200,
+                                          child: const Center(
+                                            child: Text(
+                                                'Tidak dapat menampilkan gambar KTP / KTM'),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   ),
                                 ),
                               );
                             } catch (e) {
                               return Container(
-                                height: 200,
+                                height: 180,
                                 width: double.infinity,
                                 color: Colors.grey.shade200,
                                 child: const Center(
@@ -234,28 +324,35 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                         )
                       else
                         Container(
-                          height: 200,
+                          height: 180,
                           width: double.infinity,
                           decoration: BoxDecoration(
                             color: Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Center(
                             child:
                                 Text('Tidak ada foto KTP / KTM yang diunggah'),
                           ),
                         ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 18),
 
                       // BUKTI PENDUKUNG
-                      const Text(
-                        'Bukti Pendukung',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey,
-                        ),
+                      Row(
+                        children: const [
+                          Icon(Icons.attachment_rounded, color: Colors.blueGrey, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Bukti Pendukung',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.blueGrey,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       if (complaint.lampiranBukti.isNotEmpty)
                         Builder(
                           builder: (context) {
@@ -269,61 +366,68 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                     context: context,
                                     builder: (BuildContext dialogContext) {
                                       return Dialog(
-                                        child: InteractiveViewer(
-                                          child: Image.memory(
-                                            imageBytes,
-                                            fit: BoxFit.contain,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Center(
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Icon(Icons.error,
-                                                        color:
-                                                            Colors.red.shade300,
-                                                        size: 40),
-                                                    const SizedBox(height: 8),
-                                                    const Text(
-                                                      'Gagal memuat gambar bukti',
-                                                      style: TextStyle(
-                                                          color: Colors.red),
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            },
+                                        backgroundColor: Colors.transparent,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(16),
+                                          child: InteractiveViewer(
+                                            child: Image.memory(
+                                              imageBytes,
+                                              fit: BoxFit.contain,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Center(
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.center,
+                                                    children: [
+                                                      Icon(Icons.error,
+                                                          color:
+                                                              Colors.red.shade300,
+                                                          size: 40),
+                                                      const SizedBox(height: 8),
+                                                      const Text(
+                                                        'Gagal memuat gambar bukti',
+                                                        style: TextStyle(
+                                                            color: Colors.red),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                            ),
                                           ),
                                         ),
                                       );
                                     },
                                   );
                                 },
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.memory(
-                                    imageBytes,
-                                    height: 200,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        height: 200,
-                                        width: double.infinity,
-                                        color: Colors.grey.shade200,
-                                        child: const Center(
-                                          child: Text(
-                                              'Tidak dapat menampilkan bukti pendukung'),
-                                        ),
-                                      );
-                                    },
+                                child: Hero(
+                                  tag: 'bukti_${complaint.complaintId}',
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.memory(
+                                      imageBytes,
+                                      height: 180,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Container(
+                                          height: 180,
+                                          width: double.infinity,
+                                          color: Colors.grey.shade200,
+                                          child: const Center(
+                                            child: Text(
+                                                'Tidak dapat menampilkan bukti pendukung'),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   ),
                                 ),
                               );
                             } catch (e) {
                               return Container(
-                                height: 200,
+                                height: 180,
                                 width: double.infinity,
                                 color: Colors.grey.shade200,
                                 child: const Center(
@@ -336,11 +440,11 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                         )
                       else
                         Container(
-                          height: 200,
+                          height: 180,
                           width: double.infinity,
                           decoration: BoxDecoration(
                             color: Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Center(
                             child:
@@ -349,7 +453,7 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                         ),
                     ]),
                     if (progress.isNotEmpty) ...[
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 28),
                       _buildSectionTitle('Riwayat Progress'),
                       ListView.builder(
                         shrinkWrap: true,
@@ -358,37 +462,56 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                         itemBuilder: (context, index) {
                           final item = progress[index];
                           return Card(
-                            margin: const EdgeInsets.only(bottom: 12),
+                            margin: const EdgeInsets.only(bottom: 14),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
+                                borderRadius: BorderRadius.circular(14)),
+                            elevation: 2,
+                            color: Colors.white,
                             child: Padding(
-                              padding: const EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(18),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
                                     children: [
-                                      Icon(Icons.check_circle,
-                                          color: Colors.green.shade700),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        item.title,
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold),
+                                      Icon(Icons.check_circle_rounded,
+                                          color: Colors.green.shade700, size: 22),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          item.title,
+                                          style: const TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blueGrey),
+                                        ),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 8),
-                                  Text(
-                                    DateFormat('dd MMMM yyyy')
-                                        .format(DateTime.parse(item.date)),
-                                    style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 12),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.access_time_rounded,
+                                          color: Colors.grey.shade400, size: 16),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        DateFormat('dd MMMM yyyy')
+                                            .format(DateTime.parse(item.date)),
+                                        style: TextStyle(
+                                            color: Colors.grey.shade600,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 8),
-                                  Text(item.description),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    item.description,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -408,22 +531,39 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        children: [
+          Container(
+            width: 5,
+            height: 24,
+            decoration: BoxDecoration(
+              color: Colors.blue.shade700,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.bold,
+              color: Colors.blueGrey,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildInfoCard(List<Widget> children) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 2,
+      color: Colors.white,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         child: Column(
           children: children,
         ),
@@ -433,7 +573,7 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
 
   Widget _buildInfoItem(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 7),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -442,16 +582,19 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
             child: Text(
               label,
               style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.grey,
+                fontWeight: FontWeight.w600,
+                color: Colors.blueGrey,
+                fontSize: 15,
               ),
             ),
           ),
           Expanded(
             child: Text(
-              ': ' + value,
+              ': $value',
               style: const TextStyle(
                 fontWeight: FontWeight.w500,
+                fontSize: 15,
+                color: Colors.black87,
               ),
             ),
           ),
@@ -463,19 +606,31 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
   Widget _buildDescriptionItem(String label, String value) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
           style: const TextStyle(
-            fontWeight: FontWeight.w500,
-            color: Colors.grey,
+            fontWeight: FontWeight.w600,
+            color: Colors.blueGrey,
+            fontSize: 15,
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.blueGrey.withOpacity(0.07),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 15,
+              color: Colors.black87,
+            ),
           ),
         ),
       ],

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:saksi_app/app/screens/get_started.dart';
 
 import '../modules/auth/login/bindings/login_binding.dart';
 import '../modules/auth/login/views/login_view.dart';
@@ -47,6 +48,10 @@ class AppPages {
   static const INITIAL = Routes.LOGIN;
 
   static final routes = [
+    GetPage(
+      name: _Paths.GET_STARTED,
+      page: () => const GetStartedScreen(),
+    ),
     GetPage(
       name: _Paths.LOGIN,
       page: () => const LoginView(),
