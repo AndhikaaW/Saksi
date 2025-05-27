@@ -125,7 +125,7 @@ class LoginView extends GetView<LoginController> {
                             ),
                           ),
                           child: const Text(
-                            'Login',
+                            'Masuk',
                             style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ),

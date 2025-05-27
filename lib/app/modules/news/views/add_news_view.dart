@@ -10,9 +10,9 @@ class AddNewsView extends GetView<NewsController> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tambah Berita',
-            style: TextStyle(color: Colors.blueGrey)),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.blueGrey),
+            style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 20)),
+        backgroundColor: Colors.blueGrey,
+        iconTheme: const IconThemeData(color: Colors.white),
         elevation: 1,
       ),
       body: SingleChildScrollView(

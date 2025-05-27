@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../controllers/progres_complaint_controller.dart';
 
 class DetailRiwayatTab extends GetView<ProgresComplaintController> {
@@ -353,104 +354,125 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      if (complaint.lampiranBukti.isNotEmpty)
-                        Builder(
-                          builder: (context) {
-                            try {
-                              final cleanedBase64 =
-                                  buktiImageData.replaceAll(RegExp(r'\s+'), '');
-                              final imageBytes = base64Decode(cleanedBase64);
-                              return GestureDetector(
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext dialogContext) {
-                                      return Dialog(
-                                        backgroundColor: Colors.transparent,
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(16),
-                                          child: InteractiveViewer(
-                                            child: Image.memory(
-                                              imageBytes,
-                                              fit: BoxFit.contain,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Center(
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.center,
-                                                    children: [
-                                                      Icon(Icons.error,
-                                                          color:
-                                                              Colors.red.shade300,
-                                                          size: 40),
-                                                      const SizedBox(height: 8),
-                                                      const Text(
-                                                        'Gagal memuat gambar bukti',
-                                                        style: TextStyle(
-                                                            color: Colors.red),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                                child: Hero(
-                                  tag: 'bukti_${complaint.complaintId}',
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.memory(
-                                      imageBytes,
-                                      height: 180,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Container(
-                                          height: 180,
-                                          width: double.infinity,
-                                          color: Colors.grey.shade200,
-                                          child: const Center(
-                                            child: Text(
-                                                'Tidak dapat menampilkan bukti pendukung'),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              );
-                            } catch (e) {
-                              return Container(
-                                height: 180,
-                                width: double.infinity,
-                                color: Colors.grey.shade200,
-                                child: const Center(
-                                  child:
-                                      Text('Format gambar bukti tidak valid'),
-                                ),
-                              );
-                            }
-                          },
-                        )
-                      else
-                        Container(
-                          height: 180,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Center(
-                            child:
-                                Text('Tidak ada bukti pendukung yang diunggah'),
+                      // if (complaint.lampiranBukti.isNotEmpty)
+                      //   Builder(
+                      //     builder: (context) {
+                      //       try {
+                      //         final cleanedBase64 =
+                      //             buktiImageData.replaceAll(RegExp(r'\s+'), '');
+                      //         final imageBytes = base64Decode(cleanedBase64);
+                      //         return GestureDetector(
+                      //           onTap: () {
+                      //             showDialog(
+                      //               context: context,
+                      //               builder: (BuildContext dialogContext) {
+                      //                 return Dialog(
+                      //                   backgroundColor: Colors.transparent,
+                      //                   child: ClipRRect(
+                      //                     borderRadius: BorderRadius.circular(16),
+                      //                     child: InteractiveViewer(
+                      //                       child: Image.memory(
+                      //                         imageBytes,
+                      //                         fit: BoxFit.contain,
+                      //                         errorBuilder:
+                      //                             (context, error, stackTrace) {
+                      //                           return Center(
+                      //                             child: Column(
+                      //                               mainAxisAlignment:
+                      //                                   MainAxisAlignment.center,
+                      //                               children: [
+                      //                                 Icon(Icons.error,
+                      //                                     color:
+                      //                                         Colors.red.shade300,
+                      //                                     size: 40),
+                      //                                 const SizedBox(height: 8),
+                      //                                 const Text(
+                      //                                   'Gagal memuat gambar bukti',
+                      //                                   style: TextStyle(
+                      //                                       color: Colors.red),
+                      //                                 ),
+                      //                               ],
+                      //                             ),
+                      //                           );
+                      //                         },
+                      //                       ),
+                      //                     ),
+                      //                   ),
+                      //                 );
+                      //               },
+                      //             );
+                      //           },
+                      //           child: Hero(
+                      //             tag: 'bukti_${complaint.complaintId}',
+                      //             child: ClipRRect(
+                      //               borderRadius: BorderRadius.circular(12),
+                      //               child: Image.memory(
+                      //                 imageBytes,
+                      //                 height: 180,
+                      //                 width: double.infinity,
+                      //                 fit: BoxFit.cover,
+                      //                 errorBuilder: (context, error, stackTrace) {
+                      //                   return Container(
+                      //                     height: 180,
+                      //                     width: double.infinity,
+                      //                     color: Colors.grey.shade200,
+                      //                     child: const Center(
+                      //                       child: Text(
+                      //                           'Tidak dapat menampilkan bukti pendukung'),
+                      //                     ),
+                      //                   );
+                      //                 },
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         );
+                      //       } catch (e) {
+                      //         return Container(
+                      //           height: 180,
+                      //           width: double.infinity,
+                      //           color: Colors.grey.shade200,
+                      //           child: const Center(
+                      //             child:
+                      //                 Text('Format gambar bukti tidak valid'),
+                      //           ),
+                      //         );
+                      //       }
+                      //     },
+                      //   )
+                      // else
+                      //   Container(
+                      //     height: 180,
+                      //     width: double.infinity,
+                      //     decoration: BoxDecoration(
+                      //       color: Colors.grey.shade200,
+                      //       borderRadius: BorderRadius.circular(12),
+                      //     ),
+                      //     child: const Center(
+                      //       child:
+                      //           Text('Tidak ada bukti pendukung yang diunggah'),
+                      //     ),
+                      //   ),
+                    // INSERT_YOUR_CODE
+                    if ((complaint.lampiranBukti ?? '').isNotEmpty) ...[
+                      const Text(
+                        'Bukti Pendukung:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () async {
+                          await launchUrl(Uri.parse(complaint.lampiranBukti!));
+                        },
+                        child: Text(
+                          complaint.lampiranBukti!,
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                            fontSize: 13,
                           ),
                         ),
+                      ),
+                    ],
                     ]),
                     if (progress.isNotEmpty) ...[
                       const SizedBox(height: 28),

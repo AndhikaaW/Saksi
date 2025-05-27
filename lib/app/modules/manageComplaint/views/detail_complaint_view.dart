@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 // import 'package:saksi_app/app/data/models/Complaint.dart';
 import '../controllers/manage_complaint_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DetailComplaintView extends GetView<ManageComplaintController> {
   const DetailComplaintView({super.key});
@@ -414,31 +415,65 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                       ),
                       const SizedBox(height: 16),
                       // Bukti Pendukung
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Bukti Pendukung:',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Container(
-                            width: double.infinity,
-                            height: 200,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade300),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: _buildTappableImage(
-                              complaint.lampiranBukti,
-                              'Bukti',
-                            ),
-                          ),
-                        ],
-                      ),
+                      // Column(
+                      //   crossAxisAlignment: CrossAxisAlignment.start,
+                      //   children: [
+                      //     const Text(
+                      //       'Bukti Pendukung:',
+                      //       style: TextStyle(
+                      //         fontWeight: FontWeight.bold,
+                      //         fontSize: 14,
+                      //       ),
+                      //     ),
+                      //     const SizedBox(height: 8),
+                      //     Container(
+                      //       width: double.infinity,
+                      //       height: 200,
+                      //       decoration: BoxDecoration(
+                      //         border: Border.all(color: Colors.grey.shade300),
+                      //         borderRadius: BorderRadius.circular(8),
+                      //       ),
+                      //       child: _buildTappableImage(
+                      //         complaint.lampiranBukti,
+                      //         'Bukti',
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                    Builder(
+                      builder: (context) {
+                        if (complaint.lampiranBukti != null && complaint.lampiranBukti.isNotEmpty) {
+                          String url = complaint.lampiranBukti;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Bukti File:',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              GestureDetector(
+                                onTap: () async {
+                                  if (await canLaunchUrl(Uri.parse(url))) {
+                                    await launchUrl(Uri.parse(url));
+                                  }
+                                },
+                                child: Text(
+                                  url,
+                                  style: const TextStyle(
+                                    color: Colors.blue,
+                                    decoration: TextDecoration.underline,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      }
+                    ),
                     ],
                   ),
                 ),
@@ -466,7 +501,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                                       .processComplaint(complaint.complaintId);
                                   Get.back();
                                 },
-                                child: const Text('Proses'),
+                                child: const Text('Proses',style: TextStyle( color: Colors.black),),
                               ),
                             ],
                           ),
@@ -477,7 +512,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: const Text('Proses Pengaduan'),
+                      child: const Text('Proses Pengaduan',style: TextStyle( color: Colors.black),),
                     ),
                   ),
                 ),
@@ -707,7 +742,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                                     .completeComplaint(complaint.complaintId);
                                 Get.back();
                               },
-                              child: const Text('Selesaikan'),
+                              child: const Text('Selesaikan',style: TextStyle( color: Colors.black),),
                             ),
                           ],
                         ),
@@ -771,7 +806,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                                   controller.rejectComplaint(complaint.complaintId);
                                   Get.back();
                                 },
-                                child: const Text('Tolak'),
+                                child: const Text('Tolak',style: TextStyle( color: Colors.black),),
                               ),
                             ],
                           ),
@@ -782,7 +817,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: const Text('Tolak Pengaduan'),
+                      child: const Text('Tolak Pengaduan',style: TextStyle( color: Colors.black), ),
                     ),
                   ),
                 ),

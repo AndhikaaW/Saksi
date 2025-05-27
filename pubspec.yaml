@@ -44,7 +44,7 @@ dependencies:
   firebase_auth: ^4.17.9
 
   #  google auth
-  google_sign_in: ^6.2.2
+  google_sign_in: ^6.1.6
 #  cookies
   get_storage: ^2.1.1
 #  loading_indicator
@@ -52,14 +52,14 @@ dependencies:
 #  tanggal
   intl: ^0.19.0
 #  get api
-  http: ^0.13.6
+  http: ^1.1.0
 #  excel
   excel: ^2.0.0
 #  permission
   path_provider: ^2.1.5
 #  permission
   permission_handler: ^11.1.0
-
+#  awesome_notifications
   awesome_notifications: ^0.8.0
 #  url_launcher
   url_launcher: ^6.3.1
@@ -67,10 +67,17 @@ dependencies:
   image_picker: ^1.1.2
 #  connectivity_plus
   connectivity_plus: ^5.0.2
-
+#  another_flutter_splash_screen
   another_flutter_splash_screen: ^1.2.1
 #  lottie
   lottie: ^2.7.0
+# - googleapis (untuk akses API Google Drive)
+  googleapis: ^11.4.0
+# - googleapis_auth (untuk autentikasi OAuth ke Google API)
+  googleapis_auth: ^1.4.1
+# - file_picker (untuk memilih file dari device, jika ingin user memilih file)
+  file_picker: ^6.1.1
+  path: ^1.8.3
 
 
 dev_dependencies:

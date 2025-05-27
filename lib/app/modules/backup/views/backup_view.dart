@@ -8,8 +8,11 @@ class BackupView extends GetView<BackupController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Backup & Restore Data'),
+        title: const Text('Backup Data',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         centerTitle: true,
+        backgroundColor: Colors.blueGrey,
+        elevation: 0,
+        foregroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -114,95 +117,6 @@ class BackupView extends GetView<BackupController> {
             ),
             
             const SizedBox(height: 24),
-            
-            Text(
-              'Restore Data',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade800,
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-            // Restore Button
-            // Container(
-            //   width: double.infinity,
-            //   decoration: BoxDecoration(
-            //     color: Colors.white,
-            //     borderRadius: BorderRadius.circular(12),
-            //     boxShadow: [
-            //       BoxShadow(
-            //         color: Colors.black.withOpacity(0.05),
-            //         blurRadius: 10,
-            //         offset: const Offset(0, 5),
-            //       ),
-            //     ],
-            //   ),
-            //   child: Material(
-            //     color: Colors.transparent,
-            //     child: InkWell(
-            //       // onTap: () => controller.restoreData(),
-            //       borderRadius: BorderRadius.circular(12),
-            //       child: Padding(
-            //         padding: const EdgeInsets.all(16.0),
-            //         child: Row(
-            //           children: [
-            //             Container(
-            //               padding: const EdgeInsets.all(10),
-            //               decoration: BoxDecoration(
-            //                 color: Colors.red.shade700.withOpacity(0.1),
-            //                 borderRadius: BorderRadius.circular(10),
-            //               ),
-            //               child: Icon(
-            //                 Icons.restore,
-            //                 color: Colors.red.shade700,
-            //                 size: 24,
-            //               ),
-            //             ),
-            //             const SizedBox(width: 16),
-            //             Expanded(
-            //               child: Column(
-            //                 crossAxisAlignment: CrossAxisAlignment.start,
-            //                 children: [
-            //                   Text(
-            //                     'Restore Data dari Backup',
-            //                     style: TextStyle(
-            //                       fontSize: 16,
-            //                       fontWeight: FontWeight.w600,
-            //                       color: Colors.grey.shade800,
-            //                     ),
-            //                   ),
-            //                   const SizedBox(height: 4),
-            //                   Text(
-            //                     'Mengembalikan data dari file backup yang tersimpan',
-            //                     style: TextStyle(
-            //                       fontSize: 14,
-            //                       color: Colors.grey.shade600,
-            //                     ),
-            //                   ),
-            //                 ],
-            //               ),
-            //             ),
-            //             controller.isRestoreLoading.value
-            //                 ? const SizedBox(
-            //                     width: 24,
-            //                     height: 24,
-            //                     child: CircularProgressIndicator(
-            //                       strokeWidth: 2,
-            //                     ),
-            //                   )
-            //                 : Icon(
-            //                     Icons.arrow_forward_ios,
-            //                     color: Colors.grey.shade400,
-            //                     size: 16,
-            //                   ),
-            //           ],
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
           ],
         )),
       ),

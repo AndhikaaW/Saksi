@@ -13,12 +13,22 @@ class HomeTabViewSuperadmin extends GetView<DashboardSuperadminController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            // 'Selamat datang di panel kontrol Superadmin',
-            controller.username.toString(),
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+          const SizedBox(height: 30),
+          const Text(
+            'Dashboard Superadmin',
+            style: TextStyle(
+              color: Colors.blueGrey,
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
+            textAlign: TextAlign.left,
           ),
-          const SizedBox(height: 24),
+          // Text(
+          //   // 'Selamat datang di panel kontrol Superadmin',
+          //   controller.username.toString(),
+          //   style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+          // ),
 
           // Stats Overview
           _buildStatCards(),

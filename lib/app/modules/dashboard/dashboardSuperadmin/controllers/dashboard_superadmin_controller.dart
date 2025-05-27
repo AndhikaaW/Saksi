@@ -63,18 +63,18 @@ class DashboardSuperadminController extends GetxController {
     username.value = box.read('email') ?? 'Guest';
   }
 
-  String get currentTitle {
-    switch (currentIndex.value) {
-      case 0:
-        return 'Dashboard Superadmin';
-      case 1:
-        return 'Chat';
-      case 2:
-        return 'Profil';
-      default:
-        return '';
-    }
-  }
+  // String get currentTitle {
+  //   switch (currentIndex.value) {
+  //     case 0:
+  //       return 'Dashboard Superadmin';
+  //     case 1:
+  //       return 'Chat';
+  //     case 2:
+  //       return 'Profil';
+  //     default:
+  //       return '';
+  //   }
+  // }
 void _listenToComplaintChanges() {
     try {
       // Simpan subscription agar bisa di-cancel jika perlu

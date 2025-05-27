@@ -39,7 +39,7 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
             title: 'Manajemen Pengguna',
             menus: [
               MenuItemData(
-                title: 'Manajemen Pengguna',
+                title: 'Kelola Pengguna',
                 icon: Icons.people,
                 color: Colors.teal.shade700,
                 onTap: () => Get.toNamed('/manage-user'),
@@ -99,7 +99,7 @@ class HomeTabViewAdmin extends GetView<DashboardAdminController> {
             title: 'Manajemen Berita',
             menus: [
               MenuItemData(
-                title: 'Manajemen Berita',
+                title: 'Kelola Berita',
                 icon: Icons.newspaper,
                 color: Colors.indigo.shade700,
                 onTap: () => Get.toNamed('/news'),

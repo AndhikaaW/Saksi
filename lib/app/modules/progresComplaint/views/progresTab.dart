@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:saksi_app/app/modules/progresComplaint/controllers/progres_complaint_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProgresTabView extends GetView<ProgresComplaintController> {
   const ProgresTabView({super.key});
@@ -520,30 +521,53 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
           const SizedBox(height: 16),
 
           // Bukti Image
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Bukti Pendukung:',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                height: 200,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                // Removed Obx as buktiImageData is a simple string, not an Rx variable
-                child: _buildTappableImage(
-                    buktiImageData, 'bukti'), // Use the new helper
-              ),
-            ],
+          // Column(
+          //   crossAxisAlignment: CrossAxisAlignment.start,
+          //   children: [
+          //     const Text(
+          //       'Bukti Pendukung:',
+          //       style: TextStyle(
+          //         fontWeight: FontWeight.bold,
+          //         fontSize: 14,
+          //       ),
+          //     ),
+          //     const SizedBox(height: 8),
+          //     Container(
+          //       width: double.infinity,
+          //       height: 200,
+          //       decoration: BoxDecoration(
+          //         border: Border.all(color: Colors.grey.shade300),
+          //         borderRadius: BorderRadius.circular(8),
+          //       ),
+          //       // Removed Obx as buktiImageData is a simple string, not an Rx variable
+          //       child: _buildTappableImage(
+          //           buktiImageData, 'bukti'), // Use the new helper
+          //     ),
+          //   ],
+          // ),
+        // INSERT_YOUR_CODE
+        // Tampilkan fileId Google Drive jika ada
+        if (buktiImageData != null && buktiImageData.isNotEmpty) ...[
+          const Text(
+            'Bukti Pendukung:',
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () async {
+              // Membuka link Google Drive di browser
+              await launchUrl(Uri.parse(buktiImageData));
+            },
+            child: Text(
+              buktiImageData,
+              style: const TextStyle(
+                color: Colors.blue,
+                decoration: TextDecoration.underline,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
         ],
       ),
     );

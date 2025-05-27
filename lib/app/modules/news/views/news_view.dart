@@ -13,9 +13,9 @@ class NewsView extends GetView<NewsController> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Manajemen Berita',
-            style: TextStyle(color: Colors.blueGrey)),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.blueGrey),
+            style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 20)),
+        backgroundColor: Colors.blueGrey,
+        iconTheme: const IconThemeData(color: Colors.white),
         elevation: 1,
       ),
       body: Obx(() {
@@ -39,8 +39,8 @@ class NewsView extends GetView<NewsController> {
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
                   onPressed: () => Get.to(() => const AddNewsView()),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Tambah Berita Baru'),
+                  icon: const Icon(Icons.add,color: Colors.white,),
+                  label: const Text('Tambah Berita Baru',style: TextStyle(color: Colors.white),),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueGrey,
                     padding: const EdgeInsets.symmetric(
@@ -65,6 +65,7 @@ class NewsView extends GetView<NewsController> {
                     itemBuilder: (context, index) {
                       final newsItem = controller.news[index];
                       return Card(
+                        color: Colors.white,
                         margin: const EdgeInsets.only(bottom: 16),
                         elevation: 2,
                         shape: RoundedRectangleBorder(

@@ -11,12 +11,13 @@ import 'package:saksi_app/app/modules/dashboard/dashboardUser/controllers/dashbo
 import 'package:saksi_app/app/data/models/UserProfile.dart';
 import 'package:saksi_app/services/firestore_services.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:saksi_app/app/services/google_drive_service.dart';
 
 class ComplaintController extends GetxController {
   final DatabaseService databaseService = DatabaseService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final userProfile = Rx<UserProfile?>(null);
-  
+
   // Get Storage
   final box = GetStorage();
   var uid = ''.obs;
@@ -38,7 +39,7 @@ class ComplaintController extends GetxController {
     selectedGender.value = value;
     genderPelapor.text = value;
   }
-  
+
   var selectedDisabilitas = RxnString();
   void setDisabilitas(String value) {
     selectedDisabilitas.value = value;
@@ -53,7 +54,8 @@ class ComplaintController extends GetxController {
   final TextEditingController alasanPengaduan = TextEditingController();
   final TextEditingController alasanPengaduanLainnya = TextEditingController();
   final TextEditingController identifikasiKebutuhan = TextEditingController();
-  final TextEditingController identifikasiKebutuhanLainnya = TextEditingController();
+  final TextEditingController identifikasiKebutuhanLainnya =
+      TextEditingController();
 
   //Terlapor
   final TextEditingController statusTerlapor = TextEditingController();
@@ -71,6 +73,11 @@ class ComplaintController extends GetxController {
   final TextEditingController maxWidthController = TextEditingController();
   final TextEditingController maxHeightController = TextEditingController();
   final TextEditingController qualityController = TextEditingController();
+
+  // Observable untuk buktiImageUrl
+  var buktiImageUrl = ''.obs;
+
+  final GoogleDriveService _googleDriveService = GoogleDriveService();
 
   Future<void> pickKtpImage() async {
     try {
@@ -149,8 +156,6 @@ class ComplaintController extends GetxController {
   final currentStep = 0.obs;
   // Observable untuk cek persetujuan pada langkah terakhir
   final agreementChecked = false.obs;
-
-  
 
   @override
   void onInit() {
@@ -241,17 +246,17 @@ class ComplaintController extends GetxController {
       isLoading.value = true;
 
       String ktpImageBase64 = '';
-      String buktiImageBase64 = '';
+      // String buktiImageBase64 = '';
 
       if (ktpImage.value != null) {
         List<int> imageBytes = await ktpImage.value!.readAsBytes();
         ktpImageBase64 = base64Encode(imageBytes);
       }
 
-      if (buktiImage.value != null) {
-        List<int> imageBytes = await buktiImage.value!.readAsBytes();
-        buktiImageBase64 = base64Encode(imageBytes);
-      }
+      // if (buktiImage.value != null) {
+      //   List<int> imageBytes = await buktiImage.value!.readAsBytes();
+      //   buktiImageBase64 = base64Encode(imageBytes);
+      // }
 
       await databaseService.createComplaint(
           complaintId: complaintId,
@@ -273,8 +278,9 @@ class ComplaintController extends GetxController {
           statusTerlapor: statusTerlapor.text,
           jenisKelaminTerlapor: genderTerlapor.text,
           ktpImageUrl: ktpImageBase64,
-          buktiImageUrl: buktiImageBase64);
-
+          // buktiImageUrl: buktiImageBase64);
+          buktiImageUrl: buktiImageUrl.value
+          );
       // Tampilkan notifikasi
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
@@ -426,6 +432,36 @@ class ComplaintController extends GetxController {
     final sequenceNumber = querySnapshot.docs.length + 1;
     complaintId = "${datePart}_$sequenceNumber";
   }
+
+  Future<void> uploadFileToGoogleDrive() async {
+    try {
+      // Upload file ke Google Drive dan dapatkan fileId
+      final fileIds = await _googleDriveService.uploadFiles();
+      if (fileIds != null && fileIds.isNotEmpty) {
+        print('File berhasil diupload dengan ID: $fileIds');
+        try {
+          // Ambil link share folder Google Drive (bukan fileId)
+          final folderLink = await _googleDriveService.getFolderShareLink();
+          if (folderLink != null) {
+            buktiImageUrl.value = folderLink;
+            print('Link folder Google Drive: $folderLink');
+            showSuccess('File berhasil diupload. Link folder tersimpan.');
+          } else {
+            showError('Gagal mendapatkan link folder Google Drive');
+          }
+        } catch (e) {
+          print('Gagal menyimpan link folder ke Firestore: $e');
+          showError('Gagal menyimpan link folder');
+        }
+      } else {
+        showError('Gagal mengupload file');
+      }
+    } catch (e) {
+      print('Error: $e');
+      showError('Terjadi kesalahan saat mengupload file');
+    }
+  }
+
 
   // @override
   // void onClose() {

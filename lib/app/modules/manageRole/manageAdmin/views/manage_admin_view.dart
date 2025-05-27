@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/manage_admin_controller.dart';
@@ -8,8 +10,11 @@ class ManageAdminView extends GetView<ManageAdminController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kelola Admin'),
+        title: const Text('Kelola Admin',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         centerTitle: true,
+        backgroundColor: Colors.blueGrey,
+        elevation: 0,
+        foregroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -46,72 +51,173 @@ class ManageAdminView extends GetView<ManageAdminController> {
                   itemBuilder: (context, index) {
                     final admin = displayedAdmins[index];
                     return Card(
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundImage: admin['photoUrl'] != null && admin['photoUrl'].isNotEmpty
-                              ? NetworkImage(admin['photoUrl'])
-                              : null,
-                          child: admin['photoUrl'] == null || admin['photoUrl'].isEmpty
-                              ? const Icon(Icons.person)
-                              : null,
-                        ),
-                        title: Text(admin['name'] ?? ''),
-                        subtitle: Text(admin['status'] ?? ''),
-                        trailing: PopupMenuButton(
-                          itemBuilder: (context) => [
-                            PopupMenuItem(
-                              value: 'edit',
-                              child: const Text('Edit Role'),
-                              onTap: () {
-                                Get.defaultDialog(
-                                  title: 'Edit Role Admin',
-                                  content: Column(
-                                    children: [
-                                      RadioListTile<int>(
-                                        title: const Text('Super Admin'),
-                                        value: 0,
-                                        groupValue: admin['status_code'],
-                                        onChanged: (int? value) {
-                                          if (value != null) {
-                                            controller.updateAdminRole(admin['id'], value);
-                                            Get.back();
-                                          }
-                                        },
-                                      ),
-                                      RadioListTile<int>(
-                                        title: const Text('Admin'),
-                                        value: 1,
-                                        groupValue: admin['status_code'],
-                                        onChanged: (int? value) {
-                                          if (value != null) {
-                                            controller.updateAdminRole(admin['id'], value);
-                                            Get.back();
-                                          }
-                                        },
-                                      ),
-                                    ],
+                      color: Colors.white,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () {
+                          // Tampilkan dialog detail admin
+                          Get.defaultDialog(
+                            title: "Detail Admin",
+                            backgroundColor: Colors.white,
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircleAvatar(
+                                  radius: 40,
+                                  backgroundColor: Colors.white,
+                                  backgroundImage: admin['photoUrl'] != null && admin['photoUrl'].isNotEmpty
+                                      ? (
+                                          admin['photoUrl'].toString().startsWith('http')
+                                              ? NetworkImage(admin['photoUrl'])
+                                              : MemoryImage(
+                                                  base64Decode(
+                                                    admin['photoUrl']
+                                                        .toString()
+                                                        .replaceFirst(RegExp(r'data:image/[^;]+;base64,'), '')
+                                                  )
+                                                ) as ImageProvider
+                                        )
+                                      : null,
+                                  child: (admin['photoUrl'] == null || admin['photoUrl'].isEmpty)
+                                      ? Text(
+                                          (admin['name'] != null && admin['name'].toString().isNotEmpty)
+                                              ? admin['name'].toString()[0].toUpperCase()
+                                              : '',
+                                          style: const TextStyle(
+                                            fontSize: 32,
+                                            color: Colors.blueGrey,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  admin['name'] ?? '-',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
                                   ),
-                                );
-                              },
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  admin['email'] ?? '-',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  admin['status'] ?? '-',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.blueGrey,
+                                  ),
+                                ),
+                              ],
                             ),
-                            PopupMenuItem(
-                              value: 'delete',
-                              child: const Text('Hapus'),
-                              onTap: () {
-                                Get.defaultDialog(
-                                  title: 'Konfirmasi',
-                                  middleText: 'Apakah anda yakin ingin menghapus admin ini?',
-                                  textConfirm: 'Ya',
-                                  textCancel: 'Tidak', 
-                                  confirmTextColor: Colors.white,
-                                  onConfirm: () {
-                                    controller.deleteAdmin(admin['id']);
-                                    Get.back();
-                                  }
-                                );
-                              },
-                            ),
-                          ],
+                            textConfirm: "Tutup",
+                            confirmTextColor: Colors.white,
+                            onConfirm: () {
+                              Get.back();
+                            },
+                          );
+                        },
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            radius: 24,
+                            backgroundColor: Colors.white,
+                            backgroundImage: admin['photoUrl'] != null && admin['photoUrl'].isNotEmpty
+                                ? (
+                                    admin['photoUrl'].toString().startsWith('http')
+                                        // Jika link (dari Google, dsb)
+                                        ? NetworkImage(admin['photoUrl'])
+                                        // Jika base64
+                                        : MemoryImage(
+                                            base64Decode(
+                                              admin['photoUrl']
+                                                  .toString()
+                                                  .replaceFirst(RegExp(r'data:image/[^;]+;base64,'), '')
+                                            )
+                                          ) as ImageProvider
+                                  )
+                                : null,
+                            child: (admin['photoUrl'] == null || admin['photoUrl'].isEmpty)
+                                ? Text(
+                                    (admin['name'] != null && admin['name'].toString().isNotEmpty)
+                                        ? admin['name'].toString()[0].toUpperCase()
+                                        : '',
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.blueGrey,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          title: Text(admin['name'] ?? '',style: TextStyle(fontWeight: FontWeight.bold),),
+                          subtitle: Text(admin['status'] ?? '',style: TextStyle(fontSize: 12),),
+                          trailing: PopupMenuButton(
+                            color: Colors.white, // Menetapkan background popup menjadi putih
+                            child: const Icon(Icons.more_vert),
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: 'edit',
+                                child: const Text('Edit Role',style: TextStyle(color: Colors.black),),
+                                onTap: () {
+                                  Get.defaultDialog(
+                                    title: 'Edit Role Admin',
+                                    backgroundColor: Colors.white,
+                                    content: Column(
+                                      children: [
+                                        RadioListTile<int>(
+                                          title: const Text('Super Admin'),
+                                          value: 0,
+                                          groupValue: admin['status_code'],
+                                          onChanged: (int? value) {
+                                            if (value != null) {
+                                              controller.updateAdminRole(admin['id'], value);
+                                              Get.back();
+                                            }
+                                          },
+                                        ),
+                                        RadioListTile<int>(
+                                          title: const Text('Admin'),
+                                          value: 1,
+                                          groupValue: admin['status_code'],
+                                          onChanged: (int? value) {
+                                            if (value != null) {
+                                              controller.updateAdminRole(admin['id'], value);
+                                              Get.back();
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: const Text('Hapus',style: TextStyle(color: Colors.red),),
+                                onTap: () {
+                                  Get.defaultDialog(
+                                    title: 'Konfirmasi',
+                                    backgroundColor: Colors.white,
+                                    middleText: 'Apakah anda yakin ingin menghapus admin ini?',
+                                    textConfirm: 'Ya',
+                                    textCancel: 'Tidak', 
+                                    confirmTextColor: Colors.white,
+                                    onConfirm: () {
+                                      controller.deleteAdmin(admin['id']);
+                                      Get.back();
+                                    }
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );

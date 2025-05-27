@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/complaint_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ComplaintView extends GetView<ComplaintController> {
   const ComplaintView({super.key});
@@ -29,7 +30,8 @@ class ComplaintView extends GetView<ComplaintController> {
           // Container dengan progress indicator
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 18.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 18.0),
             decoration: BoxDecoration(
               color: Colors.blueGrey.shade50,
               borderRadius: const BorderRadius.only(
@@ -52,7 +54,8 @@ class ComplaintView extends GetView<ComplaintController> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.info_outline, color: Colors.blueGrey, size: 22),
+                        const Icon(Icons.info_outline,
+                            color: Colors.blueGrey, size: 22),
                         const SizedBox(width: 8),
                         const Text(
                           'Informasi Pelaporan',
@@ -65,7 +68,8 @@ class ComplaintView extends GetView<ComplaintController> {
                       ],
                     ),
                     Obx(() => Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
                             color: Colors.blueGrey.shade100,
                             borderRadius: BorderRadius.circular(12),
@@ -84,7 +88,8 @@ class ComplaintView extends GetView<ComplaintController> {
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    const Icon(Icons.lock_outline, color: Colors.blueGrey, size: 22),
+                    const Icon(Icons.lock_outline,
+                        color: Colors.blueGrey, size: 22),
                     const SizedBox(width: 6),
                     const Expanded(
                       child: Text(
@@ -100,7 +105,8 @@ class ComplaintView extends GetView<ComplaintController> {
                       child: LinearProgressIndicator(
                         value: (controller.currentStep.value + 1) / 4,
                         backgroundColor: Colors.blueGrey.shade100,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blueGrey.shade700),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.blueGrey.shade700),
                         minHeight: 10,
                       ),
                     )),
@@ -108,10 +114,14 @@ class ComplaintView extends GetView<ComplaintController> {
                 Obx(() => Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        _buildProgressStep('Data Diri', 0, controller.currentStep.value),
-                        _buildProgressStep('Kejadian', 1, controller.currentStep.value),
-                        _buildProgressStep('Terlapor', 2, controller.currentStep.value),
-                        _buildProgressStep('Konfirmasi', 3, controller.currentStep.value),
+                        _buildProgressStep(
+                            'Data Diri', 0, controller.currentStep.value),
+                        _buildProgressStep(
+                            'Kejadian', 1, controller.currentStep.value),
+                        _buildProgressStep(
+                            'Terlapor', 2, controller.currentStep.value),
+                        _buildProgressStep(
+                            'Konfirmasi', 3, controller.currentStep.value),
                       ],
                     )),
               ],
@@ -156,7 +166,9 @@ class ComplaintView extends GetView<ComplaintController> {
           height: isCurrent ? 38 : 32,
           decoration: BoxDecoration(
             color: isActive
-                ? (isCurrent ? Colors.blueGrey.shade700 : Colors.blueGrey.shade400)
+                ? (isCurrent
+                    ? Colors.blueGrey.shade700
+                    : Colors.blueGrey.shade400)
                 : Colors.grey.shade300,
             borderRadius: BorderRadius.circular(20),
             border: isCurrent
@@ -235,7 +247,8 @@ class ComplaintView extends GetView<ComplaintController> {
                   Flexible(
                     flex: 6,
                     child: RadioListTile<String>(
-                      title: const Text('Perempuan', overflow: TextOverflow.ellipsis),
+                      title: const Text('Perempuan',
+                          overflow: TextOverflow.ellipsis),
                       value: 'Perempuan',
                       groupValue: controller.selectedGender.value,
                       onChanged: (value) {
@@ -249,7 +262,8 @@ class ComplaintView extends GetView<ComplaintController> {
                   Flexible(
                     flex: 6,
                     child: RadioListTile<String>(
-                      title: const Text('Laki-laki', overflow: TextOverflow.ellipsis),
+                      title: const Text('Laki-laki',
+                          overflow: TextOverflow.ellipsis),
                       value: 'Laki-laki',
                       groupValue: controller.selectedGender.value,
                       onChanged: (value) {
@@ -308,7 +322,8 @@ class ComplaintView extends GetView<ComplaintController> {
                       Flexible(
                         flex: 6,
                         child: RadioListTile<String>(
-                          title: const Text('Iya', overflow: TextOverflow.ellipsis),
+                          title: const Text('Iya',
+                              overflow: TextOverflow.ellipsis),
                           value: 'Iya',
                           groupValue: controller.selectedDisabilitas.value,
                           onChanged: (value) {
@@ -318,11 +333,13 @@ class ComplaintView extends GetView<ComplaintController> {
                           contentPadding: EdgeInsets.only(right: 8),
                         ),
                       ),
-                      SizedBox(width: 16), // beri jarak agar tidak terlalu rapat
+                      SizedBox(
+                          width: 16), // beri jarak agar tidak terlalu rapat
                       Flexible(
                         flex: 6,
                         child: RadioListTile<String>(
-                          title: const Text('Tidak', overflow: TextOverflow.ellipsis),
+                          title: const Text('Tidak',
+                              overflow: TextOverflow.ellipsis),
                           value: 'Tidak',
                           groupValue: controller.selectedDisabilitas.value,
                           onChanged: (value) {
@@ -350,7 +367,8 @@ class ComplaintView extends GetView<ComplaintController> {
               child: TextFormField(
                 controller: controller.noTeleponPihakLain,
                 keyboardType: TextInputType.number,
-                decoration: _inputDecoration('Masukkan nomor telepon Pihak Lain'),
+                decoration:
+                    _inputDecoration('Masukkan nomor telepon Pihak Lain'),
               ),
             ),
             const SizedBox(height: 8),
@@ -380,15 +398,18 @@ class ComplaintView extends GetView<ComplaintController> {
               child: TextFormField(
                 controller: controller.bentukKekerasan,
                 maxLines: 3,
-                decoration: _inputDecoration('Deskripsikan jenis kekerasan yang terjadi'),
+                decoration: _inputDecoration(
+                    'Deskripsikan jenis kekerasan yang terjadi'),
               ),
             ),
             _buildLabeledField(
-              label: 'Cerita singkat peristiwa (Memuat waktu, tempat, dan peristiwa)',
+              label:
+                  'Cerita singkat peristiwa (Memuat waktu, tempat, dan peristiwa)',
               child: TextFormField(
                 controller: controller.ceritaSingkatPeristiwa,
                 maxLines: 5,
-                decoration: _inputDecoration('Ceritakan kronologi kejadian secara detail'),
+                decoration: _inputDecoration(
+                    'Ceritakan kronologi kejadian secara detail'),
               ),
             ),
             _buildLabeledField(
@@ -449,7 +470,6 @@ class ComplaintView extends GetView<ComplaintController> {
                   fillColor: Colors.white,
                 ),
                 dropdownColor: Colors.white,
-                
                 value: controller.identifikasiKebutuhan.text.isNotEmpty
                     ? controller.identifikasiKebutuhan.text
                     : null,
@@ -489,7 +509,6 @@ class ComplaintView extends GetView<ComplaintController> {
                     );
                   }
                 },
-                
               ),
             ),
             const SizedBox(height: 8),
@@ -550,7 +569,8 @@ class ComplaintView extends GetView<ComplaintController> {
                   Flexible(
                     flex: 6,
                     child: RadioListTile<String>(
-                      title: const Text('Perempuan', overflow: TextOverflow.ellipsis),
+                      title: const Text('Perempuan',
+                          overflow: TextOverflow.ellipsis),
                       value: 'Perempuan',
                       groupValue: controller.selectedGenderTerlapor.value,
                       onChanged: (value) {
@@ -564,7 +584,8 @@ class ComplaintView extends GetView<ComplaintController> {
                   Flexible(
                     flex: 6,
                     child: RadioListTile<String>(
-                      title: const Text('Laki-laki', overflow: TextOverflow.ellipsis),
+                      title: const Text('Laki-laki',
+                          overflow: TextOverflow.ellipsis),
                       value: 'Laki-laki',
                       groupValue: controller.selectedGenderTerlapor.value,
                       onChanged: (value) {
@@ -637,54 +658,85 @@ class ComplaintView extends GetView<ComplaintController> {
               ),
             ),
             const SizedBox(height: 16),
+            // ElevatedButton(
+            //   onPressed: () => controller.uploadFileToGoogleDrive(),
+            //   child: Text('Upload File'),
+            // ),
             _buildLabeledField(
-              label: 'Upload Bukti Pendukung',
-              child: Obx(() => controller.buktiImage.value != null
-                  ? GestureDetector(
-                      onTap: () {
-                        // Tampilkan preview gambar KTP jika diklik
-                        Get.dialog(
-                          Dialog(
-                            backgroundColor: Colors.transparent,
-                            child: InteractiveViewer(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.file(
-                                  controller.buktiImage.value!,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.file(
-                          controller.buktiImage.value!,
-                          height: 180,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
+              label: 'Link Bukti Pendukung (Google Drive)',
+              child: Obx(() {
+                final fileId = controller.buktiImageUrl.value;
+                if (fileId.isNotEmpty) {
+                  final url = controller.buktiImageUrl.value;
+                  return GestureDetector(
+                    onTap: () async {
+                      await launchUrl(Uri.parse(url));
+                    },
+                    child: Text(
+                      url,
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                        fontSize: 14,
                       ),
-                    )
-                  : Container(
-                      height: 180,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.grey.shade100,
-                      ),
-                      child: const Center(
-                        child: Text('Belum ada bukti pendukung'),
-                      ),
-                    )),
+                    ),
+                  );
+                } else {
+                  return const Text(
+                    'Belum ada file bukti yang diupload ke Google Drive',
+                    style: TextStyle(color: Colors.grey),
+                  );
+                }
+              }),
             ),
+            // _buildLabeledField(
+            //   label: 'Upload Bukti Pendukung',
+            //   child: Obx(() => controller.buktiImage.value != null
+            //       ? GestureDetector(
+            //           onTap: () {
+            //             // Tampilkan preview gambar KTP jika diklik
+            //             Get.dialog(
+            //               Dialog(
+            //                 backgroundColor: Colors.transparent,
+            //                 child: InteractiveViewer(
+            //                   child: ClipRRect(
+            //                     borderRadius: BorderRadius.circular(16),
+            //                     child: Image.file(
+            //                       controller.buktiImage.value!,
+            //                       fit: BoxFit.contain,
+            //                     ),
+            //                   ),
+            //                 ),
+            //               ),
+            //             );
+            //           },
+            //           child: ClipRRect(
+            //             borderRadius: BorderRadius.circular(10),
+            //             child: Image.file(
+            //               controller.buktiImage.value!,
+            //               height: 180,
+            //               width: double.infinity,
+            //               fit: BoxFit.cover,
+            //             ),
+            //           ),
+            //         )
+            //       : Container(
+            //           height: 180,
+            //           width: double.infinity,
+            //           decoration: BoxDecoration(
+            //             border: Border.all(color: Colors.grey),
+            //             borderRadius: BorderRadius.circular(10),
+            //             color: Colors.grey.shade100,
+            //           ),
+            //           child: const Center(
+            //             child: Text('Belum ada bukti pendukung'),
+            //           ),
+            //         )),
+            // ),
             const SizedBox(height: 8),
             Center(
               child: ElevatedButton.icon(
-                onPressed: () => controller.pickBuktiImage(),
+                onPressed: () => controller.uploadFileToGoogleDrive(),
                 icon: const Icon(Icons.upload),
                 label: const Text('Upload Bukti'),
                 style: ElevatedButton.styleFrom(
@@ -721,7 +773,8 @@ class ComplaintView extends GetView<ComplaintController> {
             Card(
               elevation: 1,
               color: Colors.blue.shade50,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -729,37 +782,52 @@ class ComplaintView extends GetView<ComplaintController> {
                   children: [
                     const Text(
                       'Data Pelapor',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.blue),
                     ),
                     const Divider(),
                     _buildInfoRow('Nama', controller.namaPelapor.text),
-                    _buildInfoRow('No Telepon', controller.noTeleponPelapor.text),
-                    _buildInfoRow('Jenis Kelamin', controller.genderPelapor.text),
+                    _buildInfoRow(
+                        'No Telepon', controller.noTeleponPelapor.text),
+                    _buildInfoRow(
+                        'Jenis Kelamin', controller.genderPelapor.text),
                     _buildInfoRow('Domisili', controller.domisiliPelapor.text),
-                    _buildInfoRow('Status Pelapor', controller.statusPelapor.text),
-                    _buildInfoRow('Disabilitas', controller.keteranganDisabilitas.text),
-                    _buildInfoRow('Nomor Telepon Pihak Lain', controller.noTeleponPihakLain.text),
+                    _buildInfoRow(
+                        'Status Pelapor', controller.statusPelapor.text),
+                    _buildInfoRow(
+                        'Disabilitas', controller.keteranganDisabilitas.text),
+                    _buildInfoRow('Nomor Telepon Pihak Lain',
+                        controller.noTeleponPihakLain.text),
 
                     const SizedBox(height: 16),
                     const Text(
                       'Detail Kejadian',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.blue),
                     ),
                     const Divider(),
-                    _buildInfoRow('Bentuk Kekerasan', controller.bentukKekerasan.text),
-                    _buildInfoRow('Deskripsi Kejadian', controller.ceritaSingkatPeristiwa.text),
-                    _buildInfo('Alasan Pengaduan', controller.alasanPengaduan.text,
+                    _buildInfoRow(
+                        'Bentuk Kekerasan', controller.bentukKekerasan.text),
+                    _buildInfoRow('Deskripsi Kejadian',
+                        controller.ceritaSingkatPeristiwa.text),
+                    _buildInfo(
+                        'Alasan Pengaduan', controller.alasanPengaduan.text,
                         customValue: controller.alasanPengaduanLainnya.text),
-                    _buildInfo('Kebutuhan Korban', controller.identifikasiKebutuhan.text,
-                        customValue: controller.identifikasiKebutuhanLainnya.text),
+                    _buildInfo('Kebutuhan Korban',
+                        controller.identifikasiKebutuhan.text,
+                        customValue:
+                            controller.identifikasiKebutuhanLainnya.text),
                     const SizedBox(height: 16),
                     const Text(
                       'Terlapor',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.blue),
                     ),
                     const Divider(),
-                    _buildInfoRow('Status Terlapor', controller.statusTerlapor.text),
-                    _buildInfoRow('Jenis Kelamin Terlapor', controller.genderTerlapor.text),
+                    _buildInfoRow(
+                        'Status Terlapor', controller.statusTerlapor.text),
+                    _buildInfoRow('Jenis Kelamin Terlapor',
+                        controller.genderTerlapor.text),
                     // Preview lampiran KTP
                     const SizedBox(height: 8),
                     const Text(
@@ -790,7 +858,8 @@ class ComplaintView extends GetView<ComplaintController> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     image: DecorationImage(
-                                      image: FileImage(controller.ktpImage.value!),
+                                      image:
+                                          FileImage(controller.ktpImage.value!),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -813,47 +882,82 @@ class ComplaintView extends GetView<ComplaintController> {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
-                    Obx(() => GestureDetector(
-                          onTap: () {
-                            if (controller.buktiImage.value != null) {
-                              showDialog(
-                                context: Get.context!,
-                                builder: (BuildContext dialogContext) {
-                                  return Dialog(
-                                    child: Image.file(
-                                      controller.buktiImage.value!,
-                                      fit: BoxFit.contain,
-                                    ),
-                                  );
-                                },
-                              );
-                            }
-                          },
-                          child: controller.buktiImage.value != null
-                              ? Container(
-                                  height: 120,
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    image: DecorationImage(
-                                      image: FileImage(controller.buktiImage.value!),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                )
-                              : Container(
-                                  height: 120,
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Center(
-                                    child: Text('Belum ada bukti pendukung'),
-                                  ),
-                                ),
-                        )),
+                    // Obx(() => GestureDetector(
+                    //       onTap: () {
+                    //         if (controller.buktiImage.value != null) {
+                    //           showDialog(
+                    //             context: Get.context!,
+                    //             builder: (BuildContext dialogContext) {
+                    //               return Dialog(
+                    //                 child: Image.file(
+                    //                   controller.buktiImage.value!,
+                    //                   fit: BoxFit.contain,
+                    //                 ),
+                    //               );
+                    //             },
+                    //           );
+                    //         }
+                    //       },
+                    //       child: controller.buktiImage.value != null
+                    //           ? Container(
+                    //               height: 120,
+                    //               width: double.infinity,
+                    //               decoration: BoxDecoration(
+                    //                 borderRadius: BorderRadius.circular(8),
+                    //                 image: DecorationImage(
+                    //                   image: FileImage(
+                    //                       controller.buktiImage.value!),
+                    //                   fit: BoxFit.cover,
+                    //                 ),
+                    //               ),
+                    //             )
+                    //           : Container(
+                    //               height: 120,
+                    //               width: double.infinity,
+                    //               decoration: BoxDecoration(
+                    //                 border: Border.all(color: Colors.grey),
+                    //                 borderRadius: BorderRadius.circular(8),
+                    //               ),
+                    //               child: const Center(
+                    //                 child: Text('Belum ada bukti pendukung'),
+                    //               ),
+                    //             ),
+                    //     )),
 
+                    // const SizedBox(height: 16),
+                    // const Divider(),
+                    // Tampilkan fileId Google Drive jika ada
+                    Obx(() {
+                      if (controller.buktiImageUrl.value.isNotEmpty) {
+                        String url = controller.buktiImageUrl.value;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Bukti Pendukung:',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            GestureDetector(
+                              onTap: () async {
+                                await launchUrl(Uri.parse(url));
+                              },
+                              child: Text(
+                                url,
+                                style: const TextStyle(
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return const Text('Belum ada bukti pendukung');
+                      }
+                    }),
+                    
                     const SizedBox(height: 16),
                     const Divider(),
                     Row(
@@ -896,11 +1000,13 @@ class ComplaintView extends GetView<ComplaintController> {
             width: 120,
             child: Text(
               '$label:',
-              style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87),
+              style: const TextStyle(
+                  fontWeight: FontWeight.w500, color: Colors.black87),
             ),
           ),
           Expanded(
-            child: Text(value.isEmpty ? '-' : value, style: const TextStyle(color: Colors.black87)),
+            child: Text(value.isEmpty ? '-' : value,
+                style: const TextStyle(color: Colors.black87)),
           ),
         ],
       ),
@@ -911,7 +1017,8 @@ class ComplaintView extends GetView<ComplaintController> {
     String displayText = controller.alasanPengaduan.text;
 
     // If "Lainnya" is selected and there's custom text, append it
-    if (displayText == 'Lainnya' && controller.alasanPengaduanLainnya.text.isNotEmpty) {
+    if (displayText == 'Lainnya' &&
+        controller.alasanPengaduanLainnya.text.isNotEmpty) {
       displayText = 'Lainnya: ${controller.alasanPengaduanLainnya.text}';
     }
 
@@ -923,7 +1030,8 @@ class ComplaintView extends GetView<ComplaintController> {
     String displayText = controller.identifikasiKebutuhan.text;
 
     // If "Lainnya" is selected and there's custom text, append it
-    if (displayText == 'Lainnya' && controller.identifikasiKebutuhanLainnya.text.isNotEmpty) {
+    if (displayText == 'Lainnya' &&
+        controller.identifikasiKebutuhanLainnya.text.isNotEmpty) {
       displayText = 'Lainnya: ${controller.identifikasiKebutuhanLainnya.text}';
     }
 
@@ -951,7 +1059,8 @@ class ComplaintView extends GetView<ComplaintController> {
             ),
           ),
           Expanded(
-            child: Text(displayText, style: const TextStyle(color: Colors.black87)),
+            child: Text(displayText,
+                style: const TextStyle(color: Colors.black87)),
           ),
         ],
       ),
@@ -1025,8 +1134,9 @@ class ComplaintView extends GetView<ComplaintController> {
                           : const Icon(Icons.send);
                     }),
                     label: Obx(() {
-                      return Text(
-                          controller.isLoading.value ? "Loading..." : "Kirim Laporan");
+                      return Text(controller.isLoading.value
+                          ? "Loading..."
+                          : "Kirim Laporan");
                     }),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,

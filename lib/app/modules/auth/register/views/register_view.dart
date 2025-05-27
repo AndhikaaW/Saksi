@@ -17,22 +17,26 @@ class RegisterView extends GetView<RegisterController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 20),
+                // const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Image.asset(
+                    //   'assets/logoPoltek.png',
+                    //   height: 100,
+                    // ),
+                    // const SizedBox(width: 20),
+                    // Image.asset(
+                    //   'assets/logoPPKS.png',
+                    //   height: 100,
+                    // ),
                     Image.asset(
-                      'assets/logoPoltek.png',
-                      height: 100,
-                    ),
-                    const SizedBox(width: 20),
-                    Image.asset(
-                      'assets/logoPPKS.png',
-                      height: 100,
+                      'assets/logo1.png',
+                      height: 180,
                     ),
                   ],
                 ),
-                const SizedBox(height: 30),
+                // const SizedBox(height: 30),
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -97,6 +101,7 @@ class RegisterView extends GetView<RegisterController> {
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField(
+                        dropdownColor: Colors.white,
                         decoration: InputDecoration(
                           labelText: 'Jenis Kelamin',
                           prefixIcon: const Icon(Icons.people, color: Colors.blueGrey),
@@ -234,7 +239,7 @@ class RegisterView extends GetView<RegisterController> {
                         Get.back();
                       },
                       child: const Text(
-                        'Login',
+                        'Masuk',
                         style: TextStyle(
                           color: Colors.blueGrey,
                           fontWeight: FontWeight.bold,
