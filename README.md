@@ -1,16 +1,15 @@
-# saksi_app
+# Formulir Pelaporan - Aplikasi Android 
 
-SAKSI (Sistem Aduan Kekerasan Seksual Internal)
+Aplikasi ini digunakan untuk menerima dan mengelola laporan Pengaduan Kekerasan Seksual dari warga kampus secara digital, termasuk mengunggah file ke Google Drive dan menyimpan data ke Firebase.
 
-## Getting Started
+## Fitur
+- Login Google
+- Unggah file ke Google Drive
+- Simpan data pelaporan ke Firebase
 
-This project is a starting point for a Flutter application.
+## Developer
+Andhika W.
+Email: andhikaw61@gmail.com
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Privacy Policy
+https://www.freeprivacypolicy.com/live/4c2e59a2-a2e2-44e6-ab01-a0547437f91e
