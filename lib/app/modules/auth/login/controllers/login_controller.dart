@@ -84,14 +84,11 @@ class LoginController extends GetxController {
       if (GetPlatform.isAndroid || GetPlatform.isIOS) {
         await _googleSignIn
             .signOut(); // Logout sebelumnya untuk memastikan fresh login
-
         final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
         if (googleUser == null) {
           print('User membatalkan proses sign in');
           return false;
         }
-
         final GoogleSignInAuthentication googleAuth =
             await googleUser.authentication;
 
@@ -99,7 +96,6 @@ class LoginController extends GetxController {
           accessToken: googleAuth.accessToken,
           idToken: googleAuth.idToken,
         );
-
         UserCredential userCredential =
             await _auth.signInWithCredential(credential);
         User? user = userCredential.user;

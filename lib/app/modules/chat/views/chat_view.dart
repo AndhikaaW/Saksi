@@ -523,8 +523,8 @@ class ChatView extends GetView<ChatController> {
                           ),
                           contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
-                          prefixIcon: const Icon(Icons.emoji_emotions_outlined,
-                              color: Colors.amber),
+                          // prefixIcon: const Icon(Icons.emoji_emotions_outlined,
+                          //     color: Colors.amber),
                         ),
                       ),
                     ),

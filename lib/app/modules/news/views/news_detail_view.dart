@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -24,29 +26,59 @@ class NewsDetailView extends GetView<NewsController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (news.imageUrl.isNotEmpty)
+            if (news.imageUrl.isNotEmpty || news.imageNews.isNotEmpty)
               Stack(
                 children: [
-                  Hero(
+                    Hero(
                     tag: news.imageUrl,
                     child: ClipRRect(
                       borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(32),
-                        bottomRight: Radius.circular(32),
+                      bottomLeft: Radius.circular(32),
+                      bottomRight: Radius.circular(32),
                       ),
-                      child: Image.network(
+                      child: news.imageUrl.isNotEmpty
+                      ? Image.network(
                         news.imageUrl,
                         height: 240,
                         width: double.infinity,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
+                        return Image.memory(
+                          Base64Decoder().convert(news.imageNews),
+                          height: 240,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
                           return Container(
                             height: 240,
                             width: double.infinity,
                             color: Colors.grey[200],
-                            child: const Icon(Icons.image_not_supported,
-                                size: 60, color: Colors.grey),
+                            child: const Icon(
+                            Icons.image_not_supported,
+                            size: 50,
+                            color: Colors.grey
+                            ),
                           );
+                          },
+                        );
+                        },
+                      )
+                      : Image.memory(
+                        Base64Decoder().convert(news.imageNews),
+                        height: 240,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 240,
+                          width: double.infinity,
+                          color: Colors.grey[200],
+                          child: const Icon(
+                          Icons.image_not_supported,
+                          size: 50,
+                          color: Colors.grey
+                          ),
+                        );
                         },
                       ),
                     ),

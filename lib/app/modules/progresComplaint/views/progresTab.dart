@@ -262,7 +262,13 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _sectionTitle('Progress Pengaduan'),
+            const Text(
+              'Progres Pengaduan',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 16),
             Center(
               child: Column(
@@ -281,13 +287,18 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
         ),
       );
     }
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle('Progress Pengaduan'),
+          const Text(
+            'Progres Pengaduan',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 16),
           for (int i = 0; i < progressList.length; i++)
             _buildTimelineItem(
@@ -296,8 +307,10 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
                   .format(DateTime.parse(progressList[i].date)),
               description: progressList[i].description,
               isCompleted: true,
+              imageUrl: progressList[i].image,
               isLast: i == progressList.length - 1,
             ),
+          const SizedBox(height: 16),
         ],
       ),
     );
@@ -309,6 +322,7 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
     required String date,
     required String description,
     required bool isCompleted,
+    String? imageUrl,
     required bool isLast,
   }) {
     return Row(
@@ -337,7 +351,7 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
             if (!isLast)
               Container(
                 width: 2,
-                height: 60,
+                height: imageUrl != null && imageUrl.isNotEmpty ? 160 : 60, // Adjust height if image exists
                 color: isCompleted ? Colors.green : Colors.grey.shade300,
               ),
           ],
@@ -360,7 +374,7 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color:
-                              isCompleted ? Colors.black : Colors.grey.shade600,
+                          isCompleted ? Colors.black : Colors.grey.shade600,
                         ),
                       ),
                     ),
@@ -383,6 +397,64 @@ class ProgresTabView extends GetView<ProgresComplaintController> {
                     color: isCompleted ? Colors.black87 : Colors.grey.shade600,
                   ),
                 ),
+                if (imageUrl != null && imageUrl.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: Get.context!,
+                          builder: (BuildContext dialogContext) {
+                            final imageBytes = base64Decode(imageUrl.replaceAll(RegExp(r'\s+'), ''));
+                            return Dialog(
+                              child: InteractiveViewer(
+                                child: Image.memory(
+                                  imageBytes,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.error, color: Colors.red, size: 40),
+                                          const SizedBox(height: 8),
+                                          Text('Gagal memuat gambar', style: TextStyle(color: Colors.red.shade800)),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: Container(
+                        height: 120, // Increased height for image
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                          image: DecorationImage(
+                            image: MemoryImage(base64Decode(imageUrl.replaceAll(RegExp(r'\s+'), ''))),
+                            fit: BoxFit.cover,
+                            onError: (exception, stackTrace) => const Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 1,
+                              blurRadius: 5,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        // child: ClipRRect(
+                        //   borderRadius: BorderRadius.circular(12),
+                        // ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

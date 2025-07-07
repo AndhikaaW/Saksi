@@ -109,6 +109,7 @@ flutter:
     - assets/logoPPKS.png
     - assets/splashScreen.json
     - assets/logo1.png
+    - assets/logo.png
     # - assets/logo01.png
   #   - images/a_dot_ham.jpeg
 

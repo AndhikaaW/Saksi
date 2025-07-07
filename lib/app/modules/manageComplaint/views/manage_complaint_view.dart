@@ -24,7 +24,6 @@ class ManageComplaintView extends GetView<ManageComplaintController> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Search bar
               TextField(
                 decoration: InputDecoration(
                   hintText: 'Cari pengaduan...',
@@ -32,7 +31,8 @@ class ManageComplaintView extends GetView<ManageComplaintController> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16),
                 ),
                 onChanged: (value) => controller.searchComplaints(value),
               ),
@@ -128,20 +128,32 @@ class ManageComplaintView extends GetView<ManageComplaintController> {
                     itemBuilder: (context, index) {
                       final complaint = controller.userComplaints[index];
                       String status = '';
+                      IconData statusIcon;
+                      Color statusColor;
                       switch (complaint.statusPengaduan) {
                         case 0:
+                          statusIcon = Icons.warning;
+                          statusColor = Colors.orange.shade800;
                           status = 'Menunggu Persetujuan';
                           break;
                         case 1:
+                          statusIcon = Icons.pending_actions;
+                          statusColor = Colors.blue.shade800;
                           status = 'Diproses';
                           break;
                         case 2:
+                          statusIcon = Icons.check_circle;
+                          statusColor = Colors.green.shade800;
                           status = 'Selesai';
                           break;
                         case 3:
+                          statusIcon = Icons.cancel;
+                          statusColor = Colors.red.shade800;
                           status = 'Ditolak';
                           break;
                         default:
+                          statusIcon = Icons.help;
+                          statusColor = Colors.grey;
                           status = 'Tidak Diketahui-';
                       }
 
@@ -149,11 +161,9 @@ class ManageComplaintView extends GetView<ManageComplaintController> {
                         color: Colors.white,
                         margin: const EdgeInsets.only(bottom: 12),
                         child: ListTile(
-                          
                           leading: CircleAvatar(
-                            backgroundColor: Colors.blue.shade100,
-                            child: const Icon(Icons.report_problem,
-                                color: Colors.blue),
+                            backgroundColor: statusColor.withOpacity(0.1),
+                            child: Icon(statusIcon, color: statusColor),
                           ),
                           title: Text('Pengaduan ${complaint.complaintId}'),
                           subtitle: Column(

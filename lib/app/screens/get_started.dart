@@ -17,20 +17,20 @@ class GetStartedScreen extends StatelessWidget {
             children: [
               Spacer(),
                 Image.asset(
-                  'assets/logo1.png',
-                  height: 200,
+                  'assets/logo.png',
+                  height: 110,
                 ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center, 
                 children: [
                 Image.asset(
                   'assets/logoPoltek.png',
-                  height: 80,
+                  height: 100,
                 ),
                 const SizedBox(width: 16),
                 Image.asset(
                   'assets/logoPPKS.png',
-                  height: 80,
+                  height: 100,
                 ),
               ]),
               const SizedBox(height: 24),

@@ -50,7 +50,7 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
         title: const Text('Detail Riwayat Pengaduan'),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: Colors.blueGrey,
         foregroundColor: Colors.white,
       ),
       body: Obx(() {
@@ -87,10 +87,11 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
             children: [
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.blue.shade700, Colors.blue.shade300],
+                    colors: [Colors.blueGrey.shade600, Colors.blueGrey.shade200],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -112,7 +113,7 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                       radius: 44,
                       backgroundColor: Colors.white,
                       child: Icon(Icons.description_rounded,
-                          size: 48, color: Colors.blue.shade700),
+                          size: 48, color: Colors.blueGrey.shade700),
                     ),
                     const SizedBox(height: 18),
                     Text(
@@ -185,6 +186,21 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (complaint.statusPengaduan == 3 &&
+                        (complaint.alasanTolak ?? '').isNotEmpty) ...[
+                      _buildSectionTitle('Alasan Penolakan'),
+                      Card(
+                        color: Colors.red.shade50,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(color: Colors.red.shade200)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(complaint.alasanTolak!, style: TextStyle(color: Colors.red.shade700, fontSize: 15, fontWeight: FontWeight.w500),),
+                        ),),
+                      const SizedBox(height: 28),
+                    ],
                     _buildSectionTitle('Informasi Pelapor'),
                     _buildInfoCard([
                       _buildInfoItem('Nama', complaint.namaPelapor ?? '-'),
@@ -225,7 +241,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                       // FOTO KTP
                       Row(
                         children: const [
-                          Icon(Icons.credit_card_rounded, color: Colors.blueGrey, size: 20),
+                          Icon(Icons.credit_card_rounded,
+                              color: Colors.blueGrey, size: 20),
                           SizedBox(width: 8),
                           Text(
                             'Foto KTP / KTM',
@@ -253,7 +270,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                       return Dialog(
                                         backgroundColor: Colors.transparent,
                                         child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius:
+                                              BorderRadius.circular(16),
                                           child: InteractiveViewer(
                                             child: Image.memory(
                                               imageBytes,
@@ -263,11 +281,12 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                                 return Center(
                                                   child: Column(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment.center,
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
                                                       Icon(Icons.error,
-                                                          color:
-                                                              Colors.red.shade300,
+                                                          color: Colors
+                                                              .red.shade300,
                                                           size: 40),
                                                       const SizedBox(height: 8),
                                                       const Text(
@@ -295,7 +314,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                       height: 180,
                                       width: double.infinity,
                                       fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
                                         return Container(
                                           height: 180,
                                           width: double.infinity,
@@ -341,7 +361,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                       // BUKTI PENDUKUNG
                       Row(
                         children: const [
-                          Icon(Icons.attachment_rounded, color: Colors.blueGrey, size: 20),
+                          Icon(Icons.attachment_rounded,
+                              color: Colors.blueGrey, size: 20),
                           SizedBox(width: 8),
                           Text(
                             'Bukti Pendukung',
@@ -452,27 +473,32 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                       //           Text('Tidak ada bukti pendukung yang diunggah'),
                       //     ),
                       //   ),
-                    // INSERT_YOUR_CODE
-                    if ((complaint.lampiranBukti ?? '').isNotEmpty) ...[
-                      const Text(
-                        'Bukti Pendukung:',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      GestureDetector(
-                        onTap: () async {
-                          await launchUrl(Uri.parse(complaint.lampiranBukti!));
-                        },
-                        child: Text(
-                          complaint.lampiranBukti!,
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
+                      if ((complaint.lampiranBukti ?? '').isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: () async {
+                            await launchUrl(
+                                Uri.parse(complaint.lampiranBukti!));
+                          },
+                          child: Text(
+                            complaint.lampiranBukti!,
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ] else ...[
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Tidak ada lampiran bukti',
+                          style: TextStyle(
+                            color: Colors.grey,
                             fontSize: 13,
                           ),
                         ),
-                      ),
-                    ],
+                      ],
                     ]),
                     if (progress.isNotEmpty) ...[
                       const SizedBox(height: 28),
@@ -497,7 +523,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                   Row(
                                     children: [
                                       Icon(Icons.check_circle_rounded,
-                                          color: Colors.green.shade700, size: 22),
+                                          color: Colors.green.shade700,
+                                          size: 22),
                                       const SizedBox(width: 10),
                                       Expanded(
                                         child: Text(
@@ -514,7 +541,8 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                   Row(
                                     children: [
                                       Icon(Icons.access_time_rounded,
-                                          color: Colors.grey.shade400, size: 16),
+                                          color: Colors.grey.shade400,
+                                          size: 16),
                                       const SizedBox(width: 6),
                                       Text(
                                         DateFormat('dd MMMM yyyy')
@@ -534,6 +562,93 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
                                       color: Colors.black87,
                                     ),
                                   ),
+                                  const SizedBox(height: 10),
+                                  if (item.image.isNotEmpty) ...[
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 12.0),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          showDialog(
+                                            context: Get.context!,
+                                            builder:
+                                                (BuildContext dialogContext) {
+                                              final imageBytes = base64Decode(
+                                                  item.image.replaceAll(
+                                                      RegExp(r'\s+'), ''));
+                                              return Dialog(
+                                                child: InteractiveViewer(
+                                                  child: Image.memory(
+                                                    imageBytes,
+                                                    fit: BoxFit.contain,
+                                                    errorBuilder: (context,
+                                                        error, stackTrace) {
+                                                      return Center(
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            const Icon(
+                                                                Icons.error,
+                                                                color:
+                                                                    Colors.red,
+                                                                size: 40),
+                                                            const SizedBox(
+                                                                height: 8),
+                                                            Text(
+                                                                'Gagal memuat gambar',
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .red
+                                                                        .shade800)),
+                                                          ],
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child: Container(
+                                          height:
+                                              120, // Increased height for image
+                                          width: double.infinity,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            border: Border.all(
+                                                color: Colors.grey.shade300),
+                                            image: DecorationImage(
+                                              image: MemoryImage(base64Decode(
+                                                  item.image.replaceAll(
+                                                      RegExp(r'\s+'), ''))),
+                                              fit: BoxFit.cover,
+                                              onError: (exception,
+                                                      stackTrace) =>
+                                                  const Icon(Icons.broken_image,
+                                                      size: 40,
+                                                      color: Colors.grey),
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey
+                                                    .withOpacity(0.3),
+                                                spreadRadius: 1,
+                                                blurRadius: 5,
+                                                offset: const Offset(0,
+                                                    3), // changes position of shadow
+                                              ),
+                                            ],
+                                          ),
+                                          // child: ClipRRect(
+                                          //   borderRadius: BorderRadius.circular(12),
+                                          // ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
@@ -560,7 +675,7 @@ class DetailRiwayatTab extends GetView<ProgresComplaintController> {
             width: 5,
             height: 24,
             decoration: BoxDecoration(
-              color: Colors.blue.shade700,
+              color: Colors.blueGrey.shade700,
               borderRadius: BorderRadius.circular(4),
             ),
           ),

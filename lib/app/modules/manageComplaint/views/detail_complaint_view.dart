@@ -528,8 +528,9 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                       'Pemanggilan Korban',
                       'Pemanggilan Pelaku',
                       'Investigasi/Penyelidikan',
-                      'Penyusunan Laporan/Hasil',
-                      'Rekomendasi/Tindak Lanjut',
+                      'Penyusunan Laporan Hasil Investigasi',
+                      'Penyampaian Rekomendasi ke Pimpinan',
+                      'Hasil Putusan dari Pimpinan',
                       'Pendampingan Korban',
                       'Monitoring dan Evaluasi',
                     ];
@@ -580,6 +581,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                       );
                     }
 
+
                     // Jika masih ada progress yang bisa ditambahkan, tampilkan form tambah progress
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -613,6 +615,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                                             TextEditingValue value, _) {
                                           return DropdownButtonFormField<
                                               String>(
+                                                isExpanded: true,
                                             value: controller.statusController
                                                     .text.isEmpty
                                                 ? null
@@ -627,6 +630,8 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                                                   : null,
                                               border:
                                                   const OutlineInputBorder(),
+                                              filled: true,
+                                              fillColor: Colors.white,
                                             ),
                                             items: availableOptions
                                                 .map((option) =>
@@ -654,6 +659,85 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                                         ),
                                         maxLines: 3,
                                       ),
+                                      const SizedBox(height: 4),
+                                      Obx(() => controller.selectedImage.value != null
+                                          ? Column(
+                                        children: [
+                                          Container(
+                                            height: 200,
+                                            width: double.infinity,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(color: Colors.grey[300]!),
+                                            ),
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(8),
+                                              child: Image.file(
+                                                controller.selectedImage.value!,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              TextButton.icon(
+                                                onPressed: controller.showImageSourceDialog,
+                                                icon: const Icon(Icons.edit),
+                                                label: const Text('Ganti Gambar'),
+                                              ),
+                                              TextButton.icon(
+                                                onPressed: controller.removeSelectedImage,
+                                                icon: const Icon(Icons.delete, color: Colors.red),
+                                                label: const Text('Hapus', style: TextStyle(color: Colors.red)),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      )
+                                          : Column(
+                                        children: [
+                                          if (controller.selectedImageBase64.value.isNotEmpty)
+                                          Container(
+                                            height: 150,
+                                            width: double.infinity,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[100],
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(color: Colors.grey[300]!),
+                                            ),
+                                            child: const Center(
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(
+                                                    Icons.image,
+                                                    size: 48,
+                                                    color: Colors.grey,
+                                                  ),
+                                                  SizedBox(height: 8),
+                                                  Text(
+                                                    'Belum ada gambar dipilih',
+                                                    style: TextStyle(color: Colors.grey),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          ElevatedButton.icon(
+                                            onPressed: controller.showImageSourceDialog,
+                                            icon: const Icon(Icons.attachment),
+                                            label: const Text('Lampiran'),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.blueGrey[50],
+                                              foregroundColor: Colors.blueGrey[700],
+                                              minimumSize: const Size(double.infinity, 45),
+                                            ),
+                                          ),
+                                        ],
+                                      )),
                                       const SizedBox(height: 16),
                                       SizedBox(
                                         width: double.infinity,
@@ -669,6 +753,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                                                     .statusController.text,
                                                 'description': controller
                                                     .descriptionController.text,
+                                                'image': controller.selectedImageBase64.value,
                                                 'date':
                                                     DateTime.now().toString(),
                                               };
@@ -683,6 +768,9 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                                                   '';
                                               controller.descriptionController
                                                   .clear();
+
+                                              controller.selectedImage.value = null;
+                                              controller.selectedImageBase64.value = '';
 
                                               Get.snackbar(
                                                 'Sukses',
@@ -903,8 +991,10 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                   .format(DateTime.parse(progressList[i].date)),
               description: progressList[i].description,
               isCompleted: true,
+              imageUrl: progressList[i].image,
               isLast: i == progressList.length - 1,
             ),
+          const SizedBox(height: 16),
         ],
       ),
     );
@@ -1020,6 +1110,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
     required String date,
     required String description,
     required bool isCompleted,
+    String? imageUrl,
     required bool isLast,
   }) {
     return Row(
@@ -1048,7 +1139,7 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
             if (!isLast)
               Container(
                 width: 2,
-                height: 60,
+                height: imageUrl != null && imageUrl.isNotEmpty ? 160 : 60, // Adjust height if image exists
                 color: isCompleted ? Colors.green : Colors.grey.shade300,
               ),
           ],
@@ -1094,6 +1185,64 @@ class DetailComplaintView extends GetView<ManageComplaintController> {
                     color: isCompleted ? Colors.black87 : Colors.grey.shade600,
                   ),
                 ),
+                if (imageUrl != null && imageUrl.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: Get.context!,
+                          builder: (BuildContext dialogContext) {
+                            final imageBytes = base64Decode(imageUrl.replaceAll(RegExp(r'\s+'), ''));
+                            return Dialog(
+                              child: InteractiveViewer(
+                                child: Image.memory(
+                                  imageBytes,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.error, color: Colors.red, size: 40),
+                                          const SizedBox(height: 8),
+                                          Text('Gagal memuat gambar', style: TextStyle(color: Colors.red.shade800)),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: Container(
+                        height: 120, // Increased height for image
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                          image: DecorationImage(
+                            image: MemoryImage(base64Decode(imageUrl.replaceAll(RegExp(r'\s+'), ''))),
+                            fit: BoxFit.cover,
+                            onError: (exception, stackTrace) => const Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 1,
+                              blurRadius: 5,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        // child: ClipRRect(
+                        //   borderRadius: BorderRadius.circular(12),
+                        // ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

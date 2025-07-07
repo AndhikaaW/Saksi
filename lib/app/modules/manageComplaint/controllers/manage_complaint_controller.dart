@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 // import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 // import 'package:get_storage/get_storage.dart';
 import 'package:saksi_app/app/data/models/Complaint.dart';
 // import 'package:awesome_notifications/awesome_notifications.dart';
@@ -21,6 +25,11 @@ class ManageComplaintController extends GetxController {
   final TextEditingController statusController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController alasanTolak = TextEditingController();
+
+  // Image picker
+  final ImagePicker _picker = ImagePicker();
+  final Rx<File?> selectedImage = Rx<File?>(null);
+  final RxString selectedImageBase64 = ''.obs;
 
   @override
   void onInit() {
@@ -142,8 +151,7 @@ class ManageComplaintController extends GetxController {
   }
 
   // Fungsi untuk menambahkan progress pengaduan
-  Future<void> addProgressToComplaint(
-      String complaintId, Map<String, dynamic> progressData) async {
+  Future<void> addProgressToComplaint(String complaintId, Map<String, dynamic> progressData) async {
     try {
       // Periksa apakah dokumen ada sebelum melakukan update
       final snapshot = await FirebaseFirestore.instance
@@ -307,4 +315,86 @@ class ManageComplaintController extends GetxController {
     }
   }
 
+  Future<void> pickImageFromGallery() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 80,
+      );
+
+      if (image != null) {
+        selectedImage.value = File(image.path);
+        await _convertImageToBase64(image);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Gagal mengambil gambar dari galeri: $e',
+          snackPosition: SnackPosition.TOP);
+    }
+  }
+
+  Future<void> pickImageFromCamera() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 80,
+      );
+
+      if (image != null) {
+        selectedImage.value = File(image.path);
+        await _convertImageToBase64(image);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Gagal mengambil gambar dari kamera: $e',
+          snackPosition: SnackPosition.TOP);
+    }
+  }
+
+  Future<void> _convertImageToBase64(XFile image) async {
+    try {
+      Uint8List imageBytes = await image.readAsBytes();
+      String base64String = base64Encode(imageBytes);
+      selectedImageBase64.value = base64String;
+    } catch (e) {
+      Get.snackbar('Error', 'Gagal mengkonversi gambar: $e',
+          snackPosition: SnackPosition.TOP);
+    }
+  }
+
+  void removeSelectedImage() {
+    selectedImage.value = null;
+    selectedImageBase64.value = '';
+  }
+
+  void showImageSourceDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Pilih Sumber Gambar'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Galeri'),
+              onTap: () {
+                Get.back();
+                pickImageFromGallery();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Kamera'),
+              onTap: () {
+                Get.back();
+                pickImageFromCamera();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

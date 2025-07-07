@@ -193,7 +193,7 @@ class BackupController extends GetxController {
       final usersData = usersSnapshot.docs.map((doc) => doc.data()).toList();
 
       // Backup admins
-      final adminsSnapshot = await _firestore.collection('admins').get();
+      final adminsSnapshot = await _firestore.collection('users').where('status', isEqualTo: 1).get();
       final adminsData = adminsSnapshot.docs.map((doc) => doc.data()).toList();
 
       // Backup complaints
@@ -307,36 +307,22 @@ class BackupController extends GetxController {
       if (backupDir == null) {
         throw Exception('Tidak dapat mengakses penyimpanan');
       }
-
       if (!await backupDir.exists()) {
         await backupDir.create(recursive: true);
       }
-
       final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
       final filePath = '${backupDir.path}/full_backup_$timestamp.xlsx';
-
-      // Buat objek Excel
       final excel = Excel.createExcel();
-
-      // Hapus sheet default
       excel.delete('Sheet1');
-
-      // Buat sheet untuk setiap koleksi
       collections.forEach((collectionName, data) {
         final sheet = excel[collectionName];
-
-        // Jika data tidak kosong, tambahkan header berdasarkan kunci dari data pertama
         if (data.isNotEmpty) {
           final headers = data.first.keys.toList();
-
-          // Tambahkan header
           for (var i = 0; i < headers.length; i++) {
             sheet
                 .cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 0))
                 .value = headers[i];
           }
-
-          // Tambahkan data
           for (var rowIndex = 0; rowIndex < data.length; rowIndex++) {
             final rowData = data[rowIndex];
             for (var colIndex = 0; colIndex < headers.length; colIndex++) {
@@ -352,7 +338,6 @@ class BackupController extends GetxController {
               } else if (value is Map || value is List) {
                 value = jsonEncode(value);
               }
-
               sheet
                   .cell(CellIndex.indexByColumnRow(
                       columnIndex: colIndex, rowIndex: rowIndex + 1))
@@ -361,23 +346,15 @@ class BackupController extends GetxController {
           }
         }
       });
-
-      // Tambahkan sheet info untuk metadata
       final infoSheet = excel['Info'];
-      infoSheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
-          .value = 'Backup Date';
-      infoSheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 0))
-          .value = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
-
+      infoSheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0)).value = 'Backup Date';
+      infoSheet.cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 0)).value = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
       // Simpan file Excel
       final fileBytes = excel.save();
       if (fileBytes != null) {
         File(filePath)
           ..createSync(recursive: true)
           ..writeAsBytesSync(fileBytes);
-        
         print('File backup lengkap disimpan di: $filePath');
         return filePath;
       } else {
@@ -385,39 +362,6 @@ class BackupController extends GetxController {
       }
     } catch (e) {
       throw Exception('Gagal menyimpan file backup Excel: $e');
-    }
-  }
-
-  // Fungsi untuk mengkonversi data menjadi format yang dapat di-encode
-  Map<String, dynamic> _makeEncodable(dynamic data) {
-    if (data is Map) {
-      return data.map((key, value) {
-        if (value is DateTime) {
-          return MapEntry(key.toString(), value.millisecondsSinceEpoch);
-        } else if (value is Timestamp) {
-          return MapEntry(key.toString(), value.millisecondsSinceEpoch);
-        } else if (value is Map || value is List) {
-          return MapEntry(key.toString(), _makeEncodable(value));
-        } else {
-          return MapEntry(key.toString(), value);
-        }
-      });
-    } else if (data is List) {
-      return {
-        'data': data.map((item) {
-          if (item is Map) {
-            return _makeEncodable(item);
-          } else if (item is DateTime) {
-            return item.millisecondsSinceEpoch;
-          } else if (item is Timestamp) {
-            return item.millisecondsSinceEpoch;
-          } else {
-            return item;
-          }
-        }).toList()
-      };
-    } else {
-      return {'data': data};
     }
   }
 }
