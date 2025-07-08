@@ -42,17 +42,17 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyD_OUNm4DbN25twKZ-w9QuiLLjJXQhyyTs',
-    appId: '1:1035941947717:web:90848d6c57a05b500e362c',
+    appId: '1:1035941947717:web:4d68e393927c683d0e362c',
     messagingSenderId: '1035941947717',
     projectId: 'saksi-182ac',
     authDomain: 'saksi-182ac.firebaseapp.com',
     storageBucket: 'saksi-182ac.firebasestorage.app',
-    measurementId: 'G-TBD9HFQMPX',
+    measurementId: 'G-EKSKEMXZ6H',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAzCDWvRpj28gkk1ynsnKt_PMWPjcLxkGw',
-    appId: '1:1035941947717:android:e63721eb002dfbca0e362c',
+    appId: '1:1035941947717:android:2bc30550847a656c0e362c',
     messagingSenderId: '1035941947717',
     projectId: 'saksi-182ac',
     storageBucket: 'saksi-182ac.firebasestorage.app',
@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1035941947717',
     projectId: 'saksi-182ac',
     storageBucket: 'saksi-182ac.firebasestorage.app',
-    androidClientId: '1035941947717-3bljosbsor1po160d9f385121do8t04j.apps.googleusercontent.com',
+    androidClientId: '1035941947717-1gbdr60lrq8ten0r8s8keioa4b71d2gs.apps.googleusercontent.com',
     iosClientId: '1035941947717-b16c8cqijrelv4bv1r7pcfv8udioa3jm.apps.googleusercontent.com',
     iosBundleId: 'com.example.saksiApp',
   );
@@ -75,7 +75,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1035941947717',
     projectId: 'saksi-182ac',
     storageBucket: 'saksi-182ac.firebasestorage.app',
-    androidClientId: '1035941947717-3bljosbsor1po160d9f385121do8t04j.apps.googleusercontent.com',
+    androidClientId: '1035941947717-1gbdr60lrq8ten0r8s8keioa4b71d2gs.apps.googleusercontent.com',
     iosClientId: '1035941947717-b16c8cqijrelv4bv1r7pcfv8udioa3jm.apps.googleusercontent.com',
     iosBundleId: 'com.example.saksiApp',
   );
@@ -89,4 +89,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'saksi-182ac.firebasestorage.app',
     measurementId: 'G-EKSKEMXZ6H',
   );
+
 }

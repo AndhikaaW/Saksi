@@ -404,7 +404,7 @@ class ComplaintView extends GetView<ComplaintController> {
             ),
             _buildLabeledField(
               label:
-                  'Cerita singkat peristiwa (Memuat waktu, tempat, dan peristiwa)',
+                  'Cerita singkat peristiwa (Memuat waktu, tempat, dan peristiwa)*',
               child: TextFormField(
                 controller: controller.ceritaSingkatPeristiwa,
                 maxLines: 5,
@@ -413,7 +413,7 @@ class ComplaintView extends GetView<ComplaintController> {
               ),
             ),
             _buildLabeledField(
-              label: 'Alasan Pengaduan',
+              label: 'Alasan Pengaduan*',
               child: DropdownButtonFormField<String>(
                 decoration: _inputDecoration('').copyWith(
                   filled: true,
@@ -463,7 +463,7 @@ class ComplaintView extends GetView<ComplaintController> {
               ),
             ),
             _buildLabeledField(
-              label: 'Identifikasi kebutuhan korban',
+              label: 'Identifikasi kebutuhan korban*',
               child: DropdownButtonFormField<String>(
                 decoration: _inputDecoration('').copyWith(
                   filled: true,
@@ -599,7 +599,7 @@ class ComplaintView extends GetView<ComplaintController> {
               ),
             ),
             _buildLabeledField(
-              label: 'Upload KTP',
+              label: 'Upload KTP / KTM',
               child: Obx(() => controller.ktpImage.value != null
                   ? GestureDetector(
                       onTap: () {

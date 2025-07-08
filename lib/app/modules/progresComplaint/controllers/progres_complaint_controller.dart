@@ -79,13 +79,10 @@ class ProgresComplaintController extends GetxController {
             .map(
                 (doc) => Complaint.fromJson(doc.data() as Map<String, dynamic>))
             .toList();
-
         userComplaints.value = complaints;
-
         if (complaints.isNotEmpty) {
           final complaint = complaints.first;
           debugInfo.value = 'Status: ${complaint.statusPengaduan}';
-
           // Simpan gambar base64 dari complaint dengan error handling yang lebih baik
           try {
             if (complaint.lampiranKtp != null && complaint.lampiranKtp.isNotEmpty) {
@@ -106,7 +103,6 @@ class ProgresComplaintController extends GetxController {
             ktpImageBase64.value = '';
             print('Error saat memuat gambar KTP: $e');
           }
-
           try {
             if (complaint.lampiranBukti != null && complaint.lampiranBukti.isNotEmpty) {
               // Bersihkan string base64 dari karakter yang tidak valid

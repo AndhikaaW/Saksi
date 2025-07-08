@@ -241,23 +241,13 @@ class ComplaintController extends GetxController {
   Future<void> submitForm() async {
     generateComplaintId();
     await Future.delayed(Duration(seconds: 1));
-
     try {
       isLoading.value = true;
-
       String ktpImageBase64 = '';
-      // String buktiImageBase64 = '';
-
       if (ktpImage.value != null) {
         List<int> imageBytes = await ktpImage.value!.readAsBytes();
         ktpImageBase64 = base64Encode(imageBytes);
       }
-
-      // if (buktiImage.value != null) {
-      //   List<int> imageBytes = await buktiImage.value!.readAsBytes();
-      //   buktiImageBase64 = base64Encode(imageBytes);
-      // }
-
       await databaseService.createComplaint(
           complaintId: complaintId,
           uid: uid.toString(),
@@ -278,7 +268,6 @@ class ComplaintController extends GetxController {
           statusTerlapor: statusTerlapor.text,
           jenisKelaminTerlapor: genderTerlapor.text,
           ktpImageUrl: ktpImageBase64,
-          // buktiImageUrl: buktiImageBase64);
           buktiImageUrl: buktiImageUrl.value
           );
       // Tampilkan notifikasi
@@ -291,11 +280,8 @@ class ComplaintController extends GetxController {
           notificationLayout: NotificationLayout.Default,
         ),
       );
-
       resetForm();
-
       await Future.delayed(Duration(seconds: 1));
-
       Get.offAllNamed('/dashboard-user');
       Get.lazyPut(() => DashboardUserController());
       Get.find<DashboardUserController>().changeTab(1);

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -78,29 +80,55 @@ class NewsView extends GetView<NewsController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (newsItem.imageUrl.isNotEmpty)
+                                if (newsItem.imageUrl.isNotEmpty || newsItem.imageNews.isNotEmpty)
                                 ClipRRect(
                                   borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(12),
-                                    topRight: Radius.circular(12),
+                                  topLeft: Radius.circular(12),
+                                  topRight: Radius.circular(12),
                                   ),
-                                  child: Image.network(
-                                    newsItem.imageUrl,
-                                    height: 150,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
+                                  child: newsItem.imageUrl.isNotEmpty
+                                    ? Image.network(
+                                      newsItem.imageUrl,
+                                      height: 150,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                      return Image.memory(
+                                        Base64Decoder().convert(newsItem.imageNews),
+                                        height: 150,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                        return Container(
+                                          height: 150,
+                                          width: double.infinity,
+                                          color: Colors.grey[200],
+                                          child: const Icon(
+                                            Icons.image_not_supported,
+                                            size: 50,
+                                            color: Colors.grey),
+                                        );
+                                        },
+                                      );
+                                      },
+                                    )
+                                    : Image.memory(
+                                      Base64Decoder().convert(newsItem.imageNews),
+                                      height: 150,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
                                       return Container(
                                         height: 150,
                                         width: double.infinity,
                                         color: Colors.grey[200],
                                         child: const Icon(
-                                            Icons.image_not_supported,
-                                            size: 50,
-                                            color: Colors.grey),
+                                          Icons.image_not_supported,
+                                          size: 50,
+                                          color: Colors.grey),
                                       );
-                                    },
-                                  ),
+                                      },
+                                    ),
                                 ),
                               Padding(
                                 padding: const EdgeInsets.all(16.0),
@@ -184,7 +212,7 @@ class NewsView extends GetView<NewsController> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => Get.to(() => const AddNewsView()),
         backgroundColor: Colors.blueGrey,
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -194,6 +222,7 @@ class NewsView extends GetView<NewsController> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: const Text('Konfirmasi Hapus'),
           content: const Text('Apakah Anda yakin ingin menghapus berita ini?'),
           actions: [

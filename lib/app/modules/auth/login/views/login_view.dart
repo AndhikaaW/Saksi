@@ -18,7 +18,7 @@ class LoginView extends GetView<LoginController> {
               children: [
                 // const SizedBox(height: 20),
                 Image.asset(
-                      'assets/logo1.png',
+                      'assets/logo.png',
                       height: 180,
                     ),
                 // Row(

@@ -5,6 +5,7 @@ class NewsModel {
   final String title;
   final String description;
   final String imageUrl;
+  final String imageNews;
   final String newsUrl;
   final DateTime publishedAt;
   final bool isActive;
@@ -14,6 +15,7 @@ class NewsModel {
     required this.title,
     required this.description,
     required this.imageUrl,
+    required this.imageNews,
     required this.newsUrl,
     required this.publishedAt,
     this.isActive = true,
@@ -25,6 +27,7 @@ class NewsModel {
       title: json['title'] ?? '',
       description: json['description'] ?? '',
       imageUrl: json['imageUrl'] ?? '',
+      imageNews: json['imageNews'] ?? '',
       newsUrl: json['newsUrl'] ?? '',
       publishedAt: json['publishedAt'] != null
           ? (json['publishedAt'] is DateTime

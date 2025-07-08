@@ -126,11 +126,13 @@ class ProgressItem {
   final String title;
   final String description;
   final String date;
+  final String image;
 
   ProgressItem({
     required this.title,
     required this.description,
     required this.date,
+    required this.image,
   });
 
   factory ProgressItem.fromJson(Map<String, dynamic> json) {
@@ -146,6 +148,7 @@ class ProgressItem {
       title: json['title'] ?? '',
       description: json['description'] ?? '',
       date: dateValue,
+      image: json['image'] ?? '',
     );
   }
 
@@ -154,6 +157,7 @@ class ProgressItem {
       'title': title,
       'description': description,
       'date': date,
+      'image': image,
     };
   }
 }

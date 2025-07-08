@@ -191,24 +191,18 @@ class ChatController extends GetxController {
     }
   }
 
-  Future<void> createChatRoom(
-      String adminName, String adminEmail, String? photoUrl) async {
+  Future<void> createChatRoom(String adminName, String adminEmail, String? photoUrl) async {
     try {
       String? email = storage.read('email');
       int? status = storage.read('userStatus');
-
       if (email == null || status != 2) {
         throw Exception("User not logged in or not authorized");
       }
-
       String username = await getUsernameFromEmail(email);
       String roomId = generateChatRoomId(email, adminEmail);
-
       DocumentReference chatRoomRef =
           FirebaseFirestore.instance.collection("chatRooms").doc(roomId);
-
       DocumentSnapshot chatRoomSnapshot = await chatRoomRef.get();
-
       if (!chatRoomSnapshot.exists) {
         await chatRoomRef.set({
           "roomId": roomId,
@@ -218,7 +212,6 @@ class ChatController extends GetxController {
           "lastUpdated": FieldValue.serverTimestamp(),
         });
       }
-
       currentRoomId = roomId;
       currentAdminName = adminName;
       currentPhotoUrl = photoUrl;

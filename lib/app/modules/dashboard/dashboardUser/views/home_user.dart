@@ -998,31 +998,53 @@ class HomeTabViewUser extends GetView<DashboardUserController> {
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16)),
-                child: newsItem.imageUrl.isNotEmpty
-                    ? Image.network(
-                        newsItem.imageUrl,
-                        height: 100,
-                        width: 180,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            height: 100,
-                            width: 180,
-                            color: Colors.grey[200],
-                            child: const Icon(Icons.image_not_supported,
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
+                ),
+                child: newsItem.imageUrl.isNotEmpty ||
+                        newsItem.imageNews.isEmpty
+                  ? Image.network(
+                      newsItem.imageUrl,
+                      height: 100,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.memory(
+                          Base64Decoder().convert(newsItem.imageNews),
+                          height: 100,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              height: 100,
+                              width: double.infinity,
+                              color: Colors.grey[200],
+                              child: const Icon(
+                                Icons.image_not_supported,
+                                size: 50,
                                 color: Colors.grey),
-                          );
-                        },
-                      )
-                    : Container(
-                        height: 100,
-                        width: 180,
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.newspaper,
-                            size: 40, color: Colors.grey),
-                      ),
+                            );
+                          },
+                        );
+                      },
+                    )
+                  : Image.memory(
+                      Base64Decoder().convert(newsItem.imageNews),
+                      height: 100,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 100,
+                          width: double.infinity,
+                          color: Colors.grey[200],
+                          child: const Icon(
+                            Icons.image_not_supported,
+                            size: 50,
+                            color: Colors.grey),
+                        );
+                      },
+                    ),
               ),
               Padding(
                 padding: const EdgeInsets.all(12.0),
