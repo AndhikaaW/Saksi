@@ -38,11 +38,8 @@ dependencies:
   get: ^4.7.2
 #  firebase
   firebase_core: ^2.25.4
-
   cloud_firestore: ^4.15.9
-
   firebase_auth: ^4.17.9
-
   #  google auth
   google_sign_in: ^6.1.6
 #  cookies
